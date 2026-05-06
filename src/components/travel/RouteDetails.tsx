@@ -68,7 +68,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
           />
         </div>
 
-        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
               Journey Breakdown
