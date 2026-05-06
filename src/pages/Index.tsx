@@ -114,6 +114,7 @@ const Index = () => {
           onClose={() => setSelectedRoute(null)} 
           searchedSource={searchParams.source}
           searchedDest={searchParams.dest}
+          searchedDate={searchParams.date}
         />
       </main>
     </div>

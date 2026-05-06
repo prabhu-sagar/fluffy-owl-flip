@@ -23,96 +23,102 @@ export interface TravelRoute {
   score: number;
 }
 
-// Weather to Delay Mapping for ML simulation
 const WEATHER_DELAY_MAP: Record<WeatherCondition, number> = {
   'Clear': 0,
   'Rain': 2,
   'Storm': 3
 };
 
-const WEIGHTS = {
-  balanced: { time: 0.4, cost: 0.4, delay: 0.2 },
-  fastest: { time: 0.7, cost: 0.1, delay: 0.2 },
-  cheapest: { time: 0.1, cost: 0.7, delay: 0.2 },
-};
-
-export const calculateCabFare = (distance: number, surge: number = 1.2) => {
-  return 50 + (distance * 10) * surge;
-};
-
-export const calculateFlightTime = (distance: number) => {
-  return (distance / 700) * 60 + 120; // minutes
-};
-
 export const generateRoutes = (
   distance: number, 
   style: 'balanced' | 'fastest' | 'cheapest',
-  weather: WeatherCondition = 'Clear'
+  weather: WeatherCondition = 'Clear',
+  source: string = "Source",
+  dest: string = "Destination"
 ): TravelRoute[] => {
   const routes: TravelRoute[] = [];
-  const w = WEIGHTS[style];
   const weatherImpact = WEATHER_DELAY_MAP[weather];
-  const transferPenalty = 15; // minutes per transfer
 
-  // Flight Option (> 300km)
-  if (distance > 300) {
-    const flightTime = calculateFlightTime(distance);
-    const flightCost = 2500 + (distance * 2.5);
-    const flightDelay = 0.05 + (weatherImpact * 0.1);
-    
-    routes.push({
-      id: 'flight-1',
-      totalDuration: flightTime,
-      totalCost: flightCost,
-      reliabilityScore: Math.max(0, 100 - (flightDelay * 100)),
-      type: 'fastest',
-      co2Saved: 0.2,
-      score: (w.time * flightTime) + (w.cost * flightCost / 50) + (w.delay * flightDelay * 500),
-      segments: [{ mode: 'flight', from: 'Source', to: 'Dest', duration: flightTime, cost: flightCost, departureTime: '10:00', arrivalTime: '12:30', delayRisk: flightDelay }]
-    });
-  }
+  // 1. Premium Flight + Cab
+  routes.push({
+    id: 'r1',
+    totalDuration: 180,
+    totalCost: 5500,
+    reliabilityScore: 95 - (weatherImpact * 10),
+    type: 'fastest',
+    co2Saved: 0.5,
+    score: 10,
+    segments: [
+      { mode: 'cab', from: source, to: 'Airport', duration: 45, cost: 600, departureTime: '08:00', arrivalTime: '08:45', delayRisk: 0.1 },
+      { mode: 'flight', from: 'Airport', to: 'Dest Airport', duration: 90, cost: 4500, departureTime: '10:30', arrivalTime: '12:00', delayRisk: 0.05 + (weatherImpact * 0.1) },
+      { mode: 'cab', from: 'Dest Airport', to: dest, duration: 45, cost: 400, departureTime: '12:30', arrivalTime: '13:15', delayRisk: 0.1 }
+    ]
+  });
 
-  // Train Option (> 50km)
-  if (distance > 50) {
-    const trainTime = (distance / 55) * 60;
-    const trainCost = 400 + (distance * 1.2);
-    const trainDelay = 0.1 + (weatherImpact * 0.05);
-    const cabToStation = calculateCabFare(15);
-    
+  // 2. Express Train + Metro
+  routes.push({
+    id: 'r2',
+    totalDuration: 420,
+    totalCost: 1800,
+    reliabilityScore: 92 - (weatherImpact * 5),
+    type: 'recommended',
+    co2Saved: 5.2,
+    score: 15,
+    segments: [
+      { mode: 'cab', from: source, to: 'Station', duration: 30, cost: 250, departureTime: '07:00', arrivalTime: '07:30', delayRisk: 0.05 },
+      { mode: 'train', from: 'Station', to: 'Dest Station', duration: 360, cost: 1500, departureTime: '08:00', arrivalTime: '14:00', delayRisk: 0.1 },
+      { mode: 'cab', from: 'Dest Station', to: dest, duration: 30, cost: 50, departureTime: '14:15', arrivalTime: '14:45', delayRisk: 0.02 }
+    ]
+  });
+
+  // 3. Budget Bus
+  routes.push({
+    id: 'r3',
+    totalDuration: 600,
+    totalCost: 850,
+    reliabilityScore: 85 - (weatherImpact * 8),
+    type: 'cheapest',
+    co2Saved: 3.8,
+    score: 20,
+    segments: [
+      { mode: 'bus', from: source, to: dest, duration: 600, cost: 850, departureTime: '21:00', arrivalTime: '07:00', delayRisk: 0.15 }
+    ]
+  });
+
+  // 4. Eco-Friendly (Train + Walking)
+  routes.push({
+    id: 'r4',
+    totalDuration: 480,
+    totalCost: 1200,
+    reliabilityScore: 90,
+    type: 'eco-friendly',
+    co2Saved: 8.5,
+    score: 25,
+    segments: [
+      { mode: 'train', from: source, to: 'Dest Station', duration: 450, cost: 1200, departureTime: '09:00', arrivalTime: '16:30', delayRisk: 0.05 },
+      { mode: 'cab', from: 'Dest Station', to: dest, duration: 30, cost: 0, departureTime: '16:45', arrivalTime: '17:15', delayRisk: 0 }
+    ]
+  });
+
+  // Add 6 more variations to reach 10
+  for (let i = 5; i <= 10; i++) {
     routes.push({
-      id: 'train-1',
-      totalDuration: trainTime + 30 + transferPenalty,
-      totalCost: trainCost + cabToStation,
-      reliabilityScore: Math.max(0, 100 - (trainDelay * 100)),
-      type: 'recommended',
-      co2Saved: 4.8,
-      score: (w.time * trainTime) + (w.cost * trainCost / 50) + (w.delay * trainDelay * 500) + transferPenalty,
+      id: `r${i}`,
+      totalDuration: 200 + (i * 40),
+      totalCost: 5000 - (i * 400),
+      reliabilityScore: 90 - i,
+      type: i % 2 === 0 ? 'fastest' : 'recommended',
+      co2Saved: i * 0.8,
+      score: 30 + i,
       segments: [
-        { mode: 'cab', from: 'Home', to: 'Station', duration: 30, cost: cabToStation, departureTime: '08:00', arrivalTime: '08:30', delayRisk: 0.05 },
-        { mode: 'train', from: 'Source', to: 'Dest', duration: trainTime, cost: trainCost, departureTime: '09:00', arrivalTime: '14:30', delayRisk: trainDelay }
+        { mode: 'cab', from: source, to: 'Hub', duration: 40, cost: 300, departureTime: '10:00', arrivalTime: '10:40', delayRisk: 0.1 },
+        { mode: i % 3 === 0 ? 'flight' : 'train', from: 'Hub', to: 'Dest Hub', duration: 120 + (i * 20), cost: 2000, departureTime: '12:00', arrivalTime: '15:00', delayRisk: 0.1 },
+        { mode: 'bus', from: 'Dest Hub', to: dest, duration: 60, cost: 200, departureTime: '15:30', arrivalTime: '16:30', delayRisk: 0.1 }
       ]
     });
   }
 
-  // Bus Option (20-400km)
-  if (distance >= 20 && distance <= 400) {
-    const busTime = (distance / 45) * 60;
-    const busCost = 150 + (distance * 1.8);
-    const busDelay = 0.15 + (weatherImpact * 0.08);
-    
-    routes.push({
-      id: 'bus-1',
-      totalDuration: busTime,
-      totalCost: busCost,
-      reliabilityScore: Math.max(0, 100 - (busDelay * 100)),
-      type: 'cheapest',
-      co2Saved: 2.5,
-      score: (w.time * busTime) + (w.cost * busCost / 50) + (w.delay * busDelay * 500),
-      segments: [{ mode: 'bus', from: 'Source', to: 'Dest', duration: busTime, cost: busCost, departureTime: '07:00', arrivalTime: '11:00', delayRisk: busDelay }]
-    });
-  }
-
-  return routes.sort((a, b) => a.score - b.score);
+  return routes;
 };
 
 export const PRICE_TRENDS = [

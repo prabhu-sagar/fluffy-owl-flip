@@ -10,7 +10,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2, CreditCard } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2, CreditCard, CalendarX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
@@ -21,19 +21,23 @@ interface RouteDetailsProps {
   onClose: () => void;
   searchedSource?: string;
   searchedDest?: string;
+  searchedDate?: string;
 }
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
     case 'flight': return <Plane className="w-5 h-5" />;
     case 'train': return <Train className="w-5 h-5" />;
-    case 'bus': return <Bus className="w-5 h-5" />;case 'cab': return <Car className="w-5 h-5" />;
+    case 'bus': return <Bus className="w-5 h-5" />;
+    case 'cab': return <Car className="w-5 h-5" />;
     default: return <MapPin className="w-5 h-5" />;
   }
 };
 
-const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: RouteDetailsProps) => {
+const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, searchedDate }: RouteDetailsProps) => {
   if (!route) return null;
+
+  const isPastDate = searchedDate ? new Date(searchedDate) < new Date(new Date().setHours(0,0,0,0)) : false;
 
   const handleBook = () => {
     const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
@@ -41,7 +45,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: 
       id: Date.now().toString(),
       destination: searchedDest || route.segments[route.segments.length - 1].to,
       source: searchedSource || route.segments[0].from,
-      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+      date: searchedDate || new Date().toISOString().split('T')[0],
       status: 'Upcoming',
       mode: route.segments[0].mode.charAt(0).toUpperCase() + route.segments[0].mode.slice(1),
       cost: `₹${route.totalCost.toLocaleString()}`,
@@ -49,8 +53,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: 
     };
     
     localStorage.setItem('bookedTrips', JSON.stringify([newTrip, ...existingTrips]));
-    
-    showSuccess("Trip booked successfully! Check 'My Trips' for details.");
+    showSuccess("Trip booked successfully!");
     onClose();
   };
 
@@ -112,26 +115,6 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: 
                         <p className="text-[10px] text-slate-500">{segment.duration} mins</p>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4 pt-3 border-t border-white/10">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3 h-3 text-slate-500" />
-                        <span className="text-xs font-medium">{segment.departureTime} - {segment.arrivalTime}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {segment.delayRisk > 0.2 ? (
-                          <>
-                            <AlertTriangle className="w-3 h-3 text-amber-400" />
-                            <span className="text-xs font-medium text-amber-400">High Delay Risk</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                            <span className="text-xs font-medium text-emerald-400">On Time</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -142,9 +125,16 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: 
             <Button variant="ghost" onClick={onClose} className="rounded-xl text-slate-400 hover:text-white hover:bg-white/5">
               Close
             </Button>
-            <Button onClick={handleBook} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
-              <CreditCard className="w-4 h-4" /> Book This Route
-            </Button>
+            {isPastDate ? (
+              <div className="flex items-center gap-2 text-amber-400 bg-amber-400/10 px-4 py-2 rounded-xl border border-amber-400/20">
+                <CalendarX className="w-4 h-4" />
+                <span className="text-xs font-bold">Cannot book past dates</span>
+              </div>
+            ) : (
+              <Button onClick={handleBook} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
+                <CreditCard className="w-4 h-4" /> Book This Route
+              </Button>
+            )}
           </DialogFooter>
         </div>
       </DialogContent>
