@@ -9,19 +9,42 @@ import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
 import AIInsights from '@/components/travel/AIInsights';
 import { WeatherWidget, PricePrediction, CO2Comparison } from '@/components/travel/TravelWidgets';
-import { generateRoutes } from '@/lib/mock-data';
+import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
+import { fetchTravelPlan } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Settings, ChevronRight, Zap, Shield, Wallet, MapPin } from 'lucide-react';
+import { Settings, ChevronRight, Zap, Shield, Wallet, Cloud, Sun, CloudLightning } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { showSuccess, showError } from '@/utils/toast';
 
 const Index = () => {
   const [travelStyle, setTravelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
   const [distance, setDistance] = React.useState([600]);
-  
-  const routes = React.useMemo(() => {
-    return generateRoutes(distance[0], travelStyle);
-  }, [distance, travelStyle]);
+  const [weather, setWeather] = React.useState<WeatherCondition>('Clear');
+  const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const loadRoutes = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchTravelPlan({
+        source: 'Hyderabad',
+        destination: 'Bangalore',
+        distance: distance[0],
+        style: travelStyle,
+        weather: weather
+      });
+      setRoutes(data);
+    } catch (err) {
+      showError("Failed to fetch travel plans");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [distance, travelStyle, weather]);
+
+  React.useEffect(() => {
+    loadRoutes();
+  }, [loadRoutes]);
 
   return (
     <div className="min-h-screen bg-[#0a0b14] text-white flex">
@@ -31,7 +54,6 @@ const Index = () => {
         <DashboardHeader />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Left Column: Main Workspace */}
           <div className="xl:col-span-8 space-y-8">
             <SearchForm />
 
@@ -44,19 +66,20 @@ const Index = () => {
                       {distance[0]} km
                     </span>
                   </div>
-                  <div className="flex gap-2">
-                    {['All', 'Train', 'Flight'].map((mode) => (
-                      <Button key={mode} variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
-                        {mode}
-                      </Button>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="space-y-4">
-                  {routes.map((route, idx) => (
-                    <RouteCard key={route.id} route={route} index={idx} />
-                  ))}
+                  {isLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2].map(i => (
+                        <div key={i} className="h-48 glass-card rounded-[2rem] animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (
+                    routes.map((route, idx) => (
+                      <RouteCard key={route.id} route={route} index={idx} />
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -73,20 +96,19 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Column: AI & Profile */}
           <div className="xl:col-span-4 space-y-8">
             <AIAssistant />
             
             <div className="glass-card p-6 rounded-[2rem] space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold">Travel Preferences</h3>
+                <h3 className="font-bold">Simulation Controls</h3>
                 <Button variant="ghost" size="icon" className="rounded-full text-slate-400">
                   <Settings className="w-4 h-4" />
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Simulate Distance</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Distance (km)</p>
                 <Slider 
                   value={distance} 
                   onValueChange={setDistance} 
@@ -96,41 +118,54 @@ const Index = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 'fastest', icon: Zap, label: 'Fastest' },
-                  { id: 'balanced', icon: Shield, label: 'Balanced' },
-                  { id: 'cheapest', icon: Wallet, label: 'Cheapest' },
-                ].map((style) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setTravelStyle(style.id as any)}
-                    className={cn(
-                      "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
-                      travelStyle === style.id 
-                        ? "bg-primary/20 border-primary text-primary" 
-                        : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
-                    )}
-                  >
-                    <style.icon className="w-4 h-4" />
-                    <span className="text-[10px] font-bold uppercase">{style.label}</span>
-                  </button>
-                ))}
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Weather Condition</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'Clear', icon: Sun, label: 'Clear' },
+                    { id: 'Rain', icon: Cloud, label: 'Rain' },
+                    { id: 'Storm', icon: CloudLightning, label: 'Storm' },
+                  ].map((w) => (
+                    <button
+                      key={w.id}
+                      onClick={() => setWeather(w.id as WeatherCondition)}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
+                        weather === w.id 
+                          ? "bg-blue-500/20 border-blue-500 text-blue-400" 
+                          : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                      )}
+                    >
+                      <w.icon className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase">{w.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-[#2d2f45]">
-                {[
-                  { label: 'Preferred Modes', value: 'Train, Bus' },
-                  { label: 'Seat Preference', value: 'Window Seat' },
-                  { label: 'Budget Range', value: '₹500 - ₹2,000' },
-                ].map((pref, i) => (
-                  <div key={i} className="flex items-center justify-between py-2">
-                    <span className="text-xs text-slate-400 font-medium">{pref.label}</span>
-                    <span className="text-xs font-bold flex items-center gap-1">
-                      {pref.value} <ChevronRight className="w-3 h-3 text-slate-600" />
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Travel Style</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'fastest', icon: Zap, label: 'Fastest' },
+                    { id: 'balanced', icon: Shield, label: 'Balanced' },
+                    { id: 'cheapest', icon: Wallet, label: 'Cheapest' },
+                  ].map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => setTravelStyle(style.id as any)}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
+                        travelStyle === style.id 
+                          ? "bg-primary/20 border-primary text-primary" 
+                          : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                      )}
+                    >
+                      <style.icon className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase">{style.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
