@@ -3,7 +3,6 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import InteractiveMap from '@/components/travel/InteractiveMap';
 import RouteCard from '@/components/travel/RouteCard';
 import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
@@ -59,10 +58,11 @@ const Index = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Main Content Area (8/12) */}
-          <div className="xl:col-span-8 flex flex-col gap-10">
+          <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            {/* Main Content Grid */}
+            <div className="flex flex-col gap-8">
               {/* Recommended Routes Section */}
               <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between px-2">
@@ -72,11 +72,11 @@ const Index = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {isLoading ? (
-                    <div className="flex flex-col gap-6">
+                    <div className="grid grid-cols-1 gap-6">
                       {[1, 2].map(i => (
-                        <div key={i} className="h-64 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
+                        <div key={i} className="h-48 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
                       ))}
                     </div>
                   ) : (
@@ -92,17 +92,12 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Map and Insights Section */}
-              <div className="flex flex-col gap-10">
-                <InteractiveMap source={cities.source} destination={cities.dest} />
+              {/* Insights and Widgets Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <AIInsights />
+                <WeatherWidget />
+                <PricePrediction />
               </div>
-            </div>
-
-            {/* Bottom Widgets Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <WeatherWidget />
-              <PricePrediction />
             </div>
           </div>
 
