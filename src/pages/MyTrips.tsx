@@ -10,7 +10,7 @@ import RouteDetails from '@/components/travel/RouteDetails';
 import { TravelRoute } from '@/lib/mock-data';
 
 const MyTrips = () => {
-  const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  const [selectedTrip, setSelectedTrip] = React.useState<any | null>(null);
   const [trips, setTrips] = React.useState<any[]>([]);
 
   React.useEffect(() => {
@@ -64,7 +64,7 @@ const MyTrips = () => {
             >
               <Card 
                 className="p-6 bg-white border-slate-200 hover:border-primary/30 transition-all group cursor-pointer shadow-sm rounded-3xl"
-                onClick={() => setSelectedRoute(trip.fullRoute)}
+                onClick={() => setSelectedTrip(trip)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6">
@@ -101,9 +101,11 @@ const MyTrips = () => {
         </div>
 
         <RouteDetails 
-          route={selectedRoute} 
-          isOpen={!!selectedRoute} 
-          onClose={() => setSelectedRoute(null)} 
+          route={selectedTrip?.fullRoute || null} 
+          isOpen={!!selectedTrip} 
+          onClose={() => setSelectedTrip(null)} 
+          searchedSource={selectedTrip?.source}
+          searchedDest={selectedTrip?.destination}
         />
       </main>
     </div>

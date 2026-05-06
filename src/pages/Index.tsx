@@ -112,6 +112,8 @@ const Index = () => {
           route={selectedRoute} 
           isOpen={!!selectedRoute} 
           onClose={() => setSelectedRoute(null)} 
+          searchedSource={searchParams.source}
+          searchedDest={searchParams.dest}
         />
       </main>
     </div>
