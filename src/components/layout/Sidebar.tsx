@@ -33,15 +33,15 @@ const Sidebar = () => {
   ];
 
   const handleNavigation = (path: string, label: string) => {
-    if (path.startsWith('/') && !['/settings'].includes(path)) {
-      navigate(path);
-    } else {
-      showSuccess(`${label} feature coming soon!`);
+    if (path === '/settings') {
+      showSuccess("Settings feature coming soon!");
+      return;
     }
+    navigate(path);
   };
 
   return (
-    <aside className="w-20 lg:w-64 h-screen fixed left-0 top-0 bg-white border-r border-slate-200 flex flex-col py-8 z-50">
+    <aside className="w-20 lg:w-64 h-screen fixed left-0 top-0 bg-white border-r border-slate-200 flex flex-col py-8 z-50 shadow-sm">
       <div className="px-6 mb-10 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
         <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
           <Plane className="text-white w-6 h-6" />

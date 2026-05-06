@@ -12,7 +12,6 @@ import RouteDetails from '@/components/travel/RouteDetails';
 import { WeatherWidget, PricePrediction } from '@/components/travel/TravelWidgets';
 import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
-import { cn } from '@/lib/utils';
 import { showError, showSuccess } from '@/utils/toast';
 
 const Index = () => {
@@ -45,25 +44,26 @@ const Index = () => {
   const handleSearch = (source: string, dest: string) => {
     setCities({ source, dest });
     showSuccess(`Searching routes from ${source} to ${dest}`);
+    // The useEffect will trigger loadRoutes when cities state changes
   };
 
   React.useEffect(() => {
     loadRoutes();
-  }, [loadRoutes]);
+  }, [cities, loadRoutes]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex overflow-x-hidden">
       <Sidebar />
       
-      <main className="flex-1 ml-20 lg:ml-64 p-8">
+      <main className="flex-1 ml-20 lg:ml-64 p-4 lg:p-8 transition-all duration-300">
         <DashboardHeader />
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           {/* Left Column: Search and Main Content */}
           <div className="xl:col-span-8 space-y-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* Recommended Routes Section */}
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ const Index = () => {
           </div>
 
           {/* Right Column: AI Assistant */}
-          <div className="xl:col-span-4">
+          <div className="xl:col-span-4 h-full">
             <div className="sticky top-8">
               <AIAssistant weather={weather} distance={distance[0]} />
             </div>

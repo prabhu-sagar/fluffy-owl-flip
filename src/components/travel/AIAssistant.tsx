@@ -22,17 +22,25 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
     { role: 'ai', content: `Welcome back! I've analyzed your ${distance}km trip. Conditions are ${weather.toLowerCase()}, making it a great day for travel.` }
   ]);
   const [isTyping, setIsTyping] = React.useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   const handleSend = async (text: string = input) => {
-    if (!text.trim()) return;
+    const messageText = text.trim();
+    if (!messageText) return;
     
-    const userMsg = { role: 'user', content: text };
+    const userMsg = { role: 'user', content: messageText };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
 
     try {
-      const response = await processChatQuery(text);
+      const response = await processChatQuery(messageText);
       setMessages(prev => [...prev, { role: 'ai', content: response }]);
     } catch (err) {
       showError("AI is currently unavailable");
@@ -63,8 +71,8 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
   };
 
   return (
-    <div className="glass-card rounded-[2rem] flex flex-col h-[500px] overflow-hidden border-slate-200 shadow-sm">
-      <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+    <div className="glass-card rounded-[2rem] flex flex-col h-[600px] overflow-hidden border-slate-200 shadow-sm bg-white">
+      <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2 rounded-xl">
             <Sparkles className="text-primary w-5 h-5" />
@@ -77,12 +85,15 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
             </div>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="rounded-full text-slate-400">
+        <Button variant="ghost" size="icon" className="rounded-full text-slate-400 hover:bg-slate-50">
           <Volume2 className="w-5 h-5" />
         </Button>
       </div>
 
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto bg-slate-50/50">
+      <div 
+        ref={scrollRef}
+        className="flex-1 p-6 space-y-6 overflow-y-auto bg-slate-50/50 scroll-smooth"
+      >
         {messages.map((msg, i) => (
           <motion.div 
             key={i}
@@ -119,7 +130,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
         )}
       </div>
 
-      <div className="p-6 bg-white border-t border-slate-100">
+      <div className="p-6 bg-white border-t border-slate-100 shrink-0">
         {isListening ? (
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="flex items-center gap-1.5 h-12">
