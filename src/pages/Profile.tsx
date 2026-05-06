@@ -5,7 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Shield, Bell, CreditCard, LogOut } from 'lucide-react';
+import { User, Mail, Shield, Bell, CreditCard, LogOut, Phone } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -71,6 +71,13 @@ const Profile = () => {
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
                     <Input defaultValue="rohit.v@example.com" className="bg-slate-50 border-slate-200 rounded-xl" />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase">Phone Number</label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input defaultValue="+91 98765 43210" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                    </div>
                   </div>
                 </div>
 

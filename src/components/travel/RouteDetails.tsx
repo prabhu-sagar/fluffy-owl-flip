@@ -35,6 +35,21 @@ const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
   if (!route) return null;
 
   const handleBook = () => {
+    // Persist to local storage for "My Trips" page
+    const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
+    const newTrip = {
+      id: Date.now().toString(),
+      destination: route.segments[route.segments.length - 1].to,
+      source: route.segments[0].from,
+      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+      status: 'Upcoming',
+      mode: route.segments[0].mode.charAt(0).toUpperCase() + route.segments[0].mode.slice(1),
+      cost: `₹${route.totalCost.toLocaleString()}`,
+      fullRoute: route
+    };
+    
+    localStorage.setItem('bookedTrips', JSON.stringify([newTrip, ...existingTrips]));
+    
     showSuccess("Trip booked successfully! Check 'My Trips' for details.");
     onClose();
   };

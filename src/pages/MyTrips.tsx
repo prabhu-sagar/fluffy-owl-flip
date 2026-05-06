@@ -11,71 +11,38 @@ import { TravelRoute } from '@/lib/mock-data';
 
 const MyTrips = () => {
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  const [trips, setTrips] = React.useState<any[]>([]);
 
-  // Mocking full route data for the details view
-  const trips = [
-    {
-      id: '1',
-      destination: 'Bangalore',
-      source: 'Hyderabad',
-      date: '15 May 2025',
-      status: 'Upcoming',
-      mode: 'Train',
-      cost: '₹1,250',
-      fullRoute: {
-        id: '1',
-        totalDuration: 630,
-        totalCost: 1250,
-        reliabilityScore: 92,
-        type: 'recommended',
-        co2Saved: 4.8,
-        segments: [
-          { mode: 'cab', from: 'Home', to: 'Station', duration: 30, cost: 150, departureTime: '08:00', arrivalTime: '08:30', delayRisk: 0.05 },
-          { mode: 'train', from: 'Hyderabad', to: 'Bangalore', duration: 600, cost: 1100, departureTime: '09:00', arrivalTime: '19:00', delayRisk: 0.1 }
-        ]
-      } as TravelRoute
-    },
-    {
-      id: '2',
-      destination: 'Mumbai',
-      source: 'Pune',
-      date: '10 May 2025',
-      status: 'Completed',
-      mode: 'Cab',
-      cost: '₹2,400',
-      fullRoute: {
-        id: '2',
-        totalDuration: 180,
-        totalCost: 2400,
-        reliabilityScore: 95,
-        type: 'fastest',
-        co2Saved: 1.2,
-        segments: [
-          { mode: 'cab', from: 'Pune', to: 'Mumbai', duration: 180, cost: 2400, departureTime: '10:00', arrivalTime: '13:00', delayRisk: 0.08 }
-        ]
-      } as TravelRoute
-    },
-    {
-      id: '3',
-      destination: 'Delhi',
-      source: 'Jaipur',
-      date: '02 May 2025',
-      status: 'Completed',
-      mode: 'Flight',
-      cost: '₹4,800',
-      fullRoute: {
-        id: '3',
-        totalDuration: 150,
-        totalCost: 4800,
-        reliabilityScore: 88,
-        type: 'fastest',
-        co2Saved: 0.5,
-        segments: [
-          { mode: 'flight', from: 'Jaipur', to: 'Delhi', duration: 60, cost: 4800, departureTime: '14:00', arrivalTime: '15:00', delayRisk: 0.15 }
-        ]
-      } as TravelRoute
-    }
-  ];
+  React.useEffect(() => {
+    const storedTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
+    
+    // Default mock trips if none stored
+    const mockTrips = [
+      {
+        id: 'm1',
+        destination: 'Bangalore',
+        source: 'Hyderabad',
+        date: '15 May 2025',
+        status: 'Upcoming',
+        mode: 'Train',
+        cost: '₹1,250',
+        fullRoute: {
+          id: 'm1',
+          totalDuration: 630,
+          totalCost: 1250,
+          reliabilityScore: 92,
+          type: 'recommended',
+          co2Saved: 4.8,
+          segments: [
+            { mode: 'cab', from: 'Home', to: 'Station', duration: 30, cost: 150, departureTime: '08:00', arrivalTime: '08:30', delayRisk: 0.05 },
+            { mode: 'train', from: 'Hyderabad', to: 'Bangalore', duration: 600, cost: 1100, departureTime: '09:00', arrivalTime: '19:00', delayRisk: 0.1 }
+          ]
+        } as TravelRoute
+      }
+    ];
+
+    setTrips(storedTrips.length > 0 ? storedTrips : mockTrips);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
