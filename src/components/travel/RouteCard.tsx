@@ -6,6 +6,12 @@ import { Plane, Train, Bus, Car, ChevronRight, Clock, Wallet, ShieldCheck } from
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
+interface RouteCardProps {
+  route: TravelRoute;
+  index: number;
+  onViewDetails: (route: TravelRoute) => void;
+}
+
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
     case 'flight': return <Plane className="w-4 h-4" />;
@@ -16,10 +22,10 @@ const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   }
 };
 
-const RouteCard = ({ route, index }: { route: TravelRoute, index: number }) => {
+const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
   const formatDuration = (mins: number) => {
     const h = Math.floor(mins / 60);
-    const m = mins % 60;
+    const m = Math.round(mins % 60);
     return `${h}h ${m}m`;
   };
 
@@ -28,6 +34,7 @@ const RouteCard = ({ route, index }: { route: TravelRoute, index: number }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
+      onClick={() => onViewDetails(route)}
       className="glass-card p-6 rounded-[2rem] hover:border-primary/50 transition-all cursor-pointer group relative overflow-hidden"
     >
       {route.type === 'recommended' && (
@@ -57,13 +64,13 @@ const RouteCard = ({ route, index }: { route: TravelRoute, index: number }) => {
                 <Clock className="w-3 h-3" /> Duration
               </p>
               <p className="text-lg font-bold">{formatDuration(route.totalDuration)}</p>
-              <p className="text-[10px] text-slate-400">Arrival {route.segments[route.segments.length-1].arrivalTime} PM</p>
+              <p className="text-[10px] text-slate-400">Arrival {route.segments[route.segments.length-1].arrivalTime}</p>
             </div>
             <div className="space-y-1">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
                 <Wallet className="w-3 h-3" /> Total Cost
               </p>
-              <p className="text-lg font-bold text-primary">₹{route.totalCost.toLocaleString()}</p>
+              <p className="text-lg font-bold text-primary">₹{Math.round(route.totalCost).toLocaleString()}</p>
             </div>
             <div className="space-y-1">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
@@ -72,16 +79,16 @@ const RouteCard = ({ route, index }: { route: TravelRoute, index: number }) => {
               <p className={cn(
                 "text-lg font-bold",
                 route.reliabilityScore > 90 ? "text-emerald-400" : "text-amber-400"
-              )}>{route.reliabilityScore}%</p>
+              )}>{Math.round(route.reliabilityScore)}%</p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-4">
-          <button className="bg-primary/10 text-primary border border-primary/20 px-6 py-2 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all">
+          <button className="bg-primary/10 text-primary border border-primary/20 px-6 py-2 rounded-xl font-bold text-sm group-hover:bg-primary group-hover:text-white transition-all">
             View Route
           </button>
-          <p className="text-[10px] text-slate-500 font-medium">Compare All 8 Routes →</p>
+          <p className="text-[10px] text-slate-500 font-medium">Compare All Routes →</p>
         </div>
       </div>
     </motion.div>

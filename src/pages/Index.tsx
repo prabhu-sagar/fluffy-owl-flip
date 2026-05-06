@@ -8,6 +8,7 @@ import RouteCard from '@/components/travel/RouteCard';
 import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
 import AIInsights from '@/components/travel/AIInsights';
+import RouteDetails from '@/components/travel/RouteDetails';
 import { WeatherWidget, PricePrediction, CO2Comparison } from '@/components/travel/TravelWidgets';
 import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
@@ -15,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Settings, ChevronRight, Zap, Shield, Wallet, Cloud, Sun, CloudLightning } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { showSuccess, showError } from '@/utils/toast';
+import { showError } from '@/utils/toast';
 
 const Index = () => {
   const [travelStyle, setTravelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
@@ -23,6 +24,7 @@ const Index = () => {
   const [weather, setWeather] = React.useState<WeatherCondition>('Clear');
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
 
   const loadRoutes = React.useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +79,12 @@ const Index = () => {
                     </div>
                   ) : (
                     routes.map((route, idx) => (
-                      <RouteCard key={route.id} route={route} index={idx} />
+                      <RouteCard 
+                        key={route.id} 
+                        route={route} 
+                        index={idx} 
+                        onViewDetails={(r) => setSelectedRoute(r)}
+                      />
                     ))
                   )}
                 </div>
@@ -97,7 +104,7 @@ const Index = () => {
           </div>
 
           <div className="xl:col-span-4 space-y-8">
-            <AIAssistant />
+            <AIAssistant weather={weather} distance={distance[0]} />
             
             <div className="glass-card p-6 rounded-[2rem] space-y-6">
               <div className="flex items-center justify-between">
@@ -170,6 +177,12 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        <RouteDetails 
+          route={selectedRoute} 
+          isOpen={!!selectedRoute} 
+          onClose={() => setSelectedRoute(null)} 
+        />
       </main>
     </div>
   );
