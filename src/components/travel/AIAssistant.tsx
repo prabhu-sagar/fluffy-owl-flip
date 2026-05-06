@@ -71,7 +71,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
   };
 
   return (
-    <div className="glass-card rounded-[2rem] flex flex-col h-[600px] overflow-hidden border-slate-200 shadow-sm bg-white">
+    <div className="glass-card rounded-[2rem] flex flex-col h-[calc(100vh-12rem)] min-h-[500px] max-h-[800px] overflow-hidden border-slate-200 shadow-sm bg-white">
       <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2 rounded-xl">
@@ -109,8 +109,8 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
             <div className={cn(
               "p-4 rounded-2xl text-sm max-w-[85%] leading-relaxed shadow-sm border whitespace-pre-wrap",
               msg.role === 'ai' 
-                ? "bg-white rounded-tl-none border-slate-100 text-slate-700" 
-                : "bg-primary text-white rounded-tr-none border-primary/20 shadow-lg shadow-primary/10"
+                ? "bg-white rounded-tl-none border-slate-100 text-slate-700 font-medium" 
+                : "bg-primary text-white rounded-tr-none border-primary/20 shadow-lg shadow-primary/10 font-medium"
             )}>
               {msg.content}
             </div>
@@ -150,7 +150,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
             <Input 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="bg-slate-50 border-slate-200 rounded-2xl pr-24 h-14 focus:ring-primary/20 focus:border-primary/50 transition-all text-slate-900" 
+              className="bg-slate-50 border-slate-200 rounded-2xl pr-24 h-14 focus:ring-primary/20 focus:border-primary/50 transition-all text-slate-900 font-medium" 
               placeholder="Ask about your trip..." 
             />
             <div className="absolute right-2 top-2 bottom-2 flex gap-1">

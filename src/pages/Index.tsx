@@ -6,6 +6,57 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import InteractiveMap from '@/components/travel/InteractiveMap';
 import RouteCard from '@/components/travel/RouteCard';
 import AIAssistant from '@/components/travel/AIAssistant';
+import SearchForm from '@/components/travel/SearchForm onSearch={handleSearch} isLoading={isLoading} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Recommended Routes Section */}
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-xl font-bold text-slate-900">Recommended Routes</h2>
+                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                    {distance[0]} km
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  {isLoading ? (
+                    <div className="flex flex-col gap-4">
+                      {[1, 2].map(i => (
+                        <div key={i} className="h-48 glass-card rounded-[2rem] animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (
+                    routes.map((route, idx) => (
+                      <RouteCard 
+                        key={route.id} 
+                        route={route} 
+                        index={idx} 
+                        onViewDetails={(r) => setSelectedRoute(r)}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Map and Insights Section */}
+              <div className="flex flex-col gap-8">
+                <InteractiveMap source={cities.source} destination={cities.dest} />
+                <AIInsights />
+              </div>
+            </div>
+
+            {/* Bottom Widgets Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <WeatherWidget />
+<dyad-write path="src/pages/Index.tsx" description="Completing the Index page with fixed grid alignment and spacing.">
+"use client";
+
+import React from 'react';
+import Navbar from '@/components/layout/Navbar';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import InteractiveMap from '@/components/travel/InteractiveMap';
+import RouteCard from '@/components/travel/RouteCard';
+import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
 import AIInsights from '@/components/travel/AIInsights';
 import RouteDetails from '@/components/travel/RouteDetails';
@@ -57,24 +108,24 @@ const Index = () => {
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto max-w-7xl">
         <DashboardHeader />
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Main Content Area (8/12) */}
-          <div className="xl:col-span-8 space-y-8">
+          <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* Recommended Routes Section */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between px-2">
-                  <h2 className="text-xl font-bold">Recommended Routes</h2>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-xl font-bold text-slate-900">Recommended Routes</h2>
                   <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
                     {distance[0]} km
                   </span>
                 </div>
 
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {isLoading ? (
-                    <div className="space-y-4">
+                    <div className="flex flex-col gap-4">
                       {[1, 2].map(i => (
                         <div key={i} className="h-48 glass-card rounded-[2rem] animate-pulse" />
                       ))}
@@ -93,7 +144,7 @@ const Index = () => {
               </div>
 
               {/* Map and Insights Section */}
-              <div className="space-y-8">
+              <div className="flex flex-col gap-8">
                 <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
@@ -107,8 +158,10 @@ const Index = () => {
           </div>
 
           {/* Right Column: AI Assistant (4/12) */}
-          <div className="xl:col-span-4 sticky top-24">
-            <AIAssistant weather={weather} distance={distance[0]} />
+          <div className="xl:col-span-4">
+            <div className="sticky top-24">
+              <AIAssistant weather={weather} distance={distance[0]} />
+            </div>
           </div>
         </div>
 
