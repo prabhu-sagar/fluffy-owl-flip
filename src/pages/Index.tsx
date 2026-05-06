@@ -1,88 +1,104 @@
 "use client";
 
 import React from 'react';
-import Navbar from '@/components/layout/Navbar';
-import SearchForm from '@/components/travel/SearchForm';
+import Sidebar from '@/components/layout/Sidebar';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import InteractiveMap from '@/components/travel/InteractiveMap';
 import RouteCard from '@/components/travel/RouteCard';
-import AIInsights from '@/components/travel/AIInsights';
+import AIAssistant from '@/components/travel/AIAssistant';
+import { WeatherWidget, PricePrediction, CO2Comparison } from '@/components/travel/TravelWidgets';
 import { MOCK_ROUTES } from '@/lib/mock-data';
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Filter, Map as MapIcon, List } from 'lucide-react';
+import { Filter, Map as MapIcon, List, User, Settings, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-foreground selection:bg-primary/10">
-      <Navbar />
+    <div className="min-h-screen bg-[#0a0b14] text-white flex">
+      <Sidebar />
       
-      <main className="container mx-auto px-4 pt-28 pb-12">
-        {/* Hero Section */}
-        <div className="max-w-3xl mb-12">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-slate-900">
-            Intelligent Multi-Modal <br />
-            <span className="text-primary">Travel Assistant</span>
-          </h1>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Optimize your journey across flights, trains, and local transit with real-time AI predictions and graph-based route optimization.
-          </p>
-        </div>
+      <main className="flex-1 ml-20 lg:ml-64 p-8">
+        <DashboardHeader />
 
-        {/* Search Section */}
-        <div className="mb-12">
-          <SearchForm />
-        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          {/* Left Column: Main Workspace */}
+          <div className="xl:col-span-8 space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold">Hyderabad → Bangalore</h2>
+                  <span className="text-xs text-slate-400">Tomorrow, 10 May • 2 Adults</span>
+                </div>
+                
+                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                  {['All Modes', 'Bus', 'Train', 'Flight', 'Metro'].map((mode, i) => (
+                    <Button 
+                      key={mode} 
+                      variant={i === 0 ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="rounded-full px-6 border-[#2d2f45] bg-[#1a1c2e]/40"
+                    >
+                      {mode}
+                    </Button>
+                  ))}
+                </div>
 
-        {/* Results Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Route List */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-slate-900">Optimized Routes</h2>
-                <Tabs defaultValue="list" className="w-[120px]">
-                  <TabsList className="grid w-full grid-cols-2 bg-slate-200/50">
-                    <TabsTrigger value="list" className="data-[state=active]:bg-white data-[state=active]:shadow-sm"><List className="w-4 h-4" /></TabsTrigger>
-                    <TabsTrigger value="map" className="data-[state=active]:bg-white data-[state=active]:shadow-sm"><MapIcon className="w-4 h-4" /></TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <div className="space-y-4">
+                  {MOCK_ROUTES.map((route, idx) => (
+                    <RouteCard key={route.id} route={route} index={idx} />
+                  ))}
+                </div>
               </div>
-              <Button variant="outline" size="sm" className="gap-2 bg-white shadow-sm">
-                <Filter className="w-4 h-4" /> Filters
-              </Button>
+
+              <InteractiveMap />
             </div>
 
-            <div className="space-y-4">
-              {MOCK_ROUTES.map((route, idx) => (
-                <RouteCard key={route.id} route={route} index={idx} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <WeatherWidget />
+              <PricePrediction />
+              <CO2Comparison />
             </div>
           </div>
 
-          {/* Right Column: AI Insights & Map Preview */}
-          <div className="lg:col-span-4 space-y-6">
-            <AIInsights />
+          {/* Right Column: AI & Profile */}
+          <div className="xl:col-span-4 space-y-8">
+            <AIAssistant />
             
-            <div className="rounded-3xl overflow-hidden border border-slate-200 h-[300px] relative group shadow-sm">
-              <img 
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800" 
-                alt="Map Preview" 
-                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <Button className="w-full bg-white/90 backdrop-blur-md border-white/20 hover:bg-white text-slate-900 shadow-lg">
-                  Open Interactive Map
+            <div className="glass-card p-6 rounded-[2rem] space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold">Profile & Preferences</h3>
+                <Button variant="ghost" size="icon" className="rounded-full text-slate-400">
+                  <Settings className="w-4 h-4" />
                 </Button>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500" />
+                <div>
+                  <p className="font-bold">Rohit Verma</p>
+                  <p className="text-xs text-slate-400">rohit.verma@example.com</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { label: 'Preferred Modes', value: 'Train, Bus' },
+                  { label: 'Seat Preference', value: 'Window Seat' },
+                  { label: 'Budget Range', value: '₹500 - ₹2,000' },
+                  { label: 'Travel Style', value: 'Balanced' },
+                ].map((pref, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-[#2d2f45] last:border-0">
+                    <span className="text-xs text-slate-400 font-medium">{pref.label}</span>
+                    <span className="text-xs font-bold flex items-center gap-1">
+                      {pref.value} <ChevronRight className="w-3 h-3 text-slate-600" />
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </main>
-
-      <footer className="border-t border-slate-200 py-8 mt-12 bg-white">
-        <MadeWithDyad />
-      </footer>
     </div>
   );
 };
