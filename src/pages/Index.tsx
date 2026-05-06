@@ -9,13 +9,19 @@ import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
 import AIInsights from '@/components/travel/AIInsights';
 import { WeatherWidget, PricePrediction, CO2Comparison } from '@/components/travel/TravelWidgets';
-import { MOCK_ROUTES } from '@/lib/mock-data';
+import { generateRoutes } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
-import { Settings, ChevronRight, Zap, Shield, Wallet } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Settings, ChevronRight, Zap, Shield, Wallet, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Index = () => {
-  const [travelStyle, setTravelStyle] = React.useState('balanced');
+  const [travelStyle, setTravelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
+  const [distance, setDistance] = React.useState([600]);
+  
+  const routes = React.useMemo(() => {
+    return generateRoutes(distance[0], travelStyle);
+  }, [distance, travelStyle]);
 
   return (
     <div className="min-h-screen bg-[#0a0b14] text-white flex">
@@ -24,17 +30,20 @@ const Index = () => {
       <main className="flex-1 ml-20 lg:ml-64 p-8">
         <DashboardHeader />
 
-        <div className="mb-8">
-          <SearchForm />
-        </div>
-
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Main Workspace */}
           <div className="xl:col-span-8 space-y-8">
+            <SearchForm />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold">Recommended Routes</h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold">Recommended Routes</h2>
+                    <span className="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                      {distance[0]} km
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     {['All', 'Train', 'Flight'].map((mode) => (
                       <Button key={mode} variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
@@ -45,7 +54,7 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {MOCK_ROUTES.map((route, idx) => (
+                  {routes.map((route, idx) => (
                     <RouteCard key={route.id} route={route} index={idx} />
                   ))}
                 </div>
@@ -76,6 +85,17 @@ const Index = () => {
                 </Button>
               </div>
 
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Simulate Distance</p>
+                <Slider 
+                  value={distance} 
+                  onValueChange={setDistance} 
+                  max={1000} 
+                  step={10} 
+                  className="py-4"
+                />
+              </div>
+
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'fastest', icon: Zap, label: 'Fastest' },
@@ -84,7 +104,7 @@ const Index = () => {
                 ].map((style) => (
                   <button
                     key={style.id}
-                    onClick={() => setTravelStyle(style.id)}
+                    onClick={() => setTravelStyle(style.id as any)}
                     className={cn(
                       "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
                       travelStyle === style.id 
