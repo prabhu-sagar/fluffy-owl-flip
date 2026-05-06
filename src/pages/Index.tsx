@@ -62,9 +62,9 @@ const Index = () => {
           <div className="xl:col-span-8 space-y-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* Recommended Routes Section */}
-              <div className="space-y-6 flex flex-col">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold">Recommended Routes</h2>
@@ -74,7 +74,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4 flex-1">
+                <div className="space-y-4">
                   {isLoading ? (
                     <div className="space-y-4">
                       {[1, 2].map(i => (
@@ -95,14 +95,14 @@ const Index = () => {
               </div>
 
               {/* Map and Insights Section */}
-              <div className="space-y-8 flex flex-col">
+              <div className="space-y-8">
                 <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
             </div>
 
             {/* Bottom Widgets Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <WeatherWidget />
               <PricePrediction />
             </div>

@@ -16,11 +16,30 @@ export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondi
 };
 
 export const processChatQuery = async (query: string) => {
-  // Simulating Hugging Face / OpenAI response
+  // Simulating a more dynamic AI response system
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   const q = query.toLowerCase();
-  if (q.includes('cheap')) return "I've analyzed the current trends. The bus route is 40% cheaper today, but the train offers better value considering the 2-hour time saving.";
-  if (q.includes('weather')) return "The forecast shows light rain. I recommend avoiding open-air transit and sticking to the Metro or Train segments.";
-  return "I'm monitoring live traffic and weather. Based on your preferences, the recommended rail route remains the most reliable option.";
+  
+  if (q.includes('cheap') || q.includes('budget') || q.includes('cost')) {
+    return "I've analyzed the current trends. The bus route is currently 40% cheaper, but the train offers the best value-to-time ratio for your specific distance.";
+  }
+  
+  if (q.includes('weather') || q.includes('rain') || q.includes('storm')) {
+    return "The forecast indicates light rain in your destination. I recommend sticking to rail or metro segments as they are less affected by surface traffic congestion during showers.";
+  }
+
+  if (q.includes('fast') || q.includes('quick') || q.includes('time')) {
+    return "If speed is your priority, the flight segment is the fastest, but remember to account for the 2-hour check-in window which makes the express train a competitive alternative.";
+  }
+
+  if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+    return "Hello! I'm your AI Travel Concierge. How can I help you optimize your journey today? I can compare costs, check weather impacts, or find the fastest routes.";
+  }
+
+  if (q.includes('book') || q.includes('reserve')) {
+    return "I can help with that! Simply click the 'Book This Route' button in the journey breakdown view to finalize your reservation.";
+  }
+  
+  return "That's an interesting point. Based on real-time data for your route, I'd suggest monitoring the reliability scores, as they fluctuate based on live terminal load.";
 };
