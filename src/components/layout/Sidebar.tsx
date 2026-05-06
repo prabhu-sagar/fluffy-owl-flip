@@ -28,7 +28,7 @@ const Sidebar = () => {
   ];
 
   const bottomItems = [
-    { icon: User, label: 'Profile', path: '#' },
+    { icon: User, label: 'Profile', path: '/profile' },
     { icon: Settings, label: 'Settings', path: '#' },
   ];
 
@@ -63,15 +63,22 @@ const Sidebar = () => {
       </nav>
 
       <div className="px-4 space-y-2">
-        {bottomItems.map((item, idx) => (
-          <button
-            key={idx}
-            className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all"
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="font-medium hidden lg:block">{item.label}</span>
-          </button>
-        ))}
+        {bottomItems.map((item, idx) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={idx}
+              onClick={() => item.path !== '#' && navigate(item.path)}
+              className={cn(
+                "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
+                isActive ? "bg-primary/10 text-primary" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "group-hover:scale-110 transition-transform")} />
+              <span className="font-medium hidden lg:block">{item.label}</span>
+            </button>
+          );
+        })}
         
         <div className="mt-6 pt-6 border-t border-[#2d2f45] hidden lg:block">
           <div className="flex items-center gap-3 px-2">
