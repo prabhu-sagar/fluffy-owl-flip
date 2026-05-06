@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Info, CheckCircle2, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,9 +14,9 @@ const Alerts = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
-      <Sidebar />
-      <main className="flex-1 ml-20 lg:ml-64 p-8">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <Navbar />
+      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Travel Alerts</h1>
           <p className="text-slate-500 text-sm">Stay updated with real-time travel intelligence.</p>
@@ -30,7 +30,7 @@ const Alerts = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <Card className="p-6 border-slate-200 shadow-sm flex gap-4 items-start hover:border-primary/20 transition-all cursor-pointer">
+              <Card className="p-6 border-slate-200 shadow-sm flex gap-4 items-start hover:border-primary/20 transition-all cursor-pointer rounded-3xl">
                 <div className={`p-3 rounded-2xl ${alert.bg}`}>
                   <alert.icon className={`w-6 h-6 ${alert.color}`} />
                 </div>

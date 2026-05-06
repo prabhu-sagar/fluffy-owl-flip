@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,10 +19,10 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
-      <Sidebar />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <Navbar />
       
-      <main className="flex-1 ml-20 lg:ml-64 p-8">
+      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <div className="max-w-4xl mx-auto space-y-8">
           <div>
             <h1 className="text-3xl font-bold">Account Settings</h1>
@@ -31,7 +31,7 @@ const Profile = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1 space-y-6">
-              <Card className="p-6 bg-white border-slate-200 text-center shadow-sm">
+              <Card className="p-6 bg-white border-slate-200 text-center shadow-sm rounded-3xl">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-blue-400 mx-auto mb-4 border-4 border-white shadow-xl" />
                 <h3 className="font-bold text-xl">Rohit Verma</h3>
                 <p className="text-sm text-primary font-bold uppercase tracking-wider mb-6">Premium Member</p>
@@ -62,8 +62,8 @@ const Profile = () => {
             </div>
 
             <div className="md:col-span-2 space-y-6">
-              <Card className="p-8 bg-white border-slate-200 space-y-6 shadow-sm">
-                <div className="grid grid-cols-2 gap-6">
+              <Card className="p-8 bg-white border-slate-200 space-y-6 shadow-sm rounded-3xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-400 uppercase">Full Name</label>
                     <Input defaultValue="Rohit Verma" className="bg-slate-50 border-slate-200 rounded-xl" />

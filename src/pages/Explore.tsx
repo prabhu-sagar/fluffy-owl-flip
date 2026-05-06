@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Star, TrendingUp } from 'lucide-react';
@@ -16,9 +16,9 @@ const Explore = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
-      <Sidebar />
-      <main className="flex-1 ml-20 lg:ml-64 p-8">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <Navbar />
+      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Explore Destinations</h1>
           <p className="text-slate-500 text-sm">Discover trending places optimized for your travel style.</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import InteractiveMap from '@/components/travel/InteractiveMap';
 import RouteCard from '@/components/travel/RouteCard';
@@ -44,7 +44,6 @@ const Index = () => {
   const handleSearch = (source: string, dest: string) => {
     setCities({ source, dest });
     showSuccess(`Searching routes from ${source} to ${dest}`);
-    // The useEffect will trigger loadRoutes when cities state changes
   };
 
   React.useEffect(() => {
@@ -52,10 +51,10 @@ const Index = () => {
   }, [cities, loadRoutes]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex overflow-x-hidden">
-      <Sidebar />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <Navbar />
       
-      <main className="flex-1 ml-20 lg:ml-64 p-4 lg:p-8 transition-all duration-300">
+      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <DashboardHeader />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
@@ -63,9 +62,9 @@ const Index = () => {
           <div className="xl:col-span-8 space-y-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
               {/* Recommended Routes Section */}
-              <div className="space-y-6">
+              <div className="space-y-6 flex flex-col">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold">Recommended Routes</h2>
@@ -75,7 +74,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 flex-1">
                   {isLoading ? (
                     <div className="space-y-4">
                       {[1, 2].map(i => (
@@ -96,14 +95,14 @@ const Index = () => {
               </div>
 
               {/* Map and Insights Section */}
-              <div className="space-y-8">
+              <div className="space-y-8 flex flex-col">
                 <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
             </div>
 
             {/* Bottom Widgets Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               <WeatherWidget />
               <PricePrediction />
             </div>
@@ -111,7 +110,7 @@ const Index = () => {
 
           {/* Right Column: AI Assistant */}
           <div className="xl:col-span-4 h-full">
-            <div className="sticky top-8">
+            <div className="sticky top-24">
               <AIAssistant weather={weather} distance={distance[0]} />
             </div>
           </div>

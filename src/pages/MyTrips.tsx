@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Clock, ChevronRight, MoreVertical } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, MoreVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MyTrips = () => {
@@ -39,10 +39,10 @@ const MyTrips = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
-      <Sidebar />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+      <Navbar />
       
-      <main className="flex-1 ml-20 lg:ml-64 p-8">
+      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">My Trips</h1>
           <p className="text-slate-500 text-sm">Manage your upcoming and past journeys.</p>
@@ -56,7 +56,7 @@ const MyTrips = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <Card className="p-6 bg-white border-slate-200 hover:border-primary/30 transition-all group cursor-pointer shadow-sm">
+              <Card className="p-6 bg-white border-slate-200 hover:border-primary/30 transition-all group cursor-pointer shadow-sm rounded-3xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6">
                     <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
