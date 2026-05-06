@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import Explore from "./pages/Explore";
+import AIAssistantPage from "./pages/AIAssistantPage";
+import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/trips" element={<MyTrips />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/assistant" element={<AIAssistantPage />} />
+          <Route path="/alerts" element={<Alerts />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -26,7 +26,6 @@ import { showSuccess } from '@/utils/toast';
 const NeuralHub = () => {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      {/* Central Core */}
       <motion.div 
         animate={{ 
           scale: [1, 1.05, 1],
@@ -40,7 +39,6 @@ const NeuralHub = () => {
           <Zap className="w-14 h-14 text-primary animate-pulse" />
         </div>
 
-        {/* Orbiting Modes */}
         {[
           { Icon: Plane, color: 'text-blue-500', label: 'Air' },
           { Icon: Train, color: 'text-indigo-500', label: 'Rail' },
@@ -68,7 +66,6 @@ const NeuralHub = () => {
         ))}
       </motion.div>
 
-      {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
         <motion.circle 
           cx="50%" cy="50%" r="140" 
@@ -98,8 +95,7 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen flex bg-white text-slate-900 overflow-hidden font-sans">
-      {/* Left Side: Animation & Quotes */}
+    <div className="min-h-screen flex bg-white text-slate-900 overflow-x-hidden font-sans">
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#f8fafc] flex-col items-center justify-center border-r border-slate-100 p-12">
         <div className="flex-1 w-full flex items-center justify-center">
           <NeuralHub />
@@ -127,9 +123,8 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right Side: Form */}
-      <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 overflow-hidden">
-        <div className="flex items-center justify-between mb-12">
+      <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 overflow-y-auto">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-2.5">
             <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
               <Plane className="text-white w-5 h-5" />
@@ -144,7 +139,7 @@ const Login = () => {
           </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center py-8">
           <motion.div 
             key={isSignUp ? 'signup' : 'login'}
             initial={{ opacity: 0, y: 10 }}
@@ -167,7 +162,7 @@ const Login = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="space-y-4"
+                    className="space-y-4 overflow-hidden"
                   >
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>

@@ -3,7 +3,6 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  Map as MapIcon, 
   Compass, 
   Bookmark, 
   MessageSquare, 
@@ -34,7 +33,7 @@ const Sidebar = () => {
   ];
 
   const handleNavigation = (path: string, label: string) => {
-    if (path.startsWith('/') && !['/explore', '/assistant', '/alerts', '/settings'].includes(path)) {
+    if (path.startsWith('/') && !['/settings'].includes(path)) {
       navigate(path);
     } else {
       showSuccess(`${label} feature coming soon!`);
