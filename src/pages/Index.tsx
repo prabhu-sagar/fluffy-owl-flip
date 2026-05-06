@@ -59,24 +59,24 @@ const Index = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Main Content Area (8/12) */}
-          <div className="xl:col-span-8 flex flex-col gap-8">
+          <div className="xl:col-span-8 flex flex-col gap-10">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
               {/* Recommended Routes Section */}
               <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xl font-bold text-slate-900">Recommended Routes</h2>
-                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
+                  <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                     {distance[0]} km
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                   {isLoading ? (
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-6">
                       {[1, 2].map(i => (
-                        <div key={i} className="h-48 glass-card rounded-[2rem] animate-pulse" />
+                        <div key={i} className="h-64 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
                       ))}
                     </div>
                   ) : (
@@ -93,14 +93,14 @@ const Index = () => {
               </div>
 
               {/* Map and Insights Section */}
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-10">
                 <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
             </div>
 
             {/* Bottom Widgets Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <WeatherWidget />
               <PricePrediction />
             </div>

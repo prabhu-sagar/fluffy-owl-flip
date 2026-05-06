@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, ChevronRight, Clock, Wallet, ShieldCheck } from 'lucide-react';
+import { Plane, Train, Bus, Car, ChevronRight, Clock, Wallet, ShieldCheck, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -14,11 +14,11 @@ interface RouteCardProps {
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
-    case 'flight': return <Plane className="w-4 h-4" />;
-    case 'train': return <Train className="w-4 h-4" />;
-    case 'bus': return <Bus className="w-4 h-4" />;
-    case 'cab': return <Car className="w-4 h-4" />;
-    default: return <ChevronRight className="w-4 h-4" />;
+    case 'flight': return <Plane className="w-5 h-5" />;
+    case 'train': return <Train className="w-5 h-5" />;
+    case 'bus': return <Bus className="w-5 h-5" />;
+    case 'cab': return <Car className="w-5 h-5" />;
+    default: return <ChevronRight className="w-5 h-5" />;
   }
 };
 
@@ -35,60 +35,74 @@ const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       onClick={() => onViewDetails(route)}
-      className="glass-card p-6 rounded-[2rem] hover:border-primary/50 transition-all cursor-pointer group relative overflow-hidden bg-white"
+      className="group relative bg-white border border-slate-200 p-6 rounded-[2rem] hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer overflow-hidden"
     >
       {route.type === 'recommended' && (
-        <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider">
-          Recommended
+        <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-black px-5 py-2 rounded-bl-2xl uppercase tracking-widest z-10">
+          Best Choice
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex-1 space-y-6">
-          <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-6">
+        {/* Header: Transport Modes */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             {route.segments.map((seg, i) => (
               <React.Fragment key={i}>
-                <div className="flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 text-slate-700">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
                   <ModeIcon mode={seg.mode} />
                 </div>
                 {i < route.segments.length - 1 && (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                  <ArrowRight className="w-4 h-4 text-slate-300" />
                 )}
               </React.Fragment>
             ))}
           </div>
-
-          <div className="flex items-center gap-8">
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Duration
-              </p>
-              <p className="text-lg font-black text-slate-900">{formatDuration(route.totalDuration)}</p>
-              <p className="text-[10px] text-slate-500 font-bold">Arrival {route.segments[route.segments.length-1].arrivalTime}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1">
-                <Wallet className="w-3 h-3" /> Total Cost
-              </p>
-              <p className="text-lg font-black text-primary">₹{Math.round(route.totalCost).toLocaleString()}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Reliability
-              </p>
-              <p className={cn(
-                "text-lg font-black",
-                route.reliabilityScore > 90 ? "text-emerald-600" : "text-amber-600"
-              )}>{Math.round(route.reliabilityScore)}%</p>
+          <div className="text-right">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reliability</p>
+            <div className="flex items-center gap-1.5 justify-end">
+              <ShieldCheck className={cn(
+                "w-4 h-4",
+                route.reliabilityScore > 90 ? "text-emerald-500" : "text-amber-500"
+              )} />
+              <span className="font-black text-slate-900">{Math.round(route.reliabilityScore)}%</span>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-4">
-          <button className="bg-primary/10 text-primary border border-primary/20 px-6 py-2 rounded-xl font-bold text-sm group-hover:bg-primary group-hover:text-white transition-all">
-            View Route
-          </button>
-          <p className="text-[10px] text-slate-500 font-bold">Compare All Routes →</p>
+        {/* Body: Main Stats */}
+        <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <Clock className="w-3 h-3" /> Total Time
+            </div>
+            <p className="text-2xl font-black text-slate-900">{formatDuration(route.totalDuration)}</p>
+            <p className="text-xs text-slate-500 font-medium">Arrives at {route.segments[route.segments.length-1].arrivalTime}</p>
+          </div>
+          <div className="space-y-1 text-right">
+            <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest justify-end">
+              <Wallet className="w-3 h-3" /> Est. Cost
+            </div>
+            <p className="text-2xl font-black text-primary">₹{Math.round(route.totalCost).toLocaleString()}</p>
+            <p className="text-xs text-emerald-600 font-bold">Save ₹{Math.round(route.totalCost * 0.15)} today</p>
+          </div>
+        </div>
+
+        {/* Footer: Action */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex -space-x-2">
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center overflow-hidden">
+                <img src={`https://i.pravatar.cc/100?u=${i + index}`} alt="user" className="w-full h-full object-cover" />
+              </div>
+            ))}
+            <div className="pl-4 text-[10px] font-bold text-slate-400 uppercase flex items-center">
+              +12 others booked
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-primary font-black text-sm group-hover:translate-x-1 transition-transform">
+            View Details <ChevronRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </motion.div>
