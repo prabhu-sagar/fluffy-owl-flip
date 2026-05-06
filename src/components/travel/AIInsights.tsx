@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 
 const AIInsights = () => {
   return (
-    <Card className="p-6 bg-white border-slate-200 overflow-hidden relative rounded-3xl shadow-sm">
+    <Card className="p-6 bg-white border-slate-200 overflow-hidden relative rounded-[2rem] shadow-sm">
       <div className="absolute -right-8 -top-8 opacity-[0.03]">
         <BrainCircuit size={160} className="text-primary" />
       </div>

@@ -57,15 +57,15 @@ const Index = () => {
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto max-w-7xl">
         <DashboardHeader />
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Left Column: Main Content Area */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Main Content Area (8/12) */}
           <div className="xl:col-span-8 space-y-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Recommended Routes Section */}
               <div className="space-y-6">
-                <div className="flex items-center justify-between px-1">
+                <div className="flex items-center justify-between px-2">
                   <h2 className="text-xl font-bold">Recommended Routes</h2>
                   <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
                     {distance[0]} km
@@ -106,11 +106,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Column: AI Assistant (Sticky) */}
-          <div className="xl:col-span-4">
-            <div className="sticky top-24">
-              <AIAssistant weather={weather} distance={distance[0]} />
-            </div>
+          {/* Right Column: AI Assistant (4/12) */}
+          <div className="xl:col-span-4 sticky top-24">
+            <AIAssistant weather={weather} distance={distance[0]} />
           </div>
         </div>
 
