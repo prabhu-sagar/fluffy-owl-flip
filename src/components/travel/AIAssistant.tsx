@@ -107,7 +107,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
               </div>
             )}
             <div className={cn(
-              "p-4 rounded-2xl text-sm max-w-[85%] leading-relaxed shadow-sm border",
+              "p-4 rounded-2xl text-sm max-w-[85%] leading-relaxed shadow-sm border whitespace-pre-wrap",
               msg.role === 'ai' 
                 ? "bg-white rounded-tl-none border-slate-100 text-slate-700" 
                 : "bg-primary text-white rounded-tr-none border-primary/20 shadow-lg shadow-primary/10"

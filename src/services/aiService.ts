@@ -57,16 +57,16 @@ Train is the most economical option, while flight is best for saving time.`;
 
   // 12. General travel questions
   if (q.includes('tips')) {
-    return "Travel Tips:
+    return `Travel Tips:
 1. Pack light to avoid extra baggage fees.
 2. Download offline maps for your destination.
 3. Carry a portable power bank for long journeys.
-4. Book mid-week for the best flight prices.";
+4. Book mid-week for the best flight prices.`;
   }
 
   if (q.includes('visit goa')) {
-    return "Best time to visit Goa:
-The peak season is from November to February when the weather is pleasant (20°C-30°C). For budget travelers, June to September offers lush greenery but heavy rainfall.";
+    return `Best time to visit Goa:
+The peak season is from November to February when the weather is pleasant (20°C-30°C). For budget travelers, June to September offers lush greenery but heavy rainfall.`;
   }
 
   // 8. Clarification for unclear input
