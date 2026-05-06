@@ -7,8 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Mail, Shield, Bell, CreditCard, LogOut } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
+import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 const Profile = () => {
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    // In a real app, you would clear tokens/session here
+    showSuccess("Signed out successfully");
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0b14] text-white flex">
       <Sidebar />
@@ -77,7 +87,11 @@ const Profile = () => {
                 </div>
 
                 <div className="pt-6 border-t border-white/5 flex justify-between items-center">
-                  <Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-2">
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleSignOut}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-2"
+                  >
                     <LogOut className="w-4 h-4" /> Sign Out
                   </Button>
                   <Button onClick={() => showSuccess("Profile updated!")} className="rounded-xl px-8 shadow-lg shadow-primary/20">
@@ -93,5 +107,4 @@ const Profile = () => {
   );
 };
 
-import { cn } from '@/lib/utils';
 export default Profile;
