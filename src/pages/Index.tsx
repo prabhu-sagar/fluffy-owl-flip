@@ -55,7 +55,7 @@ const Index = () => {
   }, [loadRoutes]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
+    <div className="min-h-screen bg-[#0a0b14] text-white flex">
       <Sidebar />
       
       <main className="flex-1 ml-20 lg:ml-64 p-8">
@@ -70,7 +70,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold">Recommended Routes</h2>
-                    <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                    <span className="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded-md uppercase">
                       {distance[0]} km
                     </span>
                   </div>
@@ -145,8 +145,8 @@ const Index = () => {
                       className={cn(
                         "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
                         weather === w.id 
-                          ? "bg-primary/10 border-primary text-primary" 
-                          : "bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100"
+                          ? "bg-blue-500/20 border-blue-500 text-blue-400" 
+                          : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
                       )}
                     >
                       <w.icon className="w-4 h-4" />
@@ -170,8 +170,8 @@ const Index = () => {
                       className={cn(
                         "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
                         travelStyle === style.id 
-                          ? "bg-primary/10 border-primary text-primary" 
-                          : "bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100"
+                          ? "bg-primary/20 border-primary text-primary" 
+                          : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
                       )}
                     >
                       <style.icon className="w-4 h-4" />

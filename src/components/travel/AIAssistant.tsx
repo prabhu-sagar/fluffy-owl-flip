@@ -1,14 +1,13 @@
 "use client";
 
 import React from 'react';
-import { Send, Mic, Sparkles, Volume2 } from 'lucide-react';
+import { Send, Mic, Sparkles, Volume2, MicOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { WeatherCondition } from '@/lib/mock-data';
 import { processChatQuery } from '@/services/aiService';
-import { showError } from '@/utils/toast';
-import { cn } from '@/lib/utils';
+import { showSuccess, showError } from '@/utils/toast';
 
 interface AIAssistantProps {
   weather: WeatherCondition;
@@ -63,17 +62,17 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
   };
 
   return (
-    <div className="glass-card rounded-[2rem] flex flex-col h-[500px] overflow-hidden border-slate-200 shadow-sm">
-      <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+    <div className="glass-card rounded-[2rem] flex flex-col h-[500px] overflow-hidden border-primary/20">
+      <div className="p-6 border-b border-[#2d2f45] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2 rounded-xl">
+          <div className="bg-primary/20 p-2 rounded-xl">
             <Sparkles className="text-primary w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900">AI Travel Concierge</h3>
+            <h3 className="font-bold">AI Travel Concierge</h3>
             <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Neural Link Active</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Neural Link Active</p>
             </div>
           </div>
         </div>
@@ -82,7 +81,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
         </Button>
       </div>
 
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto custom-scrollbar bg-slate-50/50">
+      <div className="flex-1 p-6 space-y-6 overflow-y-auto custom-scrollbar">
         {messages.map((msg, i) => (
           <motion.div 
             key={i}
@@ -91,15 +90,15 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
             className={cn("flex gap-3", msg.role === 'user' && "justify-end")}
           >
             {msg.role === 'ai' && (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                 <Sparkles className="text-primary w-4 h-4" />
               </div>
             )}
             <div className={cn(
-              "p-4 rounded-2xl text-sm max-w-[85%] leading-relaxed border shadow-sm",
+              "p-4 rounded-2xl text-sm max-w-[85%] leading-relaxed border",
               msg.role === 'ai' 
-                ? "bg-white rounded-tl-none border-slate-100 text-slate-700" 
-                : "bg-primary text-white rounded-tr-none border-primary/20"
+                ? "bg-[#2d2f45]/50 rounded-tl-none border-white/5" 
+                : "bg-primary text-white rounded-tr-none border-primary/20 shadow-lg shadow-primary/10"
             )}>
               {msg.content}
             </div>
@@ -107,19 +106,19 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
         ))}
         {isTyping && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
               <Sparkles className="text-primary w-4 h-4" />
             </div>
-            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 flex gap-1 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" />
-              <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]" />
+            <div className="bg-[#2d2f45]/50 p-4 rounded-2xl rounded-tl-none flex gap-1">
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" />
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-6 bg-white border-t border-slate-100">
+      <div className="p-6 bg-[#0a0b14]/60 backdrop-blur-md border-t border-[#2d2f45]">
         {isListening ? (
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="flex items-center gap-1.5 h-12">
@@ -139,7 +138,7 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
             <Input 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="bg-slate-50 border-slate-200 rounded-2xl pr-24 h-14 focus:ring-primary/10 focus:border-primary/30 transition-all text-slate-900" 
+              className="bg-[#1a1c2e] border-[#2d2f45] rounded-2xl pr-24 h-14 focus:ring-primary/20 focus:border-primary/50 transition-all" 
               placeholder="Ask about your trip..." 
             />
             <div className="absolute right-2 top-2 bottom-2 flex gap-1">
@@ -163,4 +162,5 @@ const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
   );
 };
 
+import { cn } from '@/lib/utils';
 export default AIAssistant;
