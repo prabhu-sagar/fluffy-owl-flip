@@ -36,7 +36,15 @@ const Index = () => {
         style: travelStyle,
         weather: weather
       });
-      setRoutes(data);
+      
+      // Sort routes: Recommended (Best Choice) first
+      const sortedData = [...data].sort((a, b) => {
+        if (a.type === 'recommended') return -1;
+        if (b.type === 'recommended') return 1;
+        return 0;
+      });
+      
+      setRoutes(sortedData);
     } catch (err) {
       showError("Failed to fetch travel plans");
     } finally {
@@ -44,9 +52,9 @@ const Index = () => {
     }
   }, [distance, travelStyle, weather, searchParams]);
 
-  const handleSearch = (source: string, dest: string, date: string) => {
-    setSearchParams({ source, dest, date });
-    showSuccess(`Searching routes for ${date} from ${source} to ${dest}`);
+  const handleSearch = (source: string, dest: string, date: string = searchParams.date) => {
+    setSearchParams(prev => ({ ...prev, source, dest, date }));
+    showSuccess(`Searching routes from ${source} to ${dest}`);
   };
 
   React.useEffect(() => {
@@ -58,7 +66,7 @@ const Index = () => {
       <Navbar />
       
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto max-w-7xl">
-        <DashboardHeader />
+        <DashboardHeader onVoiceSearch={(s, d) => handleSearch(s, d)} />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Search and Routes */}
