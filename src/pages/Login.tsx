@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { showSuccess } from '@/utils/toast';
 
@@ -101,14 +100,16 @@ const Login = () => {
   return (
     <div className="h-screen flex bg-white text-slate-900 overflow-hidden font-sans">
       {/* Left Side: Animation & Quotes */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#f8fafc] items-center justify-center border-r border-slate-100">
-        <NeuralHub />
-        <div className="absolute bottom-16 left-12 right-12 text-center space-y-6">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#f8fafc] flex-col items-center justify-center border-r border-slate-100 p-12">
+        <div className="flex-1 w-full flex items-center justify-center">
+          <NeuralHub />
+        </div>
+        <div className="w-full max-w-md text-center space-y-6 pb-12">
           <div className="space-y-2">
-            <h2 className="text-4xl font-black tracking-tighter text-slate-900">
+            <h2 className="text-4xl font-black tracking-tighter text-slate-900 leading-tight">
               "The future of travel is <span className="text-primary">intelligent</span>."
             </h2>
-            <p className="text-slate-500 text-lg font-medium max-w-md mx-auto leading-relaxed">
+            <p className="text-slate-500 text-lg font-medium leading-relaxed">
               Optimize every mile with our multi-modal AI engine.
             </p>
           </div>
