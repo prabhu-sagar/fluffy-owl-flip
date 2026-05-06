@@ -14,9 +14,9 @@ import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Settings, ChevronRight, Zap, Shield, Wallet, Cloud, Sun, CloudLightning, MapPin } from 'lucide-react';
+import { Settings, ChevronRight, Zap, Shield, Wallet, Cloud, Sun, CloudLightning } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { showSuccess, showError } from '@/utils/toast';
+import { showError } from '@/utils/toast';
 
 const Index = () => {
   const [travelStyle, setTravelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
@@ -25,18 +25,13 @@ const Index = () => {
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
-  const [activeTrip, setActiveTrip] = React.useState<TravelRoute | null>(null);
-  const [searchParams, setSearchParams] = React.useState({
-    source: 'Hyderabad',
-    destination: 'Bangalore'
-  });
 
   const loadRoutes = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchTravelPlan({
-        source: searchParams.source,
-        destination: searchParams.destination,
+        source: 'Hyderabad',
+        destination: 'Bangalore',
         distance: distance[0],
         style: travelStyle,
         weather: weather
@@ -47,22 +42,11 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [distance, travelStyle, weather, searchParams]);
+  }, [distance, travelStyle, weather]);
 
   React.useEffect(() => {
     loadRoutes();
   }, [loadRoutes]);
-
-  const handleSearch = (params: { source: string; destination: string }) => {
-    setSearchParams(params);
-    showSuccess(`Searching routes from ${params.source} to ${params.destination}`);
-  };
-
-  const handleStartJourney = (route: TravelRoute) => {
-    setActiveTrip(route);
-    setSelectedRoute(null);
-    showSuccess("Journey started! Live tracking is now active.");
-  };
 
   return (
     <div className="min-h-screen bg-[#0a0b14] text-white flex">
@@ -73,24 +57,7 @@ const Index = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           <div className="xl:col-span-8 space-y-8">
-            <SearchForm onSearch={handleSearch} isLoading={isLoading} />
-
-            {activeTrip && (
-              <div className="bg-primary/10 border border-primary/20 p-6 rounded-[2rem] flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary p-3 rounded-2xl">
-                    <MapPin className="text-white w-6 h-6 animate-bounce" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Active Journey: {searchParams.source} → {searchParams.destination}</h3>
-                    <p className="text-sm text-slate-400">Currently in {activeTrip.segments[0].mode} segment • Arriving in {activeTrip.totalDuration} mins</p>
-                  </div>
-                </div>
-                <Button variant="outline" onClick={() => setActiveTrip(null)} className="rounded-xl border-white/10 hover:bg-white/5">
-                  End Trip
-                </Button>
-              </div>
-            )}
+            <SearchForm />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
@@ -215,7 +182,6 @@ const Index = () => {
           route={selectedRoute} 
           isOpen={!!selectedRoute} 
           onClose={() => setSelectedRoute(null)} 
-          onStartJourney={handleStartJourney}
         />
       </main>
     </div>
