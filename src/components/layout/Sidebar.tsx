@@ -13,25 +13,28 @@ import {
   Plane
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: MapIcon, label: 'Plan Trip' },
-    { icon: Compass, label: 'Explore' },
-    { icon: Bookmark, label: 'Bookings' },
-    { icon: MessageSquare, label: 'AI Assistant' },
-    { icon: Bell, label: 'Alerts' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: Bookmark, label: 'My Trips', path: '/trips' },
+    { icon: Compass, label: 'Explore', path: '#' },
+    { icon: MessageSquare, label: 'AI Assistant', path: '#' },
+    { icon: Bell, label: 'Alerts', path: '#' },
   ];
 
   const bottomItems = [
-    { icon: User, label: 'Profile' },
-    { icon: Settings, label: 'Settings' },
+    { icon: User, label: 'Profile', path: '#' },
+    { icon: Settings, label: 'Settings', path: '#' },
   ];
 
   return (
     <aside className="w-20 lg:w-64 h-screen fixed left-0 top-0 bg-[#1a1c2e]/40 border-r border-[#2d2f45] flex flex-col py-8 z-50">
-      <div className="px-6 mb-10 flex items-center gap-3">
+      <div className="px-6 mb-10 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
         <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
           <Plane className="text-white w-6 h-6" />
         </div>
@@ -41,18 +44,22 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 px-4 space-y-2">
-        {menuItems.map((item, idx) => (
-          <button
-            key={idx}
-            className={cn(
-              "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
-              item.active ? "bg-primary/10 text-primary" : "text-slate-400 hover:bg-white/5 hover:text-white"
-            )}
-          >
-            <item.icon className={cn("w-5 h-5", item.active ? "text-primary" : "group-hover:scale-110 transition-transform")} />
-            <span className="font-medium hidden lg:block">{item.label}</span>
-          </button>
-        ))}
+        {menuItems.map((item, idx) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={idx}
+              onClick={() => item.path !== '#' && navigate(item.path)}
+              className={cn(
+                "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
+                isActive ? "bg-primary/10 text-primary" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "group-hover:scale-110 transition-transform")} />
+              <span className="font-medium hidden lg:block">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       <div className="px-4 space-y-2">

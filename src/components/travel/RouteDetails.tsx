@@ -6,10 +6,13 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle,
-  DialogDescription
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2, CreditCard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { showSuccess } from '@/utils/toast';
 import { cn } from '@/lib/utils';
 
 interface RouteDetailsProps {
@@ -31,6 +34,11 @@ const ModeIcon = ({ mode }: { mode: TransportMode }) => {
 const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
   if (!route) return null;
 
+  const handleBook = () => {
+    showSuccess("Trip booked successfully! Check 'My Trips' for details.");
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-[#1a1c2e] border-[#2d2f45] text-white rounded-[2rem]">
@@ -42,11 +50,11 @@ const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
             </span>
           </DialogTitle>
           <DialogDescription className="text-slate-400">
-            AI-optimized itinerary for your trip from Hyderabad to Bangalore.
+            AI-optimized itinerary for your trip.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-8 py-4">
+        <div className="space-y-8 py-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
               <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Total Time</p>
@@ -105,6 +113,15 @@ const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
             ))}
           </div>
         </div>
+
+        <DialogFooter className="pt-4 border-t border-[#2d2f45]">
+          <Button variant="ghost" onClick={onClose} className="rounded-xl text-slate-400">
+            Cancel
+          </Button>
+          <Button onClick={handleBook} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
+            <CreditCard className="w-4 h-4" /> Book This Route
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
