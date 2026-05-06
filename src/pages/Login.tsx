@@ -156,31 +156,41 @@ const Login = () => {
                           />
                         </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Username</label>
-                        <div className="relative">
-                          <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-                          <Input 
-                            placeholder="johndoe_travels" 
-                            className="bg-white/[0.03] border-white/10 h-11 pl-11 rounded-xl focus:ring-primary/20 focus:border-primary/50 transition-all text-white text-sm placeholder:text-slate-700"
-                          />
-                        </div>
-                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Username</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                    <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                     <Input 
-                      type="email" 
-                      placeholder="name@example.com" 
+                      placeholder="johndoe_travels" 
                       className="bg-white/[0.03] border-white/10 h-11 pl-11 rounded-xl focus:ring-primary/20 focus:border-primary/50 transition-all text-white text-sm placeholder:text-slate-700"
                     />
                   </div>
                 </div>
+
+                <AnimatePresence mode="wait">
+                  {isSignUp && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-1.5"
+                    >
+                      <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                        <Input 
+                          type="email" 
+                          placeholder="name@example.com" 
+                          className="bg-white/[0.03] border-white/10 h-11 pl-11 rounded-xl focus:ring-primary/20 focus:border-primary/50 transition-all text-white text-sm placeholder:text-slate-700"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="grid grid-cols-1 gap-3.5">
                   <div className="space-y-1.5">
