@@ -1,11 +1,13 @@
 "use client";
 
 import React from 'react';
-import { MapPin, Calendar, Search, ArrowRightLeft, Loader2 } from 'lucide-react';
+import { MapPin, Calendar, Search, ArrowRightLeft, Loader2, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { showError } from '@/utils/toast';
+import { cn } from '@/lib/utils';
 
 interface SearchFormProps {
   onSearch: (source: string, dest: string, date: string) => void;
@@ -16,6 +18,7 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
   const [source, setSource] = React.useState('Hyderabad');
   const [dest, setDest] = React.useState('Bangalore');
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [isListening, setIsListening] = React.useState(false);
 
   const handleSwap = () => {
     setSource(dest);
@@ -25,6 +28,33 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(source, dest, date);
+  };
+
+  const startVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      showError("Speech recognition not supported in this browser");
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-US';
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      // Simple parser: "from Hyderabad to Bangalore"
+      if (transcript.includes('from') && transcript.includes('to')) {
+        const parts = transcript.split('to');
+        const fromPart = parts[0].replace('from', '').trim();
+        const toPart = parts[1].trim();
+        if (fromPart) setSource(fromPart.charAt(0).toUpperCase() + fromPart.slice(1));
+        if (toPart) setDest(toPart.charAt(0).toUpperCase() + toPart.slice(1));
+      }
+    };
+
+    recognition.start();
   };
 
   return (
@@ -86,13 +116,23 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
             </div>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 flex gap-2">
+            <Button 
+              type="button"
+              onClick={startVoiceSearch}
+              variant="outline"
+              className={cn(
+                "h-12 w-12 rounded-2xl border-slate-200 shrink-0",
+                isListening && "bg-primary/10 border-primary text-primary animate-pulse"
+              )}
+            >
+              <Mic className="w-5 h-5" />
+            </Button>
             <Button 
               disabled={isLoading}
-              className="w-full h-12 rounded-2xl shadow-lg shadow-primary/30 hover:scale-[1.02] transition-transform gap-2"
+              className="flex-1 h-12 rounded-2xl shadow-lg shadow-primary/30 hover:scale-[1.02] transition-transform gap-2"
             >
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-              <span className="font-bold">Search</span>
             </Button>
           </div>
         </form>

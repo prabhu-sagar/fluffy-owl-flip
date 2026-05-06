@@ -4,7 +4,7 @@ import React from 'react';
 import { Navigation, Radio, MapPinOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { RouteSegment } from '@/lib/mock-data';
+import { RouteSegment, TransportMode } from '@/lib/mock-data';
 
 interface InteractiveMapProps {
   source?: string;
@@ -25,52 +25,76 @@ const InteractiveMap = ({ source, destination, segments }: InteractiveMapProps) 
     );
   }
 
-  // Determine path style based on primary mode
-  const primaryMode = segments.find(s => s.mode === 'flight') ? 'flight' : 
-                  segments.find(s => s.mode === 'train') ? 'train' : 'cab';
-
-  const getPathD = () => {
-    if (primaryMode === 'flight') return "M150 250 Q 400 50 650 250"; // High arc
-    if (primaryMode === 'train') return "M150 250 Q 400 200 650 250"; // Low arc
-    return "M150 250 L 650 250"; // Straight line for road
+  const getModeColor = (mode: TransportMode) => {
+    switch (mode) {
+      case 'flight': return "#3b82f6"; // Blue
+      case 'train': return "#6366f1"; // Indigo
+      case 'cab': return "#10b981"; // Emerald
+      case 'bus': return "#f59e0b"; // Amber
+      default: return "#94a3b8";
+    }
   };
 
-  const getStrokeColor = () => {
-    if (primaryMode === 'flight') return "#3b82f6"; // Blue
-    if (primaryMode === 'train') return "#6366f1"; // Indigo
-    return "#10b981"; // Emerald
+  const getSegmentPath = (index: number, total: number, mode: TransportMode) => {
+    const startX = 150 + (index * (500 / total));
+    const endX = 150 + ((index + 1) * (500 / total));
+    const midX = (startX + endX) / 2;
+    
+    let y = 250;
+    let controlY = 250;
+
+    if (mode === 'flight') controlY = 50;
+    else if (mode === 'train') controlY = 180;
+    else if (mode === 'bus') controlY = 230;
+
+    return `M${startX} 250 Q ${midX} ${controlY} ${endX} 250`;
   };
 
   return (
     <div className="glass-card rounded-[2rem] overflow-hidden h-[400px] relative group bg-slate-50 border-slate-200">
       {/* Mock Map Background */}
       <div className="absolute inset-0">
-        <svg className="w-full h-full opacity-40" viewBox="0 0 800 400">
-          <motion.path 
-            d={getPathD()} 
-            fill="none" 
-            stroke={getStrokeColor()} 
-            strokeWidth="3"
-            strokeDasharray={primaryMode === 'cab' ? "8 8" : "0"}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-          />
+        <svg className="w-full h-full opacity-60" viewBox="0 0 800 400">
+          {/* Background Grid/Lines */}
+          <path d="M0 100 Q 300 300 600 100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
+          <path d="M100 0 Q 400 400 700 0" fill="none" stroke="#e2e8f0" strokeWidth="1" />
+
+          {/* Multi-mode Route Paths */}
+          {segments.map((seg, i) => (
+            <g key={i}>
+              <motion.path 
+                d={getSegmentPath(i, segments.length, seg.mode)} 
+                fill="none" 
+                stroke={getModeColor(seg.mode)} 
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray={seg.mode === 'cab' || seg.mode === 'bus' ? "8 8" : "0"}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, delay: i * 0.5 }}
+              />
+              {/* Segment Connection Points */}
+              <circle cx={150 + (i * (500 / segments.length))} cy="250" r="4" fill="white" stroke={getModeColor(seg.mode)} strokeWidth="2" />
+            </g>
+          ))}
           
+          {/* Final Destination Point */}
+          <circle cx="650" cy="250" r="6" fill="#10b981" stroke="white" strokeWidth="2" />
+
           {/* Live Tracking Vehicle */}
           <AnimatePresence>
             {isTracking && (
               <motion.g
                 initial={{ offsetDistance: "0%" }}
                 animate={{ offsetDistance: "100%" }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                style={{ offsetPath: `path('${getPathD()}')` }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                style={{ offsetPath: `path('${getSegmentPath(0, 1, segments[0].mode)}')` }} // Simplified tracking for demo
               >
-                <circle r="12" fill={getStrokeColor()} fillOpacity="0.1" />
-                <circle r="4" fill={getStrokeColor()} />
+                <circle r="12" fill={getModeColor(segments[0].mode)} fillOpacity="0.1" />
+                <circle r="4" fill={getModeColor(segments[0].mode)} />
                 <motion.circle 
                   r="16" 
-                  stroke={getStrokeColor()} 
+                  stroke={getModeColor(segments[0].mode)} 
                   strokeWidth="1" 
                   fill="none"
                   animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
@@ -79,11 +103,6 @@ const InteractiveMap = ({ source, destination, segments }: InteractiveMapProps) 
               </motion.g>
             )}
           </AnimatePresence>
-
-          <path d="M0 100 Q 300 300 600 100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
-          
-          <circle cx="150" cy="250" r="5" fill={getStrokeColor()} />
-          <circle cx="650" cy="250" r="5" fill="#10b981" />
         </svg>
       </div>
 
@@ -97,6 +116,21 @@ const InteractiveMap = ({ source, destination, segments }: InteractiveMapProps) 
             </div>
             <p className="font-bold text-lg text-slate-900">{source || "Source"}</p>
           </div>
+          
+          {/* Legend */}
+          <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-lg flex flex-col gap-2">
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Route Legend</p>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-1 rounded-full bg-[#3b82f6]" /> <span className="text-[10px] font-bold">Flight</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-1 rounded-full bg-[#6366f1]" /> <span className="text-[10px] font-bold">Train</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-1 rounded-full bg-[#10b981] border-dashed border-t-2" /> <span className="text-[10px] font-bold">Cab</span>
+            </div>
+          </div>
+
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-lg text-right">
             <div className="flex items-center gap-2 justify-end mb-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Destination</p>
@@ -130,52 +164,6 @@ const InteractiveMap = ({ source, destination, segments }: InteractiveMapProps) 
           </motion.div>
         </div>
       </div>
-
-      {/* Live Status Card */}
-      <AnimatePresence>
-        {isTracking && (
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-1/2 right-8 -translate-y-1/2 bg-white/95 backdrop-blur-md p-5 rounded-2xl w-64 pointer-events-none border border-slate-200 shadow-xl border-l-4 border-l-primary"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Live Status</p>
-              </div>
-              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">ON TIME</span>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Current Speed</span>
-                <span className="text-xs font-bold text-slate-900">
-                  {primaryMode === 'flight' ? '840 km/h' : primaryMode === 'train' ? '110 km/h' : '65 km/h'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Mode</span>
-                <span className="text-xs font-bold text-slate-900 capitalize">{primaryMode}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">ETA</span>
-                <span className="text-xs font-bold text-emerald-600">On Schedule</span>
-              </div>
-            </div>
-
-            <div className="mt-4 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <motion.div 
-                className="h-full bg-primary" 
-                initial={{ width: 0 }}
-                animate={{ width: '45%' }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
