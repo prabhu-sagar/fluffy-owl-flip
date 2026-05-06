@@ -9,13 +9,15 @@ import {
   DialogDescription
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, AlertTriangle, CheckCircle2, Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface RouteDetailsProps {
   route: TravelRoute | null;
   isOpen: boolean;
   onClose: () => void;
+  onStartJourney: (route: TravelRoute) => void;
 }
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
@@ -28,21 +30,23 @@ const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   }
 };
 
-const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
+const RouteDetails = ({ route, isOpen, onClose, onStartJourney }: RouteDetailsProps) => {
   if (!route) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-[#1a1c2e] border-[#2d2f45] text-white rounded-[2rem]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-            Journey Breakdown
-            <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full uppercase tracking-wider">
-              {route.type}
-            </span>
+          <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              Journey Breakdown
+              <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full uppercase tracking-wider">
+                {route.type}
+              </span>
+            </div>
           </DialogTitle>
           <DialogDescription className="text-slate-400">
-            AI-optimized itinerary for your trip from Hyderabad to Bangalore.
+            AI-optimized itinerary for your trip.
           </DialogDescription>
         </DialogHeader>
 
@@ -103,6 +107,15 @@ const RouteDetails = ({ route, isOpen, onClose }: RouteDetailsProps) => {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="pt-4">
+            <Button 
+              onClick={() => onStartJourney(route)}
+              className="w-full h-14 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform"
+            >
+              <Play className="w-5 h-5 fill-current" /> Start Journey Now
+            </Button>
           </div>
         </div>
       </DialogContent>
