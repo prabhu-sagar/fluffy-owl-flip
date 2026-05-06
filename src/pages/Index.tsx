@@ -14,9 +14,9 @@ import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Settings, ChevronRight, Zap, Shield, Wallet, Cloud, Sun, CloudLightning } from 'lucide-react';
+import { Settings, Zap, Shield, Wallet, Cloud, Sun, CloudLightning } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast';
 
 const Index = () => {
   const [travelStyle, setTravelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
@@ -25,13 +25,14 @@ const Index = () => {
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  const [cities, setCities] = React.useState({ source: 'Hyderabad', dest: 'Bangalore' });
 
   const loadRoutes = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchTravelPlan({
-        source: 'Hyderabad',
-        destination: 'Bangalore',
+        source: cities.source,
+        destination: cities.dest,
         distance: distance[0],
         style: travelStyle,
         weather: weather
@@ -42,7 +43,12 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [distance, travelStyle, weather]);
+  }, [distance, travelStyle, weather, cities]);
+
+  const handleSearch = (source: string, dest: string) => {
+    setCities({ source, dest });
+    showSuccess(`Searching routes from ${source} to ${dest}`);
+  };
 
   React.useEffect(() => {
     loadRoutes();
@@ -57,7 +63,7 @@ const Index = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           <div className="xl:col-span-8 space-y-8">
-            <SearchForm />
+            <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
@@ -91,7 +97,7 @@ const Index = () => {
               </div>
 
               <div className="space-y-8">
-                <InteractiveMap />
+                <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
             </div>
