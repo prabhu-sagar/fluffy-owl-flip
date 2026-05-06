@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { showError } from '@/utils/toast';
+import { cn } from '@/lib/utils';
 
 interface SearchFormProps {
   onSearch: (source: string, dest: string, date: string) => void;
