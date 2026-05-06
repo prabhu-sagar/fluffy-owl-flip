@@ -64,19 +64,20 @@ const Index = () => {
           <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Main Routes Column */}
+              <div className="lg:col-span-8 flex flex-col gap-6">
                 <div className="flex items-center justify-between px-2">
                   <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
                   <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                    {distance[0]} km
+                    {searchParams.source} to {searchParams.dest}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
                   {isLoading ? (
                     <div className="grid grid-cols-1 gap-6">
-                      {[1, 2].map(i => (
+                      {[1, 2, 3].map(i => (
                         <div key={i} className="h-48 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
                       ))}
                     </div>
@@ -93,7 +94,8 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Side Widgets Column */}
+              <div className="lg:col-span-4 flex flex-col gap-6">
                 <AIInsights />
                 <WeatherWidget />
                 <PricePrediction />
@@ -101,6 +103,7 @@ const Index = () => {
             </div>
           </div>
 
+          {/* AI Assistant Column */}
           <div className="xl:col-span-4">
             <div className="sticky top-24">
               <AIAssistant weather={weather} distance={distance[0]} />

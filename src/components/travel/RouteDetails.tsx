@@ -59,8 +59,8 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl bg-[#1a1c2e] border-[#2d2f45] text-white rounded-[2rem] p-0 overflow-hidden">
-        <div className="h-[300px] w-full relative">
+      <DialogContent className="max-w-3xl bg-[#1a1c2e] border-[#2d2f45] text-white rounded-[2rem] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="h-[250px] w-full relative shrink-0">
           <InteractiveMap 
             source={searchedSource || route.segments[0].from} 
             destination={searchedDest || route.segments[route.segments.length - 1].to} 
@@ -68,7 +68,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
           />
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
               Journey Breakdown
@@ -81,7 +81,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+          <div className="space-y-6">
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
                 <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Total Time</p>
@@ -115,28 +115,36 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
                         <p className="text-[10px] text-slate-500">{segment.duration} mins</p>
                       </div>
                     </div>
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {segment.departureTime} - {segment.arrivalTime}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" /> On Time
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
-          <DialogFooter className="pt-4 border-t border-white/10">
-            <Button variant="ghost" onClick={onClose} className="rounded-xl text-slate-400 hover:text-white hover:bg-white/5">
-              Close
-            </Button>
-            {isPastDate ? (
-              <div className="flex items-center gap-2 text-amber-400 bg-amber-400/10 px-4 py-2 rounded-xl border border-amber-400/20">
-                <CalendarX className="w-4 h-4" />
-                <span className="text-xs font-bold">Cannot book past dates</span>
-              </div>
-            ) : (
-              <Button onClick={handleBook} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
-                <CreditCard className="w-4 h-4" /> Book This Route
-              </Button>
-            )}
-          </DialogFooter>
         </div>
+
+        <DialogFooter className="p-6 border-t border-white/10 shrink-0 bg-[#1a1c2e]">
+          <Button variant="ghost" onClick={onClose} className="rounded-xl text-slate-400 hover:text-white hover:bg-white/5">
+            Close
+          </Button>
+          {isPastDate ? (
+            <div className="flex items-center gap-2 text-amber-400 bg-amber-400/10 px-4 py-2 rounded-xl border border-amber-400/20">
+              <CalendarX className="w-4 h-4" />
+              <span className="text-xs font-bold">Past Date: Booking Disabled</span>
+            </div>
+          ) : (
+            <Button onClick={handleBook} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
+              <CreditCard className="w-4 h-4" /> Book This Route
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
