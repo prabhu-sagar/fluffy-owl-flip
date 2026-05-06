@@ -59,10 +59,12 @@ const Index = () => {
         <DashboardHeader />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          {/* Left Column: Search and Main Content */}
           <div className="xl:col-span-8 space-y-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Recommended Routes Section */}
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -93,20 +95,25 @@ const Index = () => {
                 </div>
               </div>
 
+              {/* Map and Insights Section */}
               <div className="space-y-8">
                 <InteractiveMap source={cities.source} destination={cities.dest} />
                 <AIInsights />
               </div>
             </div>
 
+            {/* Bottom Widgets Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <WeatherWidget />
               <PricePrediction />
             </div>
           </div>
 
+          {/* Right Column: AI Assistant */}
           <div className="xl:col-span-4">
-            <AIAssistant weather={weather} distance={distance[0]} />
+            <div className="sticky top-8">
+              <AIAssistant weather={weather} distance={distance[0]} />
+            </div>
           </div>
         </div>
 

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Search, Mic, Bell, TrendingUp, Leaf, Clock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { showSuccess } from '@/utils/toast';
 
 const StatCard = ({ icon: Icon, label, value, subValue, color }: any) => (
   <div className="glass-card p-4 rounded-2xl flex items-center gap-4 flex-1 min-w-[200px]">
@@ -28,16 +29,25 @@ const DashboardHeader = () => {
           <p className="text-slate-400 text-sm">Plan smarter. Travel better.</p>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="outline" className="rounded-full bg-primary/10 border-primary/20 text-primary gap-2 hover:bg-primary/20">
+          <Button 
+            variant="outline" 
+            onClick={() => showSuccess("Voice search activated...")}
+            className="rounded-full bg-primary/10 border-primary/20 text-primary gap-2 hover:bg-primary/20"
+          >
             <Mic className="w-4 h-4" /> Voice Search
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full text-slate-400">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => showSuccess("No new notifications")}
+            className="rounded-full text-slate-400"
+          >
             <Bell className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           icon={Calendar} 
           label="Upcoming Trips" 

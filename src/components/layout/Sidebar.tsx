@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { showSuccess } from '@/utils/toast';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -22,15 +23,23 @@ const Sidebar = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: Bookmark, label: 'My Trips', path: '/trips' },
-    { icon: Compass, label: 'Explore', path: '#' },
-    { icon: MessageSquare, label: 'AI Assistant', path: '#' },
-    { icon: Bell, label: 'Alerts', path: '#' },
+    { icon: Compass, label: 'Explore', path: '/explore' },
+    { icon: MessageSquare, label: 'AI Assistant', path: '/assistant' },
+    { icon: Bell, label: 'Alerts', path: '/alerts' },
   ];
 
   const bottomItems = [
     { icon: User, label: 'Profile', path: '/profile' },
-    { icon: Settings, label: 'Settings', path: '#' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
+
+  const handleNavigation = (path: string, label: string) => {
+    if (path.startsWith('/') && !['/explore', '/assistant', '/alerts', '/settings'].includes(path)) {
+      navigate(path);
+    } else {
+      showSuccess(`${label} feature coming soon!`);
+    }
+  };
 
   return (
     <aside className="w-20 lg:w-64 h-screen fixed left-0 top-0 bg-white border-r border-slate-200 flex flex-col py-8 z-50">
@@ -49,7 +58,7 @@ const Sidebar = () => {
           return (
             <button
               key={idx}
-              onClick={() => item.path !== '#' && navigate(item.path)}
+              onClick={() => handleNavigation(item.path, item.label)}
               className={cn(
                 "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
                 isActive ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
@@ -68,7 +77,7 @@ const Sidebar = () => {
           return (
             <button
               key={idx}
-              onClick={() => item.path !== '#' && navigate(item.path)}
+              onClick={() => handleNavigation(item.path, item.label)}
               className={cn(
                 "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
                 isActive ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
