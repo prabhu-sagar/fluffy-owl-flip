@@ -61,6 +61,7 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest }: 
           <InteractiveMap 
             source={searchedSource || route.segments[0].from} 
             destination={searchedDest || route.segments[route.segments.length - 1].to} 
+            segments={route.segments}
           />
         </div>
 

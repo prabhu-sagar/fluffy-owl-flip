@@ -1,17 +1,45 @@
 "use client";
 
 import React from 'react';
-import { Navigation, Radio } from 'lucide-react';
+import { Navigation, Radio, MapPinOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { RouteSegment } from '@/lib/mock-data';
 
 interface InteractiveMapProps {
   source?: string;
   destination?: string;
+  segments?: RouteSegment[];
 }
 
-const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: InteractiveMapProps) => {
+const InteractiveMap = ({ source, destination, segments }: InteractiveMapProps) => {
   const [isTracking, setIsTracking] = React.useState(false);
+
+  if (!segments || segments.length === 0) {
+    return (
+      <div className="glass-card rounded-[2rem] overflow-hidden h-[400px] relative flex flex-col items-center justify-center bg-slate-50 border-slate-200 text-slate-400">
+        <MapPinOff className="w-12 h-12 mb-4 opacity-20" />
+        <p className="font-bold text-sm">No route path available</p>
+        <p className="text-xs">Select a route to view the map visualization</p>
+      </div>
+    );
+  }
+
+  // Determine path style based on primary mode
+  const primaryMode = segments.find(s => s.mode === 'flight') ? 'flight' : 
+                  segments.find(s => s.mode === 'train') ? 'train' : 'cab';
+
+  const getPathD = () => {
+    if (primaryMode === 'flight') return "M150 250 Q 400 50 650 250"; // High arc
+    if (primaryMode === 'train') return "M150 250 Q 400 200 650 250"; // Low arc
+    return "M150 250 L 650 250"; // Straight line for road
+  };
+
+  const getStrokeColor = () => {
+    if (primaryMode === 'flight') return "#3b82f6"; // Blue
+    if (primaryMode === 'train') return "#6366f1"; // Indigo
+    return "#10b981"; // Emerald
+  };
 
   return (
     <div className="glass-card rounded-[2rem] overflow-hidden h-[400px] relative group bg-slate-50 border-slate-200">
@@ -19,10 +47,11 @@ const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: Int
       <div className="absolute inset-0">
         <svg className="w-full h-full opacity-40" viewBox="0 0 800 400">
           <motion.path 
-            d="M150 250 Q 400 100 650 250" 
+            d={getPathD()} 
             fill="none" 
-            stroke="#6366f1" 
+            stroke={getStrokeColor()} 
             strokeWidth="3"
+            strokeDasharray={primaryMode === 'cab' ? "8 8" : "0"}
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
@@ -35,13 +64,13 @@ const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: Int
                 initial={{ offsetDistance: "0%" }}
                 animate={{ offsetDistance: "100%" }}
                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                style={{ offsetPath: "path('M150 250 Q 400 100 650 250')" }}
+                style={{ offsetPath: `path('${getPathD()}')` }}
               >
-                <circle r="12" fill="#6366f1" fillOpacity="0.1" />
-                <circle r="4" fill="#6366f1" />
+                <circle r="12" fill={getStrokeColor()} fillOpacity="0.1" />
+                <circle r="4" fill={getStrokeColor()} />
                 <motion.circle 
                   r="16" 
-                  stroke="#6366f1" 
+                  stroke={getStrokeColor()} 
                   strokeWidth="1" 
                   fill="none"
                   animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
@@ -53,7 +82,7 @@ const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: Int
 
           <path d="M0 100 Q 300 300 600 100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
           
-          <circle cx="150" cy="250" r="5" fill="#6366f1" />
+          <circle cx="150" cy="250" r="5" fill={getStrokeColor()} />
           <circle cx="650" cy="250" r="5" fill="#10b981" />
         </svg>
       </div>
@@ -66,14 +95,14 @@ const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: Int
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Origin</p>
             </div>
-            <p className="font-bold text-lg text-slate-900">{source}</p>
+            <p className="font-bold text-lg text-slate-900">{source || "Source"}</p>
           </div>
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-lg text-right">
             <div className="flex items-center gap-2 justify-end mb-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Destination</p>
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <p className="font-bold text-lg text-slate-900">{destination}</p>
+            <p className="font-bold text-lg text-slate-900">{destination || "Destination"}</p>
           </div>
         </div>
 
@@ -122,15 +151,17 @@ const InteractiveMap = ({ source = "Hyderabad", destination = "Bangalore" }: Int
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-500">Current Speed</span>
-                <span className="text-xs font-bold text-slate-900">84 km/h</span>
+                <span className="text-xs font-bold text-slate-900">
+                  {primaryMode === 'flight' ? '840 km/h' : primaryMode === 'train' ? '110 km/h' : '65 km/h'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Next Stop</span>
-                <span className="text-xs font-bold text-slate-900">Anantapur</span>
+                <span className="text-xs text-slate-500">Mode</span>
+                <span className="text-xs font-bold text-slate-900 capitalize">{primaryMode}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-500">ETA</span>
-                <span className="text-xs font-bold text-emerald-600">14:30 PM</span>
+                <span className="text-xs font-bold text-emerald-600">On Schedule</span>
               </div>
             </div>
 
