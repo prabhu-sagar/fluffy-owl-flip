@@ -38,11 +38,9 @@ export const generateRoutes = (
 ): TravelRoute[] => {
   const routes: TravelRoute[] = [];
   const weatherImpact = WEATHER_DELAY_MAP[weather];
-  
-  // Use a simple hash of the destination name to vary prices/durations slightly
   const citySeed = dest.length + (dest.charCodeAt(0) || 0);
 
-  // 1. Premium Flight + Cab
+  // 1. Premium Flight + Cab (Fastest)
   routes.push({
     id: 'r1',
     totalDuration: 150 + (citySeed % 60),
@@ -58,7 +56,7 @@ export const generateRoutes = (
     ]
   });
 
-  // 2. Express Train + Metro
+  // 2. Express Train + Metro (ONLY THIS IS RECOMMENDED/BEST CHOICE)
   routes.push({
     id: 'r2',
     totalDuration: 380 + (citySeed % 100),
@@ -74,7 +72,7 @@ export const generateRoutes = (
     ]
   });
 
-  // 3. Budget Bus
+  // 3. Budget Bus (Cheapest)
   routes.push({
     id: 'r3',
     totalDuration: 550 + (citySeed % 120),
@@ -88,19 +86,19 @@ export const generateRoutes = (
     ]
   });
 
-  // Add more variations
-  for (let i = 4; i <= 10; i++) {
+  // Other routes are just standard
+  for (let i = 4; i <= 8; i++) {
     routes.push({
       id: `r${i}`,
-      totalDuration: 200 + (i * 40) + (citySeed % 30),
-      totalCost: 4500 - (i * 350) + (citySeed * 2),
+      totalDuration: 200 + (i * 40),
+      totalCost: 4500 - (i * 350),
       reliabilityScore: 90 - i,
-      type: i % 2 === 0 ? 'fastest' : 'recommended',
+      type: 'eco-friendly',
       co2Saved: i * 0.8,
       score: 30 + i,
       segments: [
         { mode: 'cab', from: source, to: 'Transit Hub', duration: 40, cost: 300, departureTime: '10:00', arrivalTime: '10:40', delayRisk: 0.1 },
-        { mode: i % 3 === 0 ? 'flight' : 'train', from: 'Transit Hub', to: 'Dest Hub', duration: 120 + (i * 20), cost: 1500, departureTime: '12:00', arrivalTime: '15:00', delayRisk: 0.1 },
+        { mode: 'train', from: 'Transit Hub', to: 'Dest Hub', duration: 120 + (i * 20), cost: 1500, departureTime: '12:00', arrivalTime: '15:00', delayRisk: 0.1 },
         { mode: 'bus', from: 'Dest Hub', to: dest, duration: 60, cost: 200, departureTime: '15:30', arrivalTime: '16:30', delayRisk: 0.1 }
       ]
     });
