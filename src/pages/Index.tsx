@@ -20,14 +20,18 @@ const Index = () => {
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
-  const [cities, setCities] = React.useState({ source: 'Hyderabad', dest: 'Bangalore' });
+  const [searchParams, setSearchParams] = React.useState({ 
+    source: 'Hyderabad', 
+    dest: 'Bangalore',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   const loadRoutes = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchTravelPlan({
-        source: cities.source,
-        destination: cities.dest,
+        source: searchParams.source,
+        destination: searchParams.dest,
         distance: distance[0],
         style: travelStyle,
         weather: weather
@@ -38,16 +42,16 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [distance, travelStyle, weather, cities]);
+  }, [distance, travelStyle, weather, searchParams]);
 
-  const handleSearch = (source: string, dest: string) => {
-    setCities({ source, dest });
-    showSuccess(`Searching routes from ${source} to ${dest}`);
+  const handleSearch = (source: string, dest: string, date: string) => {
+    setSearchParams({ source, dest, date });
+    showSuccess(`Searching routes for ${date} from ${source} to ${dest}`);
   };
 
   React.useEffect(() => {
     loadRoutes();
-  }, [cities, loadRoutes]);
+  }, [searchParams, loadRoutes]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
@@ -57,13 +61,10 @@ const Index = () => {
         <DashboardHeader />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Left Column: Main Content Area (8/12) */}
           <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            {/* Main Content Grid */}
             <div className="flex flex-col gap-8">
-              {/* Recommended Routes Section */}
               <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between px-2">
                   <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
@@ -92,7 +93,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Insights and Widgets Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <AIInsights />
                 <WeatherWidget />
@@ -101,7 +101,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Column: AI Assistant (4/12) */}
           <div className="xl:col-span-4">
             <div className="sticky top-24">
               <AIAssistant weather={weather} distance={distance[0]} />

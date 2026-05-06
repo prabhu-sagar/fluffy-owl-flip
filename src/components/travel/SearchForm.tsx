@@ -8,13 +8,14 @@ import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 
 interface SearchFormProps {
-  onSearch: (source: string, dest: string) => void;
+  onSearch: (source: string, dest: string, date: string) => void;
   isLoading?: boolean;
 }
 
 const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
   const [source, setSource] = React.useState('Hyderabad');
   const [dest, setDest] = React.useState('Bangalore');
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const handleSwap = () => {
     setSource(dest);
@@ -23,7 +24,7 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(source, dest);
+    onSearch(source, dest, date);
   };
 
   return (
@@ -76,7 +77,12 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Date</label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-              <Input type="date" className="pl-10 bg-slate-50 border-slate-200 h-12 rounded-2xl focus:bg-white transition-all" />
+              <Input 
+                type="date" 
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="pl-10 bg-slate-50 border-slate-200 h-12 rounded-2xl focus:bg-white transition-all" 
+              />
             </div>
           </div>
 
