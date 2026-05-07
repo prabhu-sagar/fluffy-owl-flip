@@ -22,6 +22,7 @@ interface RouteDetailsProps {
   searchedSource?: string;
   searchedDest?: string;
   searchedDate?: string;
+  showBooking?: boolean;
 }
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
@@ -34,7 +35,15 @@ const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   }
 };
 
-const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, searchedDate }: RouteDetailsProps) => {
+const RouteDetails = ({ 
+  route, 
+  isOpen, 
+  onClose, 
+  searchedSource, 
+  searchedDest, 
+  searchedDate,
+  showBooking = true 
+}: RouteDetailsProps) => {
   if (!route) return null;
 
   const isPastDate = searchedDate ? new Date(searchedDate) < new Date(new Date().setHours(0,0,0,0)) : false;
@@ -135,15 +144,17 @@ const RouteDetails = ({ route, isOpen, onClose, searchedSource, searchedDest, se
             <Button variant="ghost" onClick={onClose} className="rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 font-bold px-6">
               Close
             </Button>
-            {isPastDate ? (
-              <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-6 py-3 rounded-2xl border border-amber-100">
-                <CalendarX className="w-5 h-5" />
-                <span className="text-xs font-black uppercase tracking-widest">Past Date</span>
-              </div>
-            ) : (
-              <Button onClick={handleBook} className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base hover:scale-[1.02] transition-transform">
-                <CreditCard className="w-5 h-5" /> Book Route
-              </Button>
+            {showBooking && (
+              isPastDate ? (
+                <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-6 py-3 rounded-2xl border border-amber-100">
+                  <CalendarX className="w-5 h-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Past Date</span>
+                </div>
+              ) : (
+                <Button onClick={handleBook} className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base hover:scale-[1.02] transition-transform">
+                  <CreditCard className="w-5 h-5" /> Book Route
+                </Button>
+              )
             )}
           </DialogFooter>
         </div>

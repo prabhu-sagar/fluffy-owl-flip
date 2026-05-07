@@ -135,6 +135,7 @@ const MyTrips = () => {
           searchedSource={selectedTrip?.source}
           searchedDest={selectedTrip?.destination}
           searchedDate={selectedTrip?.date}
+          showBooking={false}
         />
       </main>
     </div>
