@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { TrendingUp, Leaf, Clock, Calendar } from 'lucide-react';
+import { TrendingUp, Clock, Calendar } from 'lucide-react';
 
 const StatCard = ({ icon: Icon, label, value, subValue, color }: any) => (
   <div className="glass-card p-5 rounded-[2rem] flex items-center gap-4 shadow-sm border-slate-200">
@@ -28,7 +28,7 @@ const DashboardHeader = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard 
           icon={Calendar} 
           label="Upcoming Trips" 
@@ -42,13 +42,6 @@ const DashboardHeader = () => {
           value="₹2,450" 
           subValue="This Month" 
           color="emerald-500" 
-        />
-        <StatCard 
-          icon={Leaf} 
-          label="CO₂ Saved" 
-          value="12.5 kg" 
-          subValue="Eco Score" 
-          color="green-500" 
         />
         <StatCard 
           icon={Clock} 

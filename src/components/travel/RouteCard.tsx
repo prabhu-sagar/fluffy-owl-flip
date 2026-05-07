@@ -14,11 +14,11 @@ interface RouteCardProps {
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
-    case 'flight': return <Plane className="w-5 h-5" />;
-    case 'train': return <Train className="w-5 h-5" />;
-    case 'bus': return <Bus className="w-5 h-5" />;
-    case 'cab': return <Car className="w-5 h-5" />;
-    default: return <ChevronRight className="w-5 h-5" />;
+    case 'flight': return <Plane className="w-5 h-5 text-blue-500" />;
+    case 'train': return <Train className="w-5 h-5 text-indigo-600" />;
+    case 'bus': return <Bus className="w-5 h-5 text-amber-500" />;
+    case 'cab': return <Car className="w-5 h-5 text-emerald-600" />;
+    default: return <ChevronRight className="w-5 h-5 text-slate-400" />;
   }
 };
 
@@ -44,12 +44,17 @@ const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
       )}
 
       <div className="flex flex-col gap-6">
-        {/* Header: Transport Modes */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {route.segments.map((seg, i) => (
               <React.Fragment key={i}>
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
+                <div className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-xl border transition-colors",
+                  seg.mode === 'flight' ? "bg-blue-50 border-blue-100" :
+                  seg.mode === 'train' ? "bg-indigo-50 border-indigo-100" :
+                  seg.mode === 'cab' ? "bg-emerald-50 border-emerald-100" :
+                  "bg-slate-50 border-slate-100"
+                )}>
                   <ModeIcon mode={seg.mode} />
                 </div>
                 {i < route.segments.length - 1 && (
@@ -70,7 +75,6 @@ const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
           </div>
         </div>
 
-        {/* Body: Main Stats */}
         <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -88,7 +92,6 @@ const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
           </div>
         </div>
 
-        {/* Footer: Action */}
         <div className="flex items-center justify-between pt-2">
           <div className="flex -space-x-2">
             {[1, 2, 3].map((_, i) => (

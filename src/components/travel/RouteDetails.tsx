@@ -14,6 +14,7 @@ import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, Calend
 import { Button } from '@/components/ui/button';
 import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
+import { cn } from '@/lib/utils';
 
 interface RouteDetailsProps {
   route: TravelRoute | null;
@@ -28,11 +29,11 @@ interface RouteDetailsProps {
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
-    case 'flight': return <Plane className="w-5 h-5" />;
-    case 'train': return <Train className="w-5 h-5" />;
-    case 'bus': return <Bus className="w-5 h-5" />;
-    case 'cab': return <Car className="w-5 h-5" />;
-    default: return <MapPin className="w-5 h-5" />;
+    case 'flight': return <Plane className="w-5 h-5 text-blue-500" />;
+    case 'train': return <Train className="w-5 h-5 text-indigo-600" />;
+    case 'bus': return <Bus className="w-5 h-5 text-amber-500" />;
+    case 'cab': return <Car className="w-5 h-5 text-emerald-600" />;
+    default: return <MapPin className="w-5 h-5 text-slate-400" />;
   }
 };
 
@@ -71,7 +72,6 @@ const RouteDetails = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl bg-white border-slate-200 text-slate-900 rounded-[2.5rem] p-0 overflow-hidden flex flex-col lg:flex-row h-[85vh] lg:h-[600px]">
-        {/* Left Side: Map (Half) */}
         <div className="lg:w-1/2 h-[300px] lg:h-auto relative shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100">
           <InteractiveMap 
             source={searchedSource || route.segments[0].from} 
@@ -81,7 +81,6 @@ const RouteDetails = ({
           />
         </div>
 
-        {/* Right Side: Details */}
         <div className="lg:w-1/2 flex flex-col overflow-hidden bg-white">
           <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
             <DialogHeader>
@@ -96,25 +95,27 @@ const RouteDetails = ({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Time</p>
                 <p className="text-lg font-black text-slate-900">{Math.floor(route.totalDuration / 60)}h {Math.round(route.totalDuration % 60)}m</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Cost</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cost</p>
                 <p className="text-lg font-black text-primary">₹{route.totalCost.toLocaleString()}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">CO₂</p>
-                <p className="text-lg font-black text-emerald-500">{route.co2Saved}kg</p>
               </div>
             </div>
 
             <div className="relative space-y-4 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
               {route.segments.map((segment, idx) => (
                 <div key={idx} className="relative pl-14 group">
-                  <div className="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center z-10 group-hover:border-primary transition-colors shadow-sm">
+                  <div className={cn(
+                    "absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 flex items-center justify-center z-10 transition-colors shadow-sm",
+                    segment.mode === 'flight' ? "border-blue-100" :
+                    segment.mode === 'train' ? "border-indigo-100" :
+                    segment.mode === 'cab' ? "border-emerald-100" :
+                    "border-slate-200"
+                  )}>
                     <ModeIcon mode={segment.mode} />
                   </div>
                   
@@ -143,7 +144,7 @@ const RouteDetails = ({
           </div>
 
           <DialogFooter className="p-8 border-t border-slate-100 bg-white shrink-0">
-            <Button variant="ghost" onClick={onClose} className="rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 font-bold px-6">
+            <Button variant="ghost" onClick={onClose} className="rounded-2xl text-slate-400 font-bold px-6">
               Close
             </Button>
             {showBooking && (
@@ -153,7 +154,7 @@ const RouteDetails = ({
                   <span className="text-xs font-black uppercase tracking-widest">Past Date</span>
                 </div>
               ) : (
-                <Button onClick={handleBook} className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base hover:scale-[1.02] transition-transform">
+                <Button onClick={handleBook} className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base">
                   <CreditCard className="w-5 h-5" /> Book Route
                 </Button>
               )
