@@ -4,15 +4,6 @@ const WEATHER_DELAY_MAP = {
   'Storm': 3
 };
 
-export const DELAY_DATA = [
-  { name: '08:00', delay: 5 },
-  { name: '10:00', delay: 12 },
-  { name: '12:00', delay: 8 },
-  { name: '14:00', delay: 15 },
-  { name: '16:00', delay: 20 },
-  { name: '18:00', delay: 10 },
-];
-
 export const generateRoutes = (
   distance, 
   style,
