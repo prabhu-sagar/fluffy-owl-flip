@@ -9,12 +9,7 @@ import { motion } from 'framer-motion';
 import { showError } from '@/utils/toast';
 import { cn } from '@/lib/utils';
 
-interface SearchFormProps {
-  onSearch: (source: string, dest: string, date: string) => void;
-  isLoading?: boolean;
-}
-
-const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
+const SearchForm = ({ onSearch, isLoading }) => {
   const [source, setSource] = React.useState('Hyderabad');
   const [dest, setDest] = React.useState('Bangalore');
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
@@ -25,7 +20,7 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
     setDest(source);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     onSearch(source, dest, date);
   };
@@ -36,15 +31,14 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
       return;
     }
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'en-US';
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript.toLowerCase();
-      // Simple parser: "from Hyderabad to Bangalore"
       if (transcript.includes('from') && transcript.includes('to')) {
         const parts = transcript.split('to');
         const fromPart = parts[0].replace('from', '').trim();
