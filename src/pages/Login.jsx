@@ -88,7 +88,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = React.useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     showSuccess(isSignUp ? "Account created successfully!" : "Welcome back!");
     navigate('/');
