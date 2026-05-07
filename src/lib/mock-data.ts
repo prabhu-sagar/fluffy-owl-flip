@@ -1,17 +1,42 @@
-const WEATHER_DELAY_MAP = {
+export type TransportMode = 'flight' | 'train' | 'bus' | 'metro' | 'cab' | 'walking';
+export type WeatherCondition = 'Clear' | 'Rain' | 'Storm';
+
+export interface RouteSegment {
+  mode: TransportMode;
+  from: string;
+  to: string;
+  duration: number;
+  cost: number;
+  departureTime: string;
+  arrivalTime: string;
+  delayRisk: number;
+}
+
+export interface TravelRoute {
+  id: string;
+  totalDuration: number;
+  totalCost: number;
+  reliabilityScore: number;
+  type: 'fastest' | 'cheapest' | 'recommended' | 'eco-friendly';
+  segments: RouteSegment[];
+  co2Saved: number;
+  score: number;
+}
+
+const WEATHER_DELAY_MAP: Record<WeatherCondition, number> = {
   'Clear': 0,
   'Rain': 2,
   'Storm': 3
 };
 
 export const generateRoutes = (
-  distance, 
-  style,
-  weather = 'Clear',
-  source = "Source",
-  dest = "Destination"
-) => {
-  const routes = [];
+  distance: number, 
+  style: 'balanced' | 'fastest' | 'cheapest',
+  weather: WeatherCondition = 'Clear',
+  source: string = "Source",
+  dest: string = "Destination"
+): TravelRoute[] => {
+  const routes: TravelRoute[] = [];
   const weatherImpact = WEATHER_DELAY_MAP[weather];
   const citySeed = dest.length + (dest.charCodeAt(0) || 0);
 
@@ -31,7 +56,7 @@ export const generateRoutes = (
     ]
   });
 
-  // 2. Express Train + Metro (Recommended)
+  // 2. Express Train + Metro (ONLY THIS IS RECOMMENDED/BEST CHOICE)
   routes.push({
     id: 'r2',
     totalDuration: 380 + (citySeed % 100),
@@ -61,6 +86,24 @@ export const generateRoutes = (
     ]
   });
 
+  // Other routes are just standard
+  for (let i = 4; i <= 8; i++) {
+    routes.push({
+      id: `r${i}`,
+      totalDuration: 200 + (i * 40),
+      totalCost: 4500 - (i * 350),
+      reliabilityScore: 90 - i,
+      type: 'eco-friendly',
+      co2Saved: i * 0.8,
+      score: 30 + i,
+      segments: [
+        { mode: 'cab', from: source, to: 'Transit Hub', duration: 40, cost: 300, departureTime: '10:00', arrivalTime: '10:40', delayRisk: 0.1 },
+        { mode: 'train', from: 'Transit Hub', to: 'Dest Hub', duration: 120 + (i * 20), cost: 1500, departureTime: '12:00', arrivalTime: '15:00', delayRisk: 0.1 },
+        { mode: 'bus', from: 'Dest Hub', to: dest, duration: 60, cost: 200, departureTime: '15:30', arrivalTime: '16:30', delayRisk: 0.1 }
+      ]
+    });
+  }
+
   return routes;
 };
 
@@ -71,4 +114,13 @@ export const PRICE_TRENDS = [
   { day: '4 May', price: 2100 },
   { day: '5 May', price: 2400 },
   { day: '6 May', price: 2800 },
+];
+
+export const DELAY_DATA = [
+  { time: '06:00', delay: 5 },
+  { time: '09:00', delay: 25 },
+  { time: '12:00', delay: 15 },
+  { time: '15:00', delay: 10 },
+  { time: '18:00', delay: 30 },
+  { time: '21:00', delay: 5 },
 ];

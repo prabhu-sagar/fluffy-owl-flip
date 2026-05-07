@@ -3,8 +3,16 @@
 import React from 'react';
 import { MapPinOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { RouteSegment, TransportMode } from '@/lib/mock-data';
 
-const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
+interface InteractiveMapProps {
+  source?: string;
+  destination?: string;
+  segments?: RouteSegment[];
+  isSatellite?: boolean;
+}
+
+const InteractiveMap = ({ source, destination, segments, isSatellite }: InteractiveMapProps) => {
   if (!segments || segments.length === 0) {
     return (
       <div className="glass-card rounded-[2rem] overflow-hidden h-full relative flex flex-col items-center justify-center bg-slate-50 border-slate-200 text-slate-400">
@@ -14,7 +22,7 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
     );
   }
 
-  const getModeColor = (mode) => {
+  const getModeColor = (mode: TransportMode) => {
     if (isSatellite) return "#ffffff";
     switch (mode) {
       case 'flight': return "#3b82f6";
@@ -25,7 +33,7 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
     }
   };
 
-  const getSegmentPath = (index, total) => {
+  const getSegmentPath = (index: number, total: number) => {
     const startX = 100 + (index * (600 / total));
     const endX = 100 + ((index + 1) * (600 / total));
     const midX = (startX + endX) / 2;
@@ -34,6 +42,7 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
 
   return (
     <div className="w-full h-full relative group overflow-hidden bg-slate-100">
+      {/* Satellite Background */}
       {isSatellite && (
         <div className="absolute inset-0 z-0">
           <img 
@@ -69,6 +78,7 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
           
           <circle cx="700" cy="200" r="6" fill="#10b981" stroke="white" strokeWidth="2" />
           
+          {/* Live Pulse for Satellite Mode */}
           {isSatellite && (
             <motion.g
               animate={{ x: [0, 600] }}
@@ -86,6 +96,7 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }) => {
         </svg>
       </div>
 
+      {/* Route Overlay */}
       <div className="absolute inset-0 p-8 flex flex-col justify-between pointer-events-none z-20">
         <div className="flex justify-between items-start">
           <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-lg">
