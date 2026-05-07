@@ -1,11 +1,18 @@
 "use client";
 
 import React from 'react';
+import { TravelRoute, TransportMode } from '@/lib/mock-data';
 import { Plane, Train, Bus, Car, ChevronRight, Clock, Wallet, ShieldCheck, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const ModeIcon = ({ mode }) => {
+interface RouteCardProps {
+  route: TravelRoute;
+  index: number;
+  onViewDetails: (route: TravelRoute) => void;
+}
+
+const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
     case 'flight': return <Plane className="w-5 h-5 text-blue-500" />;
     case 'train': return <Train className="w-5 h-5 text-indigo-600" />;
@@ -15,8 +22,8 @@ const ModeIcon = ({ mode }) => {
   }
 };
 
-const RouteCard = ({ route, index, onViewDetails }) => {
-  const formatDuration = (mins) => {
+const RouteCard = ({ route, index, onViewDetails }: RouteCardProps) => {
+  const formatDuration = (mins: number) => {
     const h = Math.floor(mins / 60);
     const m = Math.round(mins % 60);
     return `${h}h ${m}m`;

@@ -9,13 +9,25 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
+import { TravelRoute, TransportMode } from '@/lib/mock-data';
 import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
 import { cn } from '@/lib/utils';
 
-const ModeIcon = ({ mode }) => {
+interface RouteDetailsProps {
+  route: TravelRoute | null;
+  isOpen: boolean;
+  onClose: () => void;
+  searchedSource?: string;
+  searchedDest?: string;
+  searchedDate?: string;
+  showBooking?: boolean;
+  isSatellite?: boolean;
+}
+
+const ModeIcon = ({ mode }: { mode: TransportMode }) => {
   switch (mode) {
     case 'flight': return <Plane className="w-5 h-5 text-blue-500" />;
     case 'train': return <Train className="w-5 h-5 text-indigo-600" />;
@@ -34,7 +46,7 @@ const RouteDetails = ({
   searchedDate,
   showBooking = true,
   isSatellite = false
-}) => {
+}: RouteDetailsProps) => {
   if (!route) return null;
 
   const isPastDate = searchedDate ? new Date(searchedDate) < new Date(new Date().setHours(0,0,0,0)) : false;

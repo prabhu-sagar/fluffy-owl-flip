@@ -3,7 +3,7 @@
 import React from 'react';
 import { TrendingUp, Clock, Calendar } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, label, value, subValue, color }) => (
+const StatCard = ({ icon: Icon, label, value, subValue, color }: any) => (
   <div className="glass-card p-5 rounded-[2rem] flex items-center gap-4 shadow-sm border-slate-200">
     <div className={`p-3 rounded-2xl bg-${color}/10`}>
       <Icon className={`w-5 h-5 text-${color}`} />
