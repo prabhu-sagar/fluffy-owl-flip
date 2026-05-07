@@ -18,7 +18,7 @@ import {
 import { showSuccess } from '@/utils/toast';
 
 const Explore = () => {
-  const [selectedDest, setSelectedDest] = React.useState(null);
+  const [selectedDest, setSelectedDest] = React.useState<any>(null);
 
   const destinations = [
     { 
@@ -55,7 +55,7 @@ const Explore = () => {
     },
   ];
 
-  const handleBook = (name) => {
+  const handleBook = (name: string) => {
     showSuccess(`Booking process started for ${name}!`);
     setSelectedDest(null);
   };
