@@ -5,18 +5,24 @@ import { Send, Mic, Sparkles, Volume2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { WeatherCondition } from '@/lib/mock-data';
 import { processChatQuery } from '@/services/aiService';
 import { showError } from '@/utils/toast';
 import { cn } from '@/lib/utils';
 
-const AIAssistant = ({ weather, distance }) => {
+interface AIAssistantProps {
+  weather: WeatherCondition;
+  distance: number;
+}
+
+const AIAssistant = ({ weather, distance }: AIAssistantProps) => {
   const [isListening, setIsListening] = React.useState(false);
   const [input, setInput] = React.useState('');
   const [messages, setMessages] = React.useState([
     { role: 'ai', content: `Welcome back! I've analyzed your ${distance}km trip. Conditions are ${weather.toLowerCase()}, making it a great day for travel.` }
   ]);
   const [isTyping, setIsTyping] = React.useState(false);
-  const scrollRef = React.useRef(null);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -24,7 +30,7 @@ const AIAssistant = ({ weather, distance }) => {
     }
   }, [messages, isTyping]);
 
-  const handleSend = async (text = input) => {
+  const handleSend = async (text: string = input) => {
     const messageText = text.trim();
     if (!messageText) return;
     
@@ -49,13 +55,13 @@ const AIAssistant = ({ weather, distance }) => {
       return;
     }
 
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'en-US';
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setInput(transcript);
       handleSend(transcript);
