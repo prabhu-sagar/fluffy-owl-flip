@@ -1,8 +1,6 @@
 "use client";
 
-import { TravelRoute, WeatherCondition } from '@/lib/mock-data';
-
-export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondition) => {
+export const getAIRecommendation = (routes, weather) => {
   if (weather === 'Storm') {
     return routes.find(r => r.segments.every(s => s.mode !== 'flight')) || routes[0];
   }
@@ -14,7 +12,7 @@ export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondi
   });
 };
 
-export const processChatQuery = async (query: string) => {
+export const processChatQuery = async (query) => {
   // Simulate network latency
   await new Promise(resolve => setTimeout(resolve, 800));
   

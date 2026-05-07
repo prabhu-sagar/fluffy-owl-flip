@@ -31,7 +31,7 @@ const Navbar = () => {
     { icon: Bell, label: 'Alerts', path: '/alerts' },
   ];
 
-  const handleNavigation = (path: string, label: string) => {
+  const handleNavigation = (path, label) => {
     if (path === '/settings') {
       showSuccess("Settings feature coming soon!");
       return;

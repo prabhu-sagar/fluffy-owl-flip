@@ -9,17 +9,16 @@ import SearchForm from '@/components/travel/SearchForm';
 import AIInsights from '@/components/travel/AIInsights';
 import RouteDetails from '@/components/travel/RouteDetails';
 import { WeatherWidget, PricePrediction } from '@/components/travel/TravelWidgets';
-import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
 import { showError, showSuccess } from '@/utils/toast';
 
 const Index = () => {
-  const [travelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
+  const [travelStyle] = React.useState('balanced');
   const [distance] = React.useState([600]);
-  const [weather] = React.useState<WeatherCondition>('Clear');
-  const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
+  const [weather] = React.useState('Clear');
+  const [routes, setRoutes] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  const [selectedRoute, setSelectedRoute] = React.useState(null);
   const [searchParams, setSearchParams] = React.useState({ 
     source: 'Hyderabad', 
     dest: 'Bangalore',
@@ -52,7 +51,7 @@ const Index = () => {
     }
   }, [distance, travelStyle, weather, searchParams]);
 
-  const handleSearch = (source: string, dest: string, date: string = searchParams.date) => {
+  const handleSearch = (source, dest, date = searchParams.date) => {
     setSearchParams(prev => ({ ...prev, source, dest, date }));
     showSuccess(`Searching routes from ${source} to ${dest}`);
   };
