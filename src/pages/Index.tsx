@@ -66,7 +66,7 @@ const Index = () => {
       <Navbar />
       
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto max-w-7xl">
-        <DashboardHeader onVoiceSearch={(s, d) => handleSearch(s, d)} />
+        <DashboardHeader />
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left Column: Search and Routes */}
