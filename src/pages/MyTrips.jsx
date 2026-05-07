@@ -16,8 +16,8 @@ import {
 import { showSuccess } from '@/utils/toast';
 
 const MyTrips = () => {
-  const [selectedTrip, setSelectedTrip] = React.useState<any | null>(null);
-  const [trips, setTrips] = React.useState<any[]>([]);
+  const [selectedTrip, setSelectedTrip] = React.useState(null);
+  const [trips, setTrips] = React.useState([]);
 
   const loadTrips = () => {
     const storedTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
@@ -28,7 +28,7 @@ const MyTrips = () => {
     loadTrips();
   }, []);
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = (id, e) => {
     e.stopPropagation();
     const updatedTrips = trips.filter(t => t.id !== id);
     localStorage.setItem('bookedTrips', JSON.stringify(updatedTrips));
@@ -36,7 +36,7 @@ const MyTrips = () => {
     showSuccess("Trip removed successfully");
   };
 
-  const getStatus = (dateStr: string) => {
+  const getStatus = (dateStr) => {
     const tripDate = new Date(dateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
