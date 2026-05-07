@@ -4,7 +4,7 @@ import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, ChevronRight, Trash2, MoreVertical } from 'lucide-react';
+import { Calendar, ChevronRight, Trash2, MoreVertical, Map } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RouteDetails from '@/components/travel/RouteDetails';
 import { 
@@ -83,7 +83,7 @@ const MyTrips = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-6">
                           <div className={`w-16 h-16 rounded-2xl ${status.color}/10 flex items-center justify-center`}>
-                            <Calendar className={`${status.color.replace('bg-', 'text-')} w-8 h-8`} />
+                            <Map className={`${status.color.replace('bg-', 'text-')} w-8 h-8`} />
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -136,6 +136,7 @@ const MyTrips = () => {
           searchedDest={selectedTrip?.destination}
           searchedDate={selectedTrip?.date}
           showBooking={false}
+          isSatellite={true}
         />
       </main>
     </div>

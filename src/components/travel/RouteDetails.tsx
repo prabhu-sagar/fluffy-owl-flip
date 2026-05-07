@@ -10,7 +10,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, Wallet, CheckCircle2, CreditCard, CalendarX } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
@@ -23,6 +23,7 @@ interface RouteDetailsProps {
   searchedDest?: string;
   searchedDate?: string;
   showBooking?: boolean;
+  isSatellite?: boolean;
 }
 
 const ModeIcon = ({ mode }: { mode: TransportMode }) => {
@@ -42,7 +43,8 @@ const RouteDetails = ({
   searchedSource, 
   searchedDest, 
   searchedDate,
-  showBooking = true 
+  showBooking = true,
+  isSatellite = false
 }: RouteDetailsProps) => {
   if (!route) return null;
 
@@ -68,18 +70,19 @@ const RouteDetails = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl bg-white border-slate-200 text-slate-900 rounded-[2.5rem] p-0 overflow-hidden flex flex-col lg:flex-row h-[85vh] lg:h-auto lg:max-h-[90vh]">
-        {/* Left Side: Full Map Tracking */}
-        <div className="lg:w-3/5 h-[400px] lg:h-auto relative shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100 bg-slate-50">
+      <DialogContent className="max-w-6xl bg-white border-slate-200 text-slate-900 rounded-[2.5rem] p-0 overflow-hidden flex flex-col lg:flex-row h-[85vh] lg:h-[600px]">
+        {/* Left Side: Map (Half) */}
+        <div className="lg:w-1/2 h-[300px] lg:h-auto relative shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100">
           <InteractiveMap 
             source={searchedSource || route.segments[0].from} 
             destination={searchedDest || route.segments[route.segments.length - 1].to} 
             segments={route.segments}
+            isSatellite={isSatellite}
           />
         </div>
 
-        {/* Right Side: Details (Light Theme) */}
-        <div className="lg:w-2/5 flex flex-col overflow-hidden bg-white">
+        {/* Right Side: Details */}
+        <div className="lg:w-1/2 flex flex-col overflow-hidden bg-white">
           <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
             <DialogHeader>
               <div className="flex items-center justify-between mb-2">
@@ -89,7 +92,7 @@ const RouteDetails = ({
                 </span>
               </div>
               <DialogDescription className="text-slate-500 text-base">
-                Optimized itinerary from <span className="text-slate-900 font-bold">{searchedSource || route.segments[0].from}</span> to <span className="text-slate-900 font-bold">{searchedDest || route.segments[route.segments.length - 1].to}</span>.
+                Itinerary from <span className="text-slate-900 font-bold">{searchedSource || route.segments[0].from}</span> to <span className="text-slate-900 font-bold">{searchedDest || route.segments[route.segments.length - 1].to}</span>.
               </DialogDescription>
             </DialogHeader>
 
@@ -108,22 +111,21 @@ const RouteDetails = ({
               </div>
             </div>
 
-            <div className="relative space-y-6 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+            <div className="relative space-y-4 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
               {route.segments.map((segment, idx) => (
                 <div key={idx} className="relative pl-14 group">
                   <div className="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center z-10 group-hover:border-primary transition-colors shadow-sm">
                     <ModeIcon mode={segment.mode} />
                   </div>
                   
-                  <div className="bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100 hover:border-primary/20 transition-all">
-                    <div className="flex justify-between items-start mb-3">
+                  <div className="bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-black text-base capitalize tracking-tight text-slate-900">{segment.mode}</h4>
+                        <h4 className="font-black text-base capitalize text-slate-900">{segment.mode}</h4>
                         <p className="text-xs text-slate-500">{segment.from} → {segment.to}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-black text-lg text-primary">₹{segment.cost}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">{segment.duration}m</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">
