@@ -5,17 +5,23 @@ import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Shield, Bell, CreditCard, LogOut, Phone } from 'lucide-react';
+import { User, Mail, Shield, Bell, CreditCard, LogOut, Phone, Key } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [apiKey, setApiKey] = React.useState(localStorage.getItem('VITE_GEMINI_API_KEY') || '');
 
   const handleSignOut = () => {
     showSuccess("Signed out successfully");
     navigate('/login');
+  };
+
+  const saveApiKey = () => {
+    localStorage.setItem('VITE_GEMINI_API_KEY', apiKey);
+    showSuccess("API Key saved to local storage!");
   };
 
   return (
@@ -44,8 +50,8 @@ const Profile = () => {
                 {[
                   { icon: User, label: 'Personal Info', active: true },
                   { icon: Shield, label: 'Security' },
+                  { icon: Key, label: 'API Configuration' },
                   { icon: Bell, label: 'Notifications' },
-                  { icon: CreditCard, label: 'Payments' },
                 ].map((item, i) => (
                   <button 
                     key={i}
@@ -63,32 +69,39 @@ const Profile = () => {
 
             <div className="md:col-span-2 space-y-6">
               <Card className="p-8 bg-white border-slate-200 space-y-6 shadow-sm rounded-3xl">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase">Full Name</label>
-                    <Input defaultValue="Rohit Verma" className="bg-slate-50 border-slate-200 rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
-                    <Input defaultValue="rohit.v@example.com" className="bg-slate-50 border-slate-200 rounded-xl" />
-                  </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase">Phone Number</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <Input defaultValue="+91 98765 43210" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                <div className="space-y-6">
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <User className="w-5 h-5 text-primary" /> Personal Information
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-400 uppercase">Full Name</label>
+                      <Input defaultValue="Rohit Verma" className="bg-slate-50 border-slate-200 rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
+                      <Input defaultValue="rohit.v@example.com" className="bg-slate-50 border-slate-200 rounded-xl" />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase">Travel Preference</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {['Eco-Friendly', 'Fastest', 'Budget'].map(pref => (
-                      <button key={pref} className="p-3 rounded-xl border border-slate-200 text-xs font-bold hover:border-primary/50 transition-all text-slate-600">
-                        {pref}
-                      </button>
-                    ))}
+                <div className="pt-6 border-t border-slate-100 space-y-6">
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <Key className="w-5 h-5 text-primary" /> AI Configuration
+                  </h3>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase">Gemini API Key</label>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="password"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="Enter your Gemini API Key" 
+                        className="bg-slate-50 border-slate-200 rounded-xl flex-1" 
+                      />
+                      <Button onClick={saveApiKey} className="rounded-xl">Save Key</Button>
+                    </div>
+                    <p className="text-[10px] text-slate-400">Your key is stored locally in your browser and never sent to our servers.</p>
                   </div>
                 </div>
 

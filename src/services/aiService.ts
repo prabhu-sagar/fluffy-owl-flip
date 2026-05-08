@@ -68,10 +68,11 @@ export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondi
 };
 
 export const processChatQuery = async (query: string) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  // Check environment variable first, then fallback to local storage
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('VITE_GEMINI_API_KEY');
 
-  if (!apiKey) {
-    return "Please set your VITE_GEMINI_API_KEY in the environment variables to enable the real AI assistant. \n\nCurrently, I'm running in demonstration mode.";
+  if (!apiKey || apiKey === 'placeholder-key') {
+    return "Please set your Gemini API key in the Profile settings or environment variables to enable the AI assistant.";
   }
 
   try {
@@ -95,7 +96,8 @@ export const processChatQuery = async (query: string) => {
     );
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `API Error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -105,8 +107,8 @@ export const processChatQuery = async (query: string) => {
     } else {
       throw new Error("Invalid response format from Gemini");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Service Error:", error);
-    return "I'm having trouble connecting to my neural network right now. Please try again in a moment.";
+    return `I'm having trouble connecting to my neural network: ${error.message}. Please check your API key in the Profile settings.`;
   }
 };
