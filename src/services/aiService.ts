@@ -22,7 +22,7 @@ export const processChatQuery = async (query: string) => {
 
   // 1. Refuse unrelated topics (Politics, Coding, etc.)
   const unrelatedKeywords = ['politics', 'coding', 'programming', 'math', 'science', 'javascript', 'python', 'react', 'node'];
-  ifunrelatedKeywords.some(k => q.includes(k))) {
+  if (unrelatedKeywords.some(k => q.includes(k))) {
     return "I'm your AI Smart Travel Assistant. I specialize in travel planning and cannot assist with unrelated topics. How can I help with your trip today?";
   }
 
