@@ -10,7 +10,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
@@ -129,6 +129,18 @@ const RouteDetails = ({
                         <p className="font-black text-lg text-primary">₹{segment.cost}</p>
                       </div>
                     </div>
+                    
+                    {/* Tourism Integration: Attractions along the route */}
+                    {segment.attractions && segment.attractions.length > 0 && (
+                      <div className="mt-3 mb-3 flex flex-wrap gap-2">
+                        {segment.attractions.map((attr, i) => (
+                          <span key={i} className="flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-[9px] font-bold rounded-lg border border-amber-100">
+                            <Sparkles className="w-2.5 h-2.5" /> {attr}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-primary" /> {segment.departureTime} - {segment.arrivalTime}

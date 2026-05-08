@@ -12,17 +12,20 @@ import { WeatherWidget, PricePrediction } from '@/components/travel/TravelWidget
 import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
 import { showError, showSuccess } from '@/utils/toast';
+import { useSearchParams } from 'react-router-dom';
 
 const Index = () => {
+  const [urlParams] = useSearchParams();
   const [travelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
   const [distance] = React.useState([600]);
   const [weather] = React.useState<WeatherCondition>('Clear');
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  
   const [searchParams, setSearchParams] = React.useState({ 
-    source: 'Hyderabad', 
-    dest: 'Bangalore',
+    source: urlParams.get('source') || 'Hyderabad', 
+    dest: urlParams.get('dest') || 'Bangalore',
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -60,6 +63,19 @@ const Index = () => {
   React.useEffect(() => {
     loadRoutes();
   }, [searchParams, loadRoutes]);
+
+  // Update search params if URL changes
+  React.useEffect(() => {
+    const dest = urlParams.get('dest');
+    const source = urlParams.get('source');
+    if (dest || source) {
+      setSearchParams(prev => ({
+        ...prev,
+        dest: dest || prev.dest,
+        source: source || prev.source
+      }));
+    }
+  }, [urlParams]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">

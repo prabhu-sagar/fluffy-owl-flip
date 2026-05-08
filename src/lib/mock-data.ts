@@ -10,6 +10,7 @@ export interface RouteSegment {
   departureTime: string;
   arrivalTime: string;
   delayRisk: number;
+  attractions?: string[]; // Added for tourism integration
 }
 
 export interface TravelRoute {
@@ -29,6 +30,15 @@ const WEATHER_DELAY_MAP: Record<WeatherCondition, number> = {
   'Storm': 3
 };
 
+const MOCK_ATTRACTIONS: Record<string, string[]> = {
+  'Goa': ['Calangute Beach', 'Fort Aguada', 'Basilica of Bom Jesus'],
+  'Manali': ['Hadimba Devi Temple', 'Solang Valley', 'Rohtang Pass'],
+  'Jaipur': ['Amber Palace', 'Hawa Mahal', 'City Palace'],
+  'Kerala': ['Munnar Tea Gardens', 'Alleppey Backwaters', 'Thekkady Wildlife'],
+  'Bangalore': ['Lalbagh Botanical Garden', 'Cubbon Park', 'Bangalore Palace'],
+  'Hyderabad': ['Charminar', 'Golconda Fort', 'Ramoji Film City']
+};
+
 export const generateRoutes = (
   distance: number, 
   style: 'balanced' | 'fastest' | 'cheapest',
@@ -39,6 +49,9 @@ export const generateRoutes = (
   const routes: TravelRoute[] = [];
   const weatherImpact = WEATHER_DELAY_MAP[weather];
   const citySeed = dest.length + (dest.charCodeAt(0) || 0);
+
+  // Helper to get attractions for a city
+  const getAttractions = (city: string) => MOCK_ATTRACTIONS[city] || ['Local Markets', 'City Center', 'Historical Landmarks'];
 
   // 1. Premium Flight + Cab (Fastest)
   routes.push({
@@ -52,11 +65,11 @@ export const generateRoutes = (
     segments: [
       { mode: 'cab', from: source, to: `${source} Airport`, duration: 45, cost: 600, departureTime: '08:00', arrivalTime: '08:45', delayRisk: 0.1 },
       { mode: 'flight', from: `${source} Airport`, to: `${dest} Airport`, duration: 90, cost: 3500 + (citySeed * 10), departureTime: '10:30', arrivalTime: '12:00', delayRisk: 0.05 + (weatherImpact * 0.1) },
-      { mode: 'cab', from: `${dest} Airport`, to: dest, duration: 45, cost: 400, departureTime: '12:30', arrivalTime: '13:15', delayRisk: 0.1 }
+      { mode: 'cab', from: `${dest} Airport`, to: dest, duration: 45, cost: 400, departureTime: '12:30', arrivalTime: '13:15', delayRisk: 0.1, attractions: getAttractions(dest) }
     ]
   });
 
-  // 2. Express Train + Metro (ONLY THIS IS RECOMMENDED/BEST CHOICE)
+  // 2. Express Train + Metro (Recommended)
   routes.push({
     id: 'r2',
     totalDuration: 380 + (citySeed % 100),
@@ -67,8 +80,8 @@ export const generateRoutes = (
     score: 15,
     segments: [
       { mode: 'cab', from: source, to: `${source} Junction`, duration: 30, cost: 250, departureTime: '07:00', arrivalTime: '07:30', delayRisk: 0.05 },
-      { mode: 'train', from: `${source} Junction`, to: `${dest} Central`, duration: 320 + (citySeed % 50), cost: 1000 + (citySeed * 2), departureTime: '08:00', arrivalTime: '13:20', delayRisk: 0.1 },
-      { mode: 'cab', from: `${dest} Central`, to: dest, duration: 30, cost: 50, departureTime: '13:45', arrivalTime: '14:15', delayRisk: 0.02 }
+      { mode: 'train', from: `${source} Junction`, to: `${dest} Central`, duration: 320 + (citySeed % 50), cost: 1000 + (citySeed * 2), departureTime: '08:00', arrivalTime: '13:20', delayRisk: 0.1, attractions: ['Scenic Countryside', 'Local Food Hubs'] },
+      { mode: 'cab', from: `${dest} Central`, to: dest, duration: 30, cost: 50, departureTime: '13:45', arrivalTime: '14:15', delayRisk: 0.02, attractions: getAttractions(dest) }
     ]
   });
 
@@ -82,27 +95,9 @@ export const generateRoutes = (
     co2Saved: 3.8,
     score: 20,
     segments: [
-      { mode: 'bus', from: source, to: dest, duration: 550 + (citySeed % 120), cost: 600 + (citySeed * 3), departureTime: '21:00', arrivalTime: '06:30', delayRisk: 0.15 }
+      { mode: 'bus', from: source, to: dest, duration: 550 + (citySeed % 120), cost: 600 + (citySeed * 3), departureTime: '21:00', arrivalTime: '06:30', delayRisk: 0.15, attractions: [...getAttractions(dest), 'Highway Eateries'] }
     ]
   });
-
-  // Other routes are just standard
-  for (let i = 4; i <= 8; i++) {
-    routes.push({
-      id: `r${i}`,
-      totalDuration: 200 + (i * 40),
-      totalCost: 4500 - (i * 350),
-      reliabilityScore: 90 - i,
-      type: 'eco-friendly',
-      co2Saved: i * 0.8,
-      score: 30 + i,
-      segments: [
-        { mode: 'cab', from: source, to: 'Transit Hub', duration: 40, cost: 300, departureTime: '10:00', arrivalTime: '10:40', delayRisk: 0.1 },
-        { mode: 'train', from: 'Transit Hub', to: 'Dest Hub', duration: 120 + (i * 20), cost: 1500, departureTime: '12:00', arrivalTime: '15:00', delayRisk: 0.1 },
-        { mode: 'bus', from: 'Dest Hub', to: dest, duration: 60, cost: 200, departureTime: '15:30', arrivalTime: '16:30', delayRisk: 0.1 }
-      ]
-    });
-  }
 
   return routes;
 };

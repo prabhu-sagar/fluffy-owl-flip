@@ -5,8 +5,9 @@ import Navbar from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Star, TrendingUp, Info, Calendar, CreditCard } from 'lucide-react';
+import { MapPin, Star, TrendingUp, Info, Calendar, CreditCard, Map as MapIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Dialog, 
   DialogContent, 
@@ -18,6 +19,7 @@ import {
 import { showSuccess } from '@/utils/toast';
 
 const Explore = () => {
+  const navigate = useNavigate();
   const [selectedDest, setSelectedDest] = React.useState<any>(null);
 
   const destinations = [
@@ -55,9 +57,10 @@ const Explore = () => {
     },
   ];
 
-  const handleBook = (name: string) => {
-    showSuccess(`Booking process started for ${name}!`);
-    setSelectedDest(null);
+  const handleOptimizeRoute = (destName: string) => {
+    showSuccess(`Optimizing route to ${destName}...`);
+    // Navigate to home with search parameters
+    navigate(`/?dest=${destName}&source=Hyderabad`);
   };
 
   return (
@@ -66,7 +69,7 @@ const Explore = () => {
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Explore Destinations</h1>
-          <p className="text-slate-500 text-sm">Discover trending places optimized for your travel style.</p>
+          <p className="text-slate-500 text-sm">Discover trending places with AI-optimized travel routes.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -99,19 +102,19 @@ const Explore = () => {
                     <TrendingUp className="w-3 h-3" /> High Demand
                   </div>
 
-                  <div className="pt-2 mt-auto flex gap-2">
+                  <div className="pt-2 mt-auto flex flex-col gap-2">
                     <Button 
-                      variant="outline" 
-                      className="flex-1 rounded-xl text-xs font-bold h-9 border-slate-200 hover:bg-slate-50"
-                      onClick={() => setSelectedDest(dest)}
+                      className="w-full rounded-xl text-xs font-bold h-10 shadow-lg shadow-primary/20 gap-2"
+                      onClick={() => handleOptimizeRoute(dest.name)}
                     >
-                      <Info className="w-3.5 h-3.5 mr-1.5" /> Details
+                      <MapIcon className="w-3.5 h-3.5" /> Optimize Route
                     </Button>
                     <Button 
-                      className="flex-1 rounded-xl text-xs font-bold h-9 shadow-sm"
-                      onClick={() => handleBook(dest.name)}
+                      variant="outline" 
+                      className="w-full rounded-xl text-xs font-bold h-10 border-slate-200 hover:bg-slate-50"
+                      onClick={() => setSelectedDest(dest)}
                     >
-                      Book Now
+                      <Info className="w-3.5 h-3.5 mr-1.5" /> View Details
                     </Button>
                   </div>
                 </div>
@@ -154,8 +157,8 @@ const Explore = () => {
               <Button variant="ghost" onClick={() => setSelectedDest(null)} className="rounded-xl">
                 Close
               </Button>
-              <Button onClick={() => handleBook(selectedDest?.name)} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
-                <CreditCard className="w-4 h-4" /> Confirm Booking
+              <Button onClick={() => handleOptimizeRoute(selectedDest?.name)} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
+                <MapIcon className="w-4 h-4" /> Plan Optimized Route
               </Button>
             </DialogFooter>
           </DialogContent>
