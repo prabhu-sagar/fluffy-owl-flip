@@ -3,57 +3,15 @@
 import { TravelRoute, WeatherCondition } from '@/lib/mock-data';
 
 const SYSTEM_PROMPT = `
-You are an AI-powered Smart Travel Assistant embedded in a travel web application.
+You are an AI-powered Smart Travel Assistant.
 Your job is to help users plan trips end-to-end with useful, realistic, and structured information.
-
-You specialize in:
-* Destination guides
-* Trip planning (start → destination)
-* Places to visit along the route
-* Local attractions
-* Food recommendations
-* Budget estimation
-* Transport options (bus, train, flight)
-* Travel tips and safety advice
-
-RULES:
-1. Always stay focused on travel and tourism.
-2. Give structured, clean answers.
-3. Never give random or fake data — if unsure, say "approximate" or "estimated".
-4. Keep responses concise but informative (5–8 lines).
-
-WHEN USER ASKS ABOUT A TRIP (e.g., "I am going to Goa from Hyderabad"):
-Respond in this format:
-📍 Trip Overview:
-* Distance & travel time (approx)
-🚆 Travel Options:
-* Flight (price + time)
-* Train (price + time)
-* Bus (price + time)
-🗺️ Places to Visit on the Way:
-* List 2–4 interesting stops
-🏝️ Top Attractions in Destination:
-* List 4–6 must-visit places
-🍽️ Food to Try:
-* Local famous dishes
-💰 Budget Estimate:
-* Budget / Mid-range / Luxury
-💡 Tips:
-* Best time to visit
-* Safety or travel advice
-
-WHEN USER ASKS SHORT QUESTIONS:
-Give direct, helpful answers in bullet points.
-
-SMART BEHAVIOR:
-* If route is long → include stopover suggestions
-* If user budget is mentioned → customize plan
-* If unclear → ask a simple follow-up question
-* Suggest hidden gems when possible
-
-TONE: Friendly, Helpful, Smart assistant, Slightly conversational.
-GOAL: Make trip planning EASY, FAST, and INTELLIGENT for the user.
 `;
+
+const MOCK_RESPONSES: Record<string, string> = {
+  "default": "📍 Trip Overview:\n* Distance: ~600km | Time: 1.5h (Flight) / 8h (Train)\n\n🚆 Travel Options:\n* Flight: ₹4,500+ (Fastest)\n* Train: ₹1,200+ (Comfortable)\n* Bus: ₹800+ (Budget)\n\n🗺️ Stops: Kurnool, Anantapur\n\n🏝️ Attractions: Lalbagh, Cubbon Park, Palace\n\n🍽️ Food: Masala Dosa, Filter Coffee\n\n💰 Budget: Mid-range (₹15k for 3 days)\n\n💡 Tip: Book trains 2 weeks in advance!",
+  "hello": "Hello! I'm your AI Travel Concierge. I can help you plan routes, find attractions, and estimate budgets. Where are we heading today?",
+  "goa": "📍 Trip Overview:\n* Distance: ~650km | Time: 1.2h (Flight) / 12h (Bus)\n\n🚆 Travel Options:\n* Flight: ₹5,000+ \n* Bus: ₹1,500+ (Sleeper)\n\n🗺️ Stops: Belgaum, Chorla Ghat\n\n🏝️ Attractions: Baga Beach, Old Goa Churches, Dudhsagar Falls\n\n🍽️ Food: Fish Curry, Bebinca\n\n💰 Budget: Mid-range (₹20k for 4 days)\n\n💡 Tip: Rent a scooter for the best experience!",
+};
 
 export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondition) => {
   if (weather === 'Storm') {
@@ -68,11 +26,17 @@ export const getAIRecommendation = (routes: TravelRoute[], weather: WeatherCondi
 };
 
 export const processChatQuery = async (query: string) => {
-  // Check environment variable first, then fallback to local storage
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('VITE_GEMINI_API_KEY');
+  const lowerQuery = query.toLowerCase();
 
+  // Demo Mode Fallback
   if (!apiKey || apiKey === 'placeholder-key') {
-    return "Please set your Gemini API key in the Profile settings or environment variables to enable the AI assistant.";
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate thinking
+    
+    if (lowerQuery.includes('goa')) return MOCK_RESPONSES["goa"];
+    if (lowerQuery.includes('hi') || lowerQuery.includes('hello')) return MOCK_RESPONSES["hello"];
+    
+    return `[DEMO MODE] ${MOCK_RESPONSES["default"]}\n\n(Note: To get real-time custom answers, please add your Gemini API key in the Profile settings.)`;
   }
 
   try {
@@ -82,15 +46,7 @@ export const processChatQuery = async (query: string) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}`
-                }
-              ]
-            }
-          ]
+          contents: [{ parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }] }]
         })
       }
     );
@@ -101,12 +57,7 @@ export const processChatQuery = async (query: string) => {
     }
 
     const data = await response.json();
-    
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-      return data.candidates[0].content.parts[0].text;
-    } else {
-      throw new Error("Invalid response format from Gemini");
-    }
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process that request.";
   } catch (error: any) {
     console.error("AI Service Error:", error);
     return `I'm having trouble connecting to my neural network: ${error.message}. Please check your API key in the Profile settings.`;
