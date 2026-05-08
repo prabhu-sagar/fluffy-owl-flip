@@ -1,10 +1,6 @@
 "use client";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { TravelRoute, WeatherCondition } from '@/lib/mock-data';
-
-// Initialize the Gemini API with the key from environment variables
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || "");
 
 const SYSTEM_PROMPT = `
 You are an AI-powered Smart Travel Assistant embedded in a travel web application.
@@ -79,25 +75,36 @@ export const processChatQuery = async (query: string) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
-    // We use a chat session to maintain the system prompt context
-    const chat = model.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [{ text: SYSTEM_PROMPT }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I am ready to assist as your Smart Travel Assistant. I will follow all rules and formatting requirements strictly." }],
-        },
-      ],
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}`
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
 
-    const result = await chat.sendMessage(query);
-    const response = await result.response;
-    return response.text();
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      throw new Error("Invalid response format from Gemini");
+    }
   } catch (error) {
     console.error("AI Service Error:", error);
     return "I'm having trouble connecting to my neural network right now. Please try again in a moment.";
