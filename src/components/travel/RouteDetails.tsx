@@ -10,11 +10,12 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX, Sparkles } from 'lucide-react';
+import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 interface RouteDetailsProps {
   route: TravelRoute | null;
@@ -47,26 +48,42 @@ const RouteDetails = ({
   showBooking = true,
   isSatellite = false
 }: RouteDetailsProps) => {
+  const [isBooking, setIsBooking] = React.useState(false);
   if (!route) return null;
 
   const isPastDate = searchedDate ? new Date(searchedDate) < new Date(new Date().setHours(0,0,0,0)) : false;
 
-  const handleBook = () => {
-    const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
-    const newTrip = {
-      id: Date.now().toString(),
+  const handleBook = async () => {
+    setIsBooking(true);
+    const tripData = {
       destination: searchedDest || route.segments[route.segments.length - 1].to,
       source: searchedSource || route.segments[0].from,
       date: searchedDate || new Date().toISOString().split('T')[0],
       status: 'Upcoming',
       mode: route.segments[0].mode.charAt(0).toUpperCase() + route.segments[0].mode.slice(1),
       cost: `₹${route.totalCost.toLocaleString()}`,
-      fullRoute: route
+      full_route: route
     };
-    
-    localStorage.setItem('bookedTrips', JSON.stringify([newTrip, ...existingTrips]));
-    showSuccess("Trip booked successfully!");
-    onClose();
+
+    try {
+      const { error } = await supabase
+        .from('trips')
+        .insert([tripData]);
+
+      if (error) throw error;
+      
+      showSuccess("Trip booked successfully in database!");
+      onClose();
+    } catch (err: any) {
+      console.error("Supabase booking error:", err.message);
+      // Fallback to local storage
+      const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
+      localStorage.setItem('bookedTrips', JSON.stringify([{ ...tripData, id: Date.now().toString() }, ...existingTrips]));
+      showSuccess("Trip saved to local storage (Database not connected)");
+      onClose();
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -130,7 +147,6 @@ const RouteDetails = ({
                       </div>
                     </div>
                     
-                    {/* Tourism Integration: Attractions along the route */}
                     {segment.attractions && segment.attractions.length > 0 && (
                       <div className="mt-3 mb-3 flex flex-wrap gap-2">
                         {segment.attractions.map((attr, i) => (
@@ -166,8 +182,13 @@ const RouteDetails = ({
                   <span className="text-xs font-black uppercase tracking-widest">Past Date</span>
                 </div>
               ) : (
-                <Button onClick={handleBook} className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base">
-                  <CreditCard className="w-5 h-5" /> Book Route
+                <Button 
+                  onClick={handleBook} 
+                  disabled={isBooking}
+                  className="rounded-2xl px-10 h-14 gap-3 shadow-xl shadow-primary/20 font-black text-base"
+                >
+                  {isBooking ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
+                  Book Route
                 </Button>
               )
             )}
