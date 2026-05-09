@@ -10,15 +10,18 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess, showError } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass, Loader2 } from 'lucide-react';
+import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass, Loader2, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const Explore = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = React.useState<'discovery' | 'split'>('discovery');
   const [activeDestination, setActiveDestination] = React.useState<Destination | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -29,6 +32,7 @@ const Explore = () => {
   const [skippedPlaceIds, setSkippedPlaceIds] = React.useState<string[]>([]);
   const [selectedPlace, setSelectedPlace] = React.useState<TouristPlace | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [mobileSubView, setMobileSubView] = React.useState<'map' | 'details'>('map');
 
   const filteredDestinations = DESTINATIONS.filter(dest => {
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -39,8 +43,15 @@ const Explore = () => {
   const handleExplore = (dest: Destination) => {
     setActiveDestination(dest);
     setViewMode('split');
-    const firstPlace = TOURIST_PLACES.find(p => p.locationType === 'destination') || TOURIST_PLACES[0];
-    setSelectedPlace(firstPlace);
+    setMobileSubView('map');
+    setSelectedPlace(null);
+  };
+
+  const handlePlaceClick = (place: TouristPlace) => {
+    setSelectedPlace(place);
+    if (isMobile) {
+      setMobileSubView('details');
+    }
   };
 
   const togglePlaceSelection = (id: string) => {
@@ -126,7 +137,7 @@ const Explore = () => {
     <div className="h-screen w-full bg-[#fcfdfe] flex flex-col overflow-hidden">
       <Navbar />
       
-      <main className="flex-1 pt-16 overflow-hidden">
+      <main className="flex-1 pt-16 overflow-hidden relative">
         <AnimatePresence mode="wait">
           {viewMode === 'discovery' ? (
             <motion.div 
@@ -183,7 +194,6 @@ const Explore = () => {
                     </div>
                   </div>
 
-                  {/* 2-column grid on mobile, 4-column on desktop */}
                   <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-6">
                     {filteredDestinations.map((dest) => (
                       <DestinationCard key={dest.id} destination={dest} onExplore={handleExplore} />
@@ -197,103 +207,210 @@ const Explore = () => {
               key="split"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="h-full w-full grid grid-cols-1 lg:grid-cols-[35%_40%_25%] overflow-y-auto lg:overflow-hidden"
+              className="h-full w-full flex flex-col lg:grid lg:grid-cols-[35%_40%_25%] overflow-hidden"
             >
-              {/* COLUMN 1: MAP (Full width on mobile, 35% on desktop) */}
-              <div className="relative h-[40vh] lg:h-full overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-100 bg-slate-50/30">
-                <div className="absolute top-4 left-4 z-50">
-                  <Button 
-                    onClick={() => setViewMode('discovery')}
-                    variant="secondary" 
-                    size="icon"
-                    className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
-                  >
-                    <ChevronLeft size={18} />
-                  </Button>
-                </div>
-                <TourismMap 
-                  places={TOURIST_PLACES}
-                  selectedPlaces={selectedPlaceIds}
-                  visitedPlaces={visitedPlaceIds}
-                  skippedPlaces={skippedPlaceIds}
-                  onPlaceClick={(place) => setSelectedPlace(place)}
-                />
-              </div>
-
-              {/* COLUMN 2: DETAILS (Full width on mobile, 40% on desktop) */}
-              <div className="h-auto lg:h-full border-b lg:border-b-0 lg:border-r border-slate-100 overflow-hidden bg-white">
-                <PlaceDetailsPanel 
-                  place={selectedPlace}
-                  isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
-                  isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
-                  isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
-                  onToggleSelect={togglePlaceSelection}
-                  onToggleVisited={toggleVisited}
-                  onToggleSkipped={toggleSkipped}
-                  onSaveTrip={() => {}}
-                />
-              </div>
-
-              {/* COLUMN 3: SUMMARY + PLAN (Full width on mobile, 25% on desktop) */}
-              <div className="h-auto lg:h-full bg-slate-50/50 flex flex-col overflow-hidden">
-                <div className="shrink-0 border-b border-slate-100 bg-white">
-                  <TripSummary 
-                    selectedCount={selectedPlaceIds.length}
-                    distance={620}
-                    duration="8h 30m"
-                    budget={addedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 0) + 500}
-                    aiScore={92}
-                    onComplete={handleCompleteTrip}
-                  />
-                </div>
-
-                <div className="p-4 border-b border-slate-100 bg-white/50 shrink-0">
-                  <h3 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-slate-400">
-                    <MapIcon size={14} className="text-primary" /> Your Trip Plan
-                  </h3>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[200px]">
-                  <AnimatePresence mode="popLayout">
-                    {addedPlaces.length === 0 ? (
-                      <div className="text-center py-10 opacity-20">
-                        <MapIcon size={32} className="mx-auto mb-2" />
-                        <p className="text-[8px] font-black uppercase tracking-widest">No places added</p>
-                      </div>
+              {/* MOBILE VIEW LOGIC */}
+              {isMobile ? (
+                <div className="flex-1 flex flex-col overflow-hidden relative">
+                  <AnimatePresence mode="wait">
+                    {mobileSubView === 'map' ? (
+                      <motion.div 
+                        key="mobile-map"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex-1 relative"
+                      >
+                        <div className="absolute top-4 left-4 z-50">
+                          <Button 
+                            onClick={() => setViewMode('discovery')}
+                            variant="secondary" 
+                            size="icon"
+                            className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
+                          >
+                            <ChevronLeft size={18} />
+                          </Button>
+                        </div>
+                        <TourismMap 
+                          places={TOURIST_PLACES}
+                          selectedPlaces={selectedPlaceIds}
+                          visitedPlaces={visitedPlaceIds}
+                          skippedPlaces={skippedPlaceIds}
+                          onPlaceClick={handlePlaceClick}
+                        />
+                      </motion.div>
                     ) : (
-                      addedPlaces.map((place) => (
-                        <motion.div 
-                          key={place.id}
-                          layout
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center"
-                        >
-                          <div>
-                            <p className="text-xs font-black text-slate-900">{place.name}</p>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
-                          </div>
-                          <button onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500 transition-colors">
-                            <Trash2 size={14} />
-                          </button>
-                        </motion.div>
-                      ))
+                      <motion.div 
+                        key="mobile-details"
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="flex-1 bg-white overflow-hidden flex flex-col"
+                      >
+                        <div className="p-4 border-b border-slate-100 flex items-center gap-4">
+                          <Button variant="ghost" size="icon" onClick={() => setMobileSubView('map')}>
+                            <ChevronLeft size={20} />
+                          </Button>
+                          <h3 className="font-black text-slate-900">Place Details</h3>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                          <PlaceDetailsPanel 
+                            place={selectedPlace}
+                            isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
+                            isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
+                            isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
+                            onToggleSelect={togglePlaceSelection}
+                            onToggleVisited={toggleVisited}
+                            onToggleSkipped={toggleSkipped}
+                            onSaveTrip={() => {}}
+                          />
+                        </div>
+                      </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
 
-                <div className="p-6 bg-white border-t border-slate-100 shrink-0">
-                  <Button 
-                    disabled={isSaving}
-                    onClick={handleCompleteTrip}
-                    className="w-full h-12 rounded-2xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
-                  >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play size={16} fill="currentColor" />}
-                    {isSaving ? 'Starting...' : "Let's Start My Trip"}
-                  </Button>
+                  {/* Fixed Mobile Bottom Bar */}
+                  <div className="p-4 bg-white border-t border-slate-100 flex gap-3 items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="icon" className="rounded-xl h-12 w-12 shrink-0">
+                          <List size={20} />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="bottom" className="rounded-t-[2rem] h-[70vh] p-0 overflow-hidden flex flex-col">
+                        <SheetHeader className="p-6 border-b border-slate-100">
+                          <SheetTitle className="flex items-center gap-2">
+                            <MapIcon className="text-primary" /> Your Trip Plan
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                          {addedPlaces.length === 0 ? (
+                            <p className="text-center text-slate-400 py-10">No places added yet.</p>
+                          ) : (
+                            addedPlaces.map(place => (
+                              <div key={place.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center">
+                                <div>
+                                  <p className="font-bold text-slate-900">{place.name}</p>
+                                  <p className="text-[10px] text-slate-400 uppercase font-black">{place.category}</p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500">
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                    
+                    <Button 
+                      disabled={isSaving}
+                      onClick={handleCompleteTrip}
+                      className="flex-1 h-12 rounded-xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
+                    >
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play size={16} fill="currentColor" />}
+                      Start Full Journey
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* DESKTOP VIEW (3 COLUMNS) */
+                <>
+                  <div className="relative overflow-hidden border-r border-slate-100 bg-slate-50/30">
+                    <div className="absolute top-4 left-4 z-50">
+                      <Button 
+                        onClick={() => setViewMode('discovery')}
+                        variant="secondary" 
+                        size="icon"
+                        className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
+                      >
+                        <ChevronLeft size={18} />
+                      </Button>
+                    </div>
+                    <TourismMap 
+                      places={TOURIST_PLACES}
+                      selectedPlaces={selectedPlaceIds}
+                      visitedPlaces={visitedPlaceIds}
+                      skippedPlaces={skippedPlaceIds}
+                      onPlaceClick={handlePlaceClick}
+                    />
+                  </div>
+
+                  <div className="border-r border-slate-100 overflow-hidden bg-white">
+                    <PlaceDetailsPanel 
+                      place={selectedPlace}
+                      isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
+                      isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
+                      isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
+                      onToggleSelect={togglePlaceSelection}
+                      onToggleVisited={toggleVisited}
+                      onToggleSkipped={toggleSkipped}
+                      onSaveTrip={() => {}}
+                    />
+                  </div>
+
+                  <div className="bg-slate-50/50 flex flex-col overflow-hidden">
+                    <div className="shrink-0 border-b border-slate-100 bg-white">
+                      <TripSummary 
+                        selectedCount={selectedPlaceIds.length}
+                        distance={620}
+                        duration="8h 30m"
+                        budget={addedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 0) + 500}
+                        aiScore={92}
+                        onComplete={handleCompleteTrip}
+                      />
+                    </div>
+
+                    <div className="p-4 border-b border-slate-100 bg-white/50 shrink-0">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-slate-400">
+                        <MapIcon size={14} className="text-primary" /> Your Trip Plan
+                      </h3>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                      <AnimatePresence mode="popLayout">
+                        {addedPlaces.length === 0 ? (
+                          <div className="text-center py-10 opacity-20">
+                            <MapIcon size={32} className="mx-auto mb-2" />
+                            <p className="text-[8px] font-black uppercase tracking-widest">No places added</p>
+                          </div>
+                        ) : (
+                          addedPlaces.map((place) => (
+                            <motion.div 
+                              key={place.id}
+                              layout
+                              initial={{ opacity: 0, x: 10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center"
+                            >
+                              <div>
+                                <p className="text-xs font-black text-slate-900">{place.name}</p>
+                                <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
+                              </div>
+                              <button onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                                <Trash2 size={14} />
+                              </button>
+                            </motion.div>
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    <div className="p-6 bg-white border-t border-slate-100 shrink-0">
+                      <Button 
+                        disabled={isSaving}
+                        onClick={handleCompleteTrip}
+                        className="w-full h-12 rounded-2xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
+                      >
+                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play size={16} fill="currentColor" />}
+                        {isSaving ? 'Starting...' : "Let's Start My Trip"}
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
