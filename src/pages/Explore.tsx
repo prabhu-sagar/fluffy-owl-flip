@@ -4,34 +4,35 @@ import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import TourismMap from '@/components/tourism/TourismMap';
 import RoutePlanner from '@/components/tourism/RoutePlanner';
-import SelectedPlacesSidebar from '@/components/tourism/SelectedPlacesSidebar';
-import PlaceDetailsModal from '@/components/tourism/PlaceDetailsModal';
+import PlaceDetailsPanel from '@/components/tourism/PlaceDetailsPanel';
+import TripSummary from '@/components/tourism/TripSummary';
 import PopularPlacesGrid from '@/components/tourism/PopularPlacesGrid';
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess, showError } from '@/utils/toast';
-import { processChatQuery } from '@/services/aiService';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Filter, Map as MapIcon, LayoutGrid } from 'lucide-react';
+import { Map as MapIcon, LayoutGrid, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Explore = () => {
   const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>([]);
   const [activePlace, setActivePlace] = React.useState<TouristPlace | null>(null);
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [aiItinerary, setAiItinerary] = React.useState<string | null>(null);
   const [searchParams, setSearchParams] = React.useState({ source: 'Hyderabad', dest: 'Bangalore' });
   const [isLoading, setIsLoading] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'map' | 'grid'>('map');
 
+  // Trip Stats Calculation
   const selectedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
+  const totalBudget = selectedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 1200);
+  const totalDistance = 620 + (selectedPlaces.length * 15);
+  const totalDuration = `${8 + Math.floor(selectedPlaces.length * 1.5)}h ${30}m`;
+  const aiScore = 85 + (selectedPlaces.length * 2);
 
   const handleSearch = (source: string, dest: string) => {
     setIsLoading(true);
     setSearchParams({ source, dest });
     setTimeout(() => {
       setIsLoading(false);
-      showSuccess(`Found 6 attractions along the route to ${dest}`);
+      showSuccess(`Route optimized from ${source} to ${dest}`);
     }, 1500);
   };
 
@@ -41,22 +42,12 @@ const Explore = () => {
     );
     const place = TOURIST_PLACES.find(p => p.id === id);
     if (!selectedPlaceIds.includes(id)) {
-      showSuccess(`Added ${place?.name} to your trip`);
+      showSuccess(`Added ${place?.name} to your optimized route`);
     }
   };
 
-  const generateItinerary = async () => {
-    if (selectedPlaces.length === 0) return;
-    setIsGenerating(true);
-    try {
-      const prompt = `Create a detailed day-wise travel itinerary for a trip from ${searchParams.source} to ${searchParams.dest} visiting these places: ${selectedPlaces.map(p => p.name).join(', ')}. Include travel times and budget tips.`;
-      const response = await processChatQuery(prompt);
-      setAiItinerary(response);
-    } catch (err) {
-      showError("Failed to generate AI itinerary");
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleSaveTrip = () => {
+    showSuccess("Trip plan saved to your profile!");
   };
 
   return (
@@ -64,23 +55,18 @@ const Explore = () => {
       <Navbar />
       
       <main className="flex-1 pt-16 flex relative overflow-hidden">
-        {/* Left Sidebar: Trip Summary */}
-        <div className="hidden lg:block w-80 shrink-0 h-full">
-          <SelectedPlacesSidebar 
-            selectedPlaces={selectedPlaces}
-            onRemove={togglePlaceSelection}
-            onGenerateItinerary={generateItinerary}
-            isGenerating={isGenerating}
-          />
-        </div>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          
+          {/* Left Side: Map Section (2/3) */}
+          <div className="flex-1 lg:w-2/3 relative flex flex-col">
+            {/* Floating Search Bar */}
+            <div className="absolute top-6 left-6 right-6 z-40">
+              <RoutePlanner onSearch={handleSearch} isLoading={isLoading} />
+            </div>
 
-        {/* Center: Map & Search */}
-        <div className="flex-1 relative flex flex-col">
-          {/* Floating Search Bar */}
-          <div className="absolute top-6 left-6 right-6 z-40 flex flex-col gap-4">
-            <RoutePlanner onSearch={handleSearch} isLoading={isLoading} />
-            
-            <div className="flex justify-center">
+            {/* View Toggle */}
+            <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40">
               <div className="bg-white/80 backdrop-blur-xl p-1 rounded-2xl border border-white/20 shadow-xl flex gap-1">
                 <Button 
                   variant={viewMode === 'map' ? 'default' : 'ghost'} 
@@ -98,95 +84,76 @@ const Explore = () => {
                 </Button>
               </div>
             </div>
-          </div>
 
-          {/* Content Area */}
-          <div className="flex-1 p-6 pt-36 overflow-hidden relative">
-            <AnimatePresence mode="wait">
-              {viewMode === 'map' ? (
-                <motion.div 
-                  key="map"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="w-full h-full"
-                >
-                  <TourismMap 
-                    places={TOURIST_PLACES}
-                    selectedPlaces={selectedPlaceIds}
-                    onPlaceClick={setActivePlace}
-                    source={searchParams.source}
-                    destination={searchParams.dest}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="grid"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  className="w-full h-full overflow-y-auto custom-scrollbar pb-12"
-                >
-                  <PopularPlacesGrid onViewDetails={setActivePlace} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Smart Filters Overlay (Only in Map View) */}
-          {viewMode === 'map' && (
-            <div className="absolute bottom-12 left-12 z-30 flex gap-2">
-              {['Historical', 'Nature', 'Food', 'Adventure'].map((cat) => (
-                <Button key={cat} variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg text-[10px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-white transition-all">
-                  {cat}
-                </Button>
-              ))}
-              <Button variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg h-10 w-10 p-0">
-                <Filter size={16} />
-              </Button>
+            {/* Map/Grid Content */}
+            <div className="flex-1 p-6 pt-36 relative overflow-hidden">
+              <AnimatePresence mode="wait">
+                {viewMode === 'map' ? (
+                  <motion.div 
+                    key="map"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full h-full"
+                  >
+                    <TourismMap 
+                      places={TOURIST_PLACES}
+                      selectedPlaces={selectedPlaceIds}
+                      onPlaceClick={setActivePlace}
+                      source={searchParams.source}
+                      destination={searchParams.dest}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="grid"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="w-full h-full overflow-y-auto custom-scrollbar pb-12"
+                  >
+                    <PopularPlacesGrid onViewDetails={(p) => { setActivePlace(p); setViewMode('map'); }} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          )}
+
+            {/* Smart Filters Overlay */}
+            {viewMode === 'map' && (
+              <div className="absolute bottom-12 left-12 z-30 flex gap-2">
+                {['Historical', 'Nature', 'Food'].map((cat) => (
+                  <Button key={cat} variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg text-[10px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-white transition-all">
+                    {cat}
+                  </Button>
+                ))}
+                <Button variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg h-10 w-10 p-0">
+                  <Filter size={16} />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Side: Details & Summary (1/3) */}
+          <div className="hidden lg:flex lg:w-1/3 flex-col border-l border-slate-200/50 bg-white/40 backdrop-blur-xl">
+            <div className="flex-1 overflow-hidden">
+              <PlaceDetailsPanel 
+                place={activePlace}
+                isSelected={activePlace ? selectedPlaceIds.includes(activePlace.id) : false}
+                onToggleSelect={togglePlaceSelection}
+                onSaveTrip={handleSaveTrip}
+              />
+            </div>
+            <TripSummary 
+              selectedCount={selectedPlaceIds.length}
+              distance={totalDistance}
+              duration={totalDuration}
+              budget={totalBudget}
+              aiScore={aiScore}
+            />
+          </div>
+
         </div>
-
-        {/* AI Itinerary Overlay */}
-        <AnimatePresence>
-          {aiItinerary && (
-            <motion.div 
-              initial={{ opacity: 0, x: 400 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 400 }}
-              className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-50 border-l border-slate-200 flex flex-col"
-            >
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-primary text-white">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={20} />
-                  <h3 className="font-black text-lg">AI Smart Itinerary</h3>
-                </div>
-                <button onClick={() => setAiItinerary(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-8 prose prose-slate prose-sm max-w-none custom-scrollbar">
-                <div className="whitespace-pre-wrap font-medium leading-relaxed">
-                  {aiItinerary}
-                </div>
-              </div>
-              <div className="p-6 border-t border-slate-100 bg-slate-50 flex gap-3">
-                <Button className="flex-1 rounded-xl h-12 font-bold">Save to My Trips</Button>
-                <Button variant="outline" className="flex-1 rounded-xl h-12 font-bold border-slate-200">Export PDF</Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
-
-      <PlaceDetailsModal 
-        place={activePlace}
-        isOpen={!!activePlace}
-        onClose={() => setActivePlace(null)}
-        onToggleSelect={togglePlaceSelection}
-        isSelected={activePlace ? selectedPlaceIds.includes(activePlace.id) : false}
-      />
     </div>
   );
 };
