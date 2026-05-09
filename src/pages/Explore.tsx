@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { TravelRoute, RouteSegment } from '@/lib/mock-data';
 
 const Explore = () => {
   const navigate = useNavigate();
@@ -71,27 +72,70 @@ const Explore = () => {
   };
 
   const handleCompleteTrip = () => {
+    const source = "Hyderabad";
+    const destination = activeDestination?.name || "Destination";
+    const selectedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
+    
+    // Build optimized segments
+    const segments: RouteSegment[] = [];
+    let currentPoint = source;
+    let currentTime = 9; // Start at 09:00 AM
+
+    // 1. Source to first spot
+    if (selectedPlaces.length > 0) {
+      selectedPlaces.forEach((place, idx) => {
+        segments.push({
+          mode: 'cab',
+          from: currentPoint,
+          to: place.name,
+          duration: 45,
+          cost: 350,
+          departureTime: `${String(currentTime).padStart(2, '0')}:00`,
+          arrivalTime: `${String(currentTime).padStart(2, '0')}:45`,
+          delayRisk: 0.05,
+          attractions: [place.name]
+        });
+        currentPoint = place.name;
+        currentTime += 2; // Assume 2 hours per spot including travel
+      });
+    }
+
+    // 2. Last spot to final destination
+    segments.push({
+      mode: 'cab',
+      from: currentPoint,
+      to: destination,
+      duration: 60,
+      cost: 500,
+      departureTime: `${String(currentTime).padStart(2, '0')}:00`,
+      arrivalTime: `${String(currentTime + 1).padStart(2, '0')}:00`,
+      delayRisk: 0.1
+    });
+
+    const fullRoute: TravelRoute = {
+      id: `opt-${Date.now()}`,
+      totalDuration: segments.reduce((acc, s) => acc + s.duration, 0),
+      totalCost: segments.reduce((acc, s) => acc + s.cost, 0),
+      reliabilityScore: 94,
+      type: 'recommended',
+      segments,
+      co2Saved: 4.2,
+      score: 92
+    };
+
     const tripData = {
       id: Date.now().toString(),
-      source: "Hyderabad",
-      destination: activeDestination?.name || "Destination",
+      source,
+      destination,
       date: new Date().toISOString().split('T')[0],
-      cost: "₹2,500",
-      fullRoute: {
-        segments: TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id)).map(p => ({
-          mode: 'cab',
-          from: p.name,
-          to: p.name,
-          cost: 500,
-          departureTime: '09:00',
-          arrivalTime: '10:00'
-        }))
-      }
+      cost: `₹${fullRoute.totalCost.toLocaleString()}`,
+      mode: 'Optimized Route',
+      fullRoute: fullRoute
     };
     
     const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
     localStorage.setItem('bookedTrips', JSON.stringify([tripData, ...existingTrips]));
-    showSuccess("Trip saved to My Trips!");
+    showSuccess("Optimized trip saved to My Trips!");
     navigate('/trips');
   };
 
