@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Send, Mic, Sparkles, Volume2, RefreshCw } from 'lucide-react';
+import { Send, Mic, Sparkles, Volume2, RefreshCw, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,6 +17,13 @@ const AIAssistant = ({ weather, distance }: { weather: string; distance: number 
   ]);
   const [isTyping, setIsTyping] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const suggestions = [
+    "Suggest a 3-day itinerary for Goa",
+    "Best way to travel from Bangalore to Mysore?",
+    "What are the top food spots in Hyderabad?",
+    "How to handle travel delays due to rain?"
+  ];
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -61,7 +68,7 @@ const AIAssistant = ({ weather, distance }: { weather: string; distance: number 
   };
 
   return (
-    <div className="glass-card rounded-[2rem] flex flex-col h-[500px] overflow-hidden border-slate-200 shadow-sm bg-white">
+    <div className="glass-card rounded-[2rem] flex flex-col h-[600px] overflow-hidden border-slate-200 shadow-sm bg-white">
       <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2 rounded-xl">
@@ -77,7 +84,7 @@ const AIAssistant = ({ weather, distance }: { weather: string; distance: number 
         </Button>
       </div>
 
-      <div ref={scrollRef} className="flex-1 p-5 space-y-4 overflow-y-auto bg-slate-50/30">
+      <div ref={scrollRef} className="flex-1 p-5 space-y-4 overflow-y-auto bg-slate-50/30 custom-scrollbar">
         {messages.map((msg, i) => (
           <motion.div 
             key={i}
@@ -116,7 +123,21 @@ const AIAssistant = ({ weather, distance }: { weather: string; distance: number 
         )}
       </div>
 
-      <div className="p-4 bg-white border-t border-slate-100">
+      <div className="p-4 bg-white border-t border-slate-100 space-y-4">
+        {messages.length === 1 && (
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => handleSend(s)}
+                className="whitespace-nowrap px-4 py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-600 hover:bg-primary/5 hover:border-primary/20 transition-all"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        
         <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="relative">
           <Input 
             value={input}
