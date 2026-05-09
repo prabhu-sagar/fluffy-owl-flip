@@ -11,9 +11,10 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, SlidersHorizontal, ChevronLeft, Sparkles, MapPin } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { 
   Select,
   SelectContent,
