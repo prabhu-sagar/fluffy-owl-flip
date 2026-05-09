@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Map, Navigation, Wallet, Clock, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Map, Navigation, Wallet, Clock, Sparkles, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { showSuccess } from '@/utils/toast';
@@ -22,7 +22,7 @@ const TripSummary = ({ selectedCount, distance, duration, budget, aiScore, onCom
     if (onComplete) {
       onComplete();
     } else {
-      showSuccess("Trip completed and saved!");
+      showSuccess("Starting your optimized journey!");
       navigate('/trips');
     }
   };
@@ -59,7 +59,7 @@ const TripSummary = ({ selectedCount, distance, duration, budget, aiScore, onCom
         onClick={handleComplete}
         className="w-full h-10 rounded-xl font-black text-xs gap-2 shadow-lg shadow-primary/10"
       >
-        <CheckCircle2 size={14} /> Complete & Save
+        <Play size={14} fill="currentColor" /> Start Full Journey
       </Button>
     </div>
   );
