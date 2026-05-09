@@ -73,7 +73,7 @@ const Explore = () => {
 
     const tripData = {
       destination: activeDestination?.name || 'Custom Route',
-      source: 'Current Location',
+      source: 'Hyderabad', // Changed from 'Current Location' to show the actual starting city
       date: new Date().toISOString().split('T')[0],
       status: 'Ongoing',
       mode: 'Multi-modal',
@@ -86,7 +86,7 @@ const Explore = () => {
         type: 'recommended',
         segments: addedPlaces.map((p, i) => ({
           mode: 'cab',
-          from: i === 0 ? 'Start' : addedPlaces[i-1].name,
+          from: i === 0 ? 'Hyderabad' : addedPlaces[i-1].name,
           to: p.name,
           duration: 60,
           cost: 150,
