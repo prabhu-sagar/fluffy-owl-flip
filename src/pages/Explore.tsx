@@ -7,7 +7,7 @@ import PlaceDetailsPanel from '@/components/tourism/PlaceDetailsPanel';
 import TripSummary from '@/components/tourism/TripSummary';
 import DestinationCard from '@/components/explore/DestinationCard';
 import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-data';
-import { TOURIST_PLACES } from '@/lib/tourism-data';
+import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronLeft, Sparkles } from 'lucide-react';
@@ -29,6 +29,7 @@ const Explore = () => {
   const [selectedCategory, setSelectedCategory] = React.useState<DestinationCategory | 'All'>('All');
   const [sortBy, setSortBy] = React.useState('popularity');
   const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>([]);
+  const [selectedPlace, setSelectedPlace] = React.useState<TouristPlace | null>(null);
 
   // Filtered Destinations
   const filteredDestinations = DESTINATIONS.filter(dest => {
@@ -44,6 +45,9 @@ const Explore = () => {
   const handleExplore = (dest: Destination) => {
     setActiveDestination(dest);
     setViewMode('split');
+    // Set default selected place to the first one in the destination
+    const firstPlace = TOURIST_PLACES.find(p => p.locationType === 'destination') || TOURIST_PLACES[0];
+    setSelectedPlace(firstPlace);
     showSuccess(`Exploring ${dest.name}...`);
   };
 
@@ -140,7 +144,7 @@ const Explore = () => {
               </div>
             </motion.div>
           ) : (
-            /* Split View Planning Stage */
+            /* Split View Planning Stage - 75/25 Grid */
             <motion.div 
               key="split"
               initial={{ opacity: 0 }}
@@ -148,7 +152,8 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col lg:flex-row overflow-hidden"
             >
-              <div className="flex-1 lg:w-2/3 relative flex flex-col">
+              {/* Left Part: Location and Route (75%) */}
+              <div className="flex-1 lg:w-3/4 relative flex flex-col border-r border-slate-200/50">
                 <div className="absolute top-6 left-6 z-40">
                   <Button 
                     onClick={() => setViewMode('discovery')}
@@ -163,18 +168,19 @@ const Explore = () => {
                   <TourismMap 
                     places={TOURIST_PLACES}
                     selectedPlaces={selectedPlaceIds}
-                    onPlaceClick={() => {}}
+                    onPlaceClick={(place) => setSelectedPlace(place)}
                     source="Hyderabad"
                     destination={activeDestination?.name}
                   />
                 </div>
               </div>
 
-              <div className="lg:w-1/3 flex flex-col border-l border-slate-200/50 bg-white/40 backdrop-blur-xl shadow-2xl">
+              {/* Right Part: Info Panel (25%) */}
+              <div className="lg:w-1/4 flex flex-col bg-white/40 backdrop-blur-xl shadow-2xl overflow-hidden">
                 <div className="flex-1 overflow-hidden">
                   <PlaceDetailsPanel 
-                    place={TOURIST_PLACES[0]} // Mocking first place for details
-                    isSelected={selectedPlaceIds.includes(TOURIST_PLACES[0].id)}
+                    place={selectedPlace}
+                    isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
                     onToggleSelect={togglePlaceSelection}
                     onSaveTrip={() => showSuccess("Trip saved!")}
                   />
