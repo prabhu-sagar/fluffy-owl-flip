@@ -144,38 +144,28 @@ const Explore = () => {
               animate={{ opacity: 1 }}
               className="h-full w-full grid grid-cols-[35%_40%_25%] overflow-hidden"
             >
-              <div className="grid grid-rows-[85%_15%] border-r border-slate-100 overflow-hidden bg-slate-50/30">
-                <div className="relative overflow-hidden border-b border-slate-100">
-                  <div className="absolute top-4 left-4 z-50">
-                    <Button 
-                      onClick={() => setViewMode('discovery')}
-                      variant="secondary" 
-                      size="icon"
-                      className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
-                    >
-                      <ChevronLeft size={18} />
-                    </Button>
-                  </div>
-                  <TourismMap 
-                    places={TOURIST_PLACES}
-                    selectedPlaces={selectedPlaceIds}
-                    visitedPlaces={visitedPlaceIds}
-                    skippedPlaces={skippedPlaceIds}
-                    onPlaceClick={(place) => setSelectedPlace(place)}
-                  />
+              {/* COLUMN 1: 35% WIDTH (MAP ONLY) */}
+              <div className="relative overflow-hidden border-r border-slate-100 bg-slate-50/30">
+                <div className="absolute top-4 left-4 z-50">
+                  <Button 
+                    onClick={() => setViewMode('discovery')}
+                    variant="secondary" 
+                    size="icon"
+                    className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
+                  >
+                    <ChevronLeft size={18} />
+                  </Button>
                 </div>
-                <div className="bg-white/50 overflow-hidden">
-                  <TripSummary 
-                    selectedCount={selectedPlaceIds.length}
-                    distance={620}
-                    duration="8h 30m"
-                    budget={2500}
-                    aiScore={92}
-                    onComplete={handleCompleteTrip}
-                  />
-                </div>
+                <TourismMap 
+                  places={TOURIST_PLACES}
+                  selectedPlaces={selectedPlaceIds}
+                  visitedPlaces={visitedPlaceIds}
+                  skippedPlaces={skippedPlaceIds}
+                  onPlaceClick={(place) => setSelectedPlace(place)}
+                />
               </div>
 
+              {/* COLUMN 2: 40% WIDTH (DETAILS) */}
               <div className="border-r border-slate-100 overflow-hidden bg-white">
                 <PlaceDetailsPanel 
                   place={selectedPlace}
@@ -189,25 +179,59 @@ const Explore = () => {
                 />
               </div>
 
+              {/* COLUMN 3: 25% WIDTH (SUMMARY + PLAN) */}
               <div className="bg-slate-50/50 flex flex-col overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-white shrink-0">
+                {/* Trip Summary at the Top */}
+                <div className="shrink-0 border-b border-slate-100 bg-white">
+                  <TripSummary 
+                    selectedCount={selectedPlaceIds.length}
+                    distance={620}
+                    duration="8h 30m"
+                    budget={2500}
+                    aiScore={92}
+                    onComplete={handleCompleteTrip}
+                  />
+                </div>
+
+                {/* Trip Plan Header */}
+                <div className="p-4 border-b border-slate-100 bg-white/50 shrink-0">
                   <h3 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-slate-400">
                     <MapIcon size={14} className="text-primary" /> Your Trip Plan
                   </h3>
                 </div>
+
+                {/* Added Places List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                  {addedPlaces.map((place) => (
-                    <div key={place.id} className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
-                      <div>
-                        <p className="text-xs font-black text-slate-900">{place.name}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
+                  <AnimatePresence mode="popLayout">
+                    {addedPlaces.length === 0 ? (
+                      <div className="text-center py-10 opacity-20">
+                        <MapIcon size={32} className="mx-auto mb-2" />
+                        <p className="text-[8px] font-black uppercase tracking-widest">No places added</p>
                       </div>
-                      <button onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
+                    ) : (
+                      addedPlaces.map((place) => (
+                        <motion.div 
+                          key={place.id}
+                          layout
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center"
+                        >
+                          <div>
+                            <p className="text-xs font-black text-slate-900">{place.name}</p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
+                          </div>
+                          <button onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
                 </div>
+
+                {/* Bottom Action Button */}
                 <div className="p-6 bg-white border-t border-slate-100 shrink-0">
                   <Button 
                     disabled={addedPlaces.length === 0}
