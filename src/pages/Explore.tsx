@@ -8,13 +8,14 @@ import TripSummary from '@/components/tourism/TripSummary';
 import DestinationCard from '@/components/explore/DestinationCard';
 import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-data';
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass } from 'lucide-react';
+import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 
 const Explore = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const Explore = () => {
   const [visitedPlaceIds, setVisitedPlaceIds] = React.useState<string[]>([]);
   const [skippedPlaceIds, setSkippedPlaceIds] = React.useState<string[]>([]);
   const [selectedPlace, setSelectedPlace] = React.useState<TouristPlace | null>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const filteredDestinations = DESTINATIONS.filter(dest => {
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -61,12 +63,55 @@ const Explore = () => {
     setSkippedPlaceIds(prev => prev.filter(p => p !== id));
   };
 
-  const handleCompleteTrip = () => {
-    showSuccess("Optimized trip saved!");
-    navigate('/trips');
-  };
-
   const addedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
+
+  const handleCompleteTrip = async () => {
+    if (selectedPlaceIds.length === 0) return;
+    
+    setIsSaving(true);
+    const totalCost = addedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 0) + 500;
+
+    const tripData = {
+      destination: activeDestination?.name || 'Custom Route',
+      source: 'Current Location',
+      date: new Date().toISOString().split('T')[0],
+      status: 'Ongoing',
+      mode: 'Multi-modal',
+      cost: `₹${totalCost.toLocaleString()}`,
+      full_route: {
+        id: `tour-${Date.now()}`,
+        totalDuration: addedPlaces.length * 120,
+        totalCost: totalCost,
+        reliabilityScore: 98,
+        type: 'recommended',
+        segments: addedPlaces.map((p, i) => ({
+          mode: 'cab',
+          from: i === 0 ? 'Start' : addedPlaces[i-1].name,
+          to: p.name,
+          duration: 60,
+          cost: 150,
+          departureTime: `${10 + i}:00`,
+          arrivalTime: `${11 + i}:00`,
+          delayRisk: 0.02,
+          attractions: [p.name]
+        }))
+      }
+    };
+
+    try {
+      const { error } = await supabase.from('trips').insert([tripData]);
+      if (error) throw error;
+      showSuccess("Journey started! Your route is now active.");
+    } catch (err: any) {
+      // Fallback to local storage
+      const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
+      localStorage.setItem('bookedTrips', JSON.stringify([{ ...tripData, id: Date.now().toString() }, ...existingTrips]));
+      showSuccess("Journey started (Saved locally)!");
+    } finally {
+      setIsSaving(false);
+      navigate('/trips');
+    }
+  };
 
   return (
     <div className="h-screen w-full bg-[#fcfdfe] flex flex-col overflow-hidden">
@@ -187,7 +232,7 @@ const Explore = () => {
                     selectedCount={selectedPlaceIds.length}
                     distance={620}
                     duration="8h 30m"
-                    budget={2500}
+                    budget={addedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 0) + 500}
                     aiScore={92}
                     onComplete={handleCompleteTrip}
                   />
@@ -234,11 +279,12 @@ const Explore = () => {
                 {/* Bottom Action Button */}
                 <div className="p-6 bg-white border-t border-slate-100 shrink-0">
                   <Button 
-                    disabled={addedPlaces.length === 0}
+                    disabled={addedPlaces.length === 0 || isSaving}
                     onClick={handleCompleteTrip}
                     className="w-full h-12 rounded-2xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
                   >
-                    <Play size={16} fill="currentColor" /> Let's Start My Trip
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play size={16} fill="currentColor" />}
+                    {isSaving ? 'Starting...' : "Let's Start My Trip"}
                   </Button>
                 </div>
               </div>
