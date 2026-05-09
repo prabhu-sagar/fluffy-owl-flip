@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { TouristPlace, CATEGORY_COLORS } from '@/lib/tourism-data';
 import { renderToString } from 'react-dom/server';
 import { cn } from '@/lib/utils';
-import { Type, TypeOff } from 'lucide-react';
+import { Type, EyeOff } from 'lucide-react';
 
 interface TourismMapProps {
   places: TouristPlace[];
@@ -151,7 +151,7 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
           )}
           title={showAllNames ? "Hide Names" : "Show All Names"}
         >
-          {showAllNames ? <Type size={20} /> : <TypeOff size={20} />}
+          {showAllNames ? <Type size={20} /> : <EyeOff size={20} />}
         </button>
 
         {/* Zoom Controls */}
