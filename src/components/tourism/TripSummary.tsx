@@ -55,7 +55,6 @@ const TripSummary = ({ selectedCount, distance, duration, budget, aiScore, onCom
       </div>
 
       <Button 
-        disabled={selectedCount === 0}
         onClick={handleComplete}
         className="w-full h-10 rounded-xl font-black text-xs gap-2 shadow-lg shadow-primary/10"
       >

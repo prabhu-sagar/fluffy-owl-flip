@@ -66,26 +66,13 @@ const Explore = () => {
   const addedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
 
   const handleCompleteTrip = async () => {
-    if (selectedPlaceIds.length === 0) return;
-    
     setIsSaving(true);
     const totalCost = addedPlaces.reduce((acc, p) => acc + (parseInt(p.entryFee.replace(/[^0-9]/g, '')) || 0), 0) + 500;
 
-    const tripData = {
-      destination: activeDestination?.name || 'Custom Route',
-      source: 'Hyderabad', // Changed from 'Current Location' to show the actual starting city
-      date: new Date().toISOString().split('T')[0],
-      status: 'Ongoing',
-      mode: 'Multi-modal',
-      cost: `₹${totalCost.toLocaleString()}`,
-      full_route: {
-        id: `tour-${Date.now()}`,
-        totalDuration: addedPlaces.length * 120,
-        totalCost: totalCost,
-        reliabilityScore: 98,
-        type: 'recommended',
-        segments: addedPlaces.map((p, i) => ({
-          mode: 'cab',
+    // If no places selected, create a direct segment to the destination
+    const segments = addedPlaces.length > 0 
+      ? addedPlaces.map((p, i) => ({
+          mode: 'cab' as const,
           from: i === 0 ? 'Hyderabad' : addedPlaces[i-1].name,
           to: p.name,
           duration: 60,
@@ -95,6 +82,32 @@ const Explore = () => {
           delayRisk: 0.02,
           attractions: [p.name]
         }))
+      : [{
+          mode: 'cab' as const,
+          from: 'Hyderabad',
+          to: activeDestination?.name || 'Destination',
+          duration: 480,
+          cost: 500,
+          departureTime: '08:00',
+          arrivalTime: '16:00',
+          delayRisk: 0.05,
+          attractions: []
+        }];
+
+    const tripData = {
+      destination: activeDestination?.name || 'Custom Route',
+      source: 'Hyderabad',
+      date: new Date().toISOString().split('T')[0],
+      status: 'Ongoing',
+      mode: 'Multi-modal',
+      cost: `₹${totalCost.toLocaleString()}`,
+      full_route: {
+        id: `tour-${Date.now()}`,
+        totalDuration: addedPlaces.length > 0 ? addedPlaces.length * 120 : 480,
+        totalCost: totalCost,
+        reliabilityScore: 98,
+        type: 'recommended',
+        segments: segments
       }
     };
 
@@ -103,7 +116,6 @@ const Explore = () => {
       if (error) throw error;
       showSuccess("Journey started! Your route is now active.");
     } catch (err: any) {
-      // Fallback to local storage
       const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
       localStorage.setItem('bookedTrips', JSON.stringify([{ ...tripData, id: Date.now().toString() }, ...existingTrips]));
       showSuccess("Journey started (Saved locally)!");
@@ -279,7 +291,7 @@ const Explore = () => {
                 {/* Bottom Action Button */}
                 <div className="p-6 bg-white border-t border-slate-100 shrink-0">
                   <Button 
-                    disabled={addedPlaces.length === 0 || isSaving}
+                    disabled={isSaving}
                     onClick={handleCompleteTrip}
                     className="w-full h-12 rounded-2xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
                   >
