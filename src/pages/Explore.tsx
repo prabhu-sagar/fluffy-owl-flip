@@ -10,7 +10,7 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, ChevronLeft, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, CheckCircle2, XCircle, Map as MapIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -28,10 +28,13 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<DestinationCategory | 'All'>('All');
   const [sortBy, setSortBy] = React.useState('popularity');
+  
+  // Trip State
   const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>([]);
+  const [visitedPlaceIds, setVisitedPlaceIds] = React.useState<string[]>([]);
+  const [skippedPlaceIds, setSkippedPlaceIds] = React.useState<string[]>([]);
   const [selectedPlace, setSelectedPlace] = React.useState<TouristPlace | null>(null);
 
-  // Filtered Destinations
   const filteredDestinations = DESTINATIONS.filter(dest => {
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || dest.category === selectedCategory;
@@ -45,7 +48,6 @@ const Explore = () => {
   const handleExplore = (dest: Destination) => {
     setActiveDestination(dest);
     setViewMode('split');
-    // Set default selected place to the first one in the destination
     const firstPlace = TOURIST_PLACES.find(p => p.locationType === 'destination') || TOURIST_PLACES[0];
     setSelectedPlace(firstPlace);
     showSuccess(`Exploring ${dest.name}...`);
@@ -56,6 +58,29 @@ const Explore = () => {
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
   };
+
+  const toggleVisited = (id: string) => {
+    setVisitedPlaceIds(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+    setSkippedPlaceIds(prev => prev.filter(p => p !== id));
+  };
+
+  const toggleSkipped = (id: string) => {
+    setSkippedPlaceIds(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+    setVisitedPlaceIds(prev => prev.filter(p => p !== id));
+  };
+
+  const removePlace = (id: string) => {
+    setSelectedPlaceIds(prev => prev.filter(p => p !== id));
+    setVisitedPlaceIds(prev => prev.filter(p => p !== id));
+    setSkippedPlaceIds(prev => prev.filter(p => p !== id));
+    showSuccess("Place removed from trip");
+  };
+
+  const addedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
 
   return (
     <div className="h-screen bg-[#f8fafc] text-slate-900 flex flex-col overflow-hidden">
@@ -72,7 +97,6 @@ const Explore = () => {
               className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-12"
             >
               <div className="max-w-7xl mx-auto space-y-12">
-                {/* Header Section: Left Title, Right Search */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                   <div className="space-y-3 text-left">
                     <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full text-primary text-[10px] font-black uppercase tracking-widest">
@@ -94,7 +118,6 @@ const Explore = () => {
                   </div>
                 </div>
 
-                {/* Main Grid Section */}
                 <div className="space-y-8">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
@@ -102,7 +125,6 @@ const Explore = () => {
                       <p className="text-slate-500 text-sm font-medium">Browse our curated list of travel gems.</p>
                     </div>
 
-                    {/* Filters & Sorting */}
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                         {['All', 'Beach', 'Hill Station', 'City', 'Adventure'].map((cat) => (
@@ -144,7 +166,6 @@ const Explore = () => {
               </div>
             </motion.div>
           ) : (
-            /* Split View Planning Stage - 75/25 Grid */
             <motion.div 
               key="split"
               initial={{ opacity: 0 }}
@@ -152,8 +173,8 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col lg:flex-row overflow-hidden"
             >
-              {/* Left Part: Location and Route (75%) */}
-              <div className="flex-1 lg:w-3/4 relative flex flex-col border-r border-slate-200/50">
+              {/* Left Part: Map (50%) */}
+              <div className="flex-1 lg:w-1/2 relative flex flex-col border-r border-slate-200/50">
                 <div className="absolute top-6 left-6 z-40">
                   <Button 
                     onClick={() => setViewMode('discovery')}
@@ -164,10 +185,12 @@ const Explore = () => {
                   </Button>
                 </div>
 
-                <div className="flex-1 p-6 pt-24">
+                <div className="flex-1 p-4 pt-20">
                   <TourismMap 
                     places={TOURIST_PLACES}
                     selectedPlaces={selectedPlaceIds}
+                    visitedPlaces={visitedPlaceIds}
+                    skippedPlaces={skippedPlaceIds}
                     onPlaceClick={(place) => setSelectedPlace(place)}
                     source="Hyderabad"
                     destination={activeDestination?.name}
@@ -175,15 +198,88 @@ const Explore = () => {
                 </div>
               </div>
 
-              {/* Right Part: Info Panel (25%) */}
-              <div className="lg:w-1/4 flex flex-col bg-white/40 backdrop-blur-xl shadow-2xl overflow-hidden">
-                <div className="flex-1 overflow-hidden">
-                  <PlaceDetailsPanel 
-                    place={selectedPlace}
-                    isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
-                    onToggleSelect={togglePlaceSelection}
-                    onSaveTrip={() => showSuccess("Trip saved!")}
-                  />
+              {/* Right Part: Info & Trip Plan (50%) */}
+              <div className="lg:w-1/2 flex flex-col bg-white overflow-hidden">
+                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                  {/* Place Details (Left half of right panel) */}
+                  <div className="flex-1 border-r border-slate-100 overflow-hidden">
+                    <PlaceDetailsPanel 
+                      place={selectedPlace}
+                      isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
+                      isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
+                      isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
+                      onToggleSelect={togglePlaceSelection}
+                      onToggleVisited={toggleVisited}
+                      onToggleSkipped={toggleSkipped}
+                      onSaveTrip={() => showSuccess("Trip saved!")}
+                    />
+                  </div>
+
+                  {/* Added Places List (Right half of right panel) */}
+                  <div className="w-full lg:w-64 bg-slate-50/50 flex flex-col overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 bg-white">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                        <MapIcon size={16} className="text-primary" /> Your Trip Plan
+                      </h3>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                      <AnimatePresence mode="popLayout">
+                        {addedPlaces.length === 0 ? (
+                          <div className="text-center py-12 px-4">
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">No places added yet</p>
+                          </div>
+                        ) : (
+                          addedPlaces.map((place) => (
+                            <motion.div
+                              key={place.id}
+                              layout
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              className={cn(
+                                "p-3 rounded-2xl border bg-white shadow-sm group transition-all",
+                                visitedPlaceIds.includes(place.id) ? "border-emerald-200 bg-emerald-50/30" : 
+                                skippedPlaceIds.includes(place.id) ? "border-red-200 bg-red-50/30" : "border-slate-100"
+                              )}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-black text-slate-900 truncate">{place.name}</p>
+                                  <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
+                                </div>
+                                <button 
+                                  onClick={() => removePlace(place.id)}
+                                  className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-50">
+                                <button 
+                                  onClick={() => toggleVisited(place.id)}
+                                  className={cn(
+                                    "flex-1 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
+                                    visitedPlaceIds.includes(place.id) ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"
+                                  )}
+                                >
+                                  Visited
+                                </button>
+                                <button 
+                                  onClick={() => toggleSkipped(place.id)}
+                                  className={cn(
+                                    "flex-1 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
+                                    skippedPlaceIds.includes(place.id) ? "bg-red-500 text-white" : "bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                                  )}
+                                >
+                                  Skip
+                                </button>
+                              </div>
+                            </motion.div>
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
                 </div>
                 <TripSummary 
                   selectedCount={selectedPlaceIds.length}
