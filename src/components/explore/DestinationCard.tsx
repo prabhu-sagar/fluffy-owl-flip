@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Star, Bookmark, ArrowRight, Sparkles } from 'lucide-react';
+import { Star, Bookmark, ArrowRight, Sparkles, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Destination } from '@/lib/explore-data';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,8 @@ interface DestinationCardProps {
 
 const DestinationCard = ({ destination, onExplore, variant = 'grid' }: DestinationCardProps) => {
   const [isSaved, setIsSaved] = React.useState(false);
+  // Mock distance
+  const distance = Math.floor(Math.random() * 500) + 100;
 
   return (
     <motion.div
@@ -25,7 +27,6 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
         variant === 'highlight' ? "w-[300px] shrink-0" : "w-full"
       )}
     >
-      {/* Image Section */}
       <div className={cn(
         "relative overflow-hidden",
         variant === 'highlight' ? "h-48" : "aspect-[4/3]"
@@ -37,21 +38,17 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
         
-        {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {destination.isTrending && (
             <Badge className="bg-primary text-white border-none px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg">
-              <Sparkles size={10} /> Trending Now
+              <Sparkles size={10} /> Trending
             </Badge>
           )}
-          {destination.tag && (
-            <Badge className="bg-white/20 backdrop-blur-md text-white border-white/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-              {destination.tag}
-            </Badge>
-          )}
+          <Badge className="bg-white/20 backdrop-blur-md text-white border-white/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+            <MapPin size={10} /> {distance}km away
+          </Badge>
         </div>
 
-        {/* Save Button */}
         <button 
           onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
           className={cn(
@@ -63,7 +60,6 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
         </button>
       </div>
 
-      {/* Content Section */}
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start">
           <div>
@@ -79,12 +75,6 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
             <p className="text-xs font-bold text-primary">{destination.budget}</p>
           </div>
         </div>
-
-        {variant === 'grid' && (
-          <p className="text-sm text-slate-500 line-clamp-2 font-medium leading-relaxed">
-            {destination.description}
-          </p>
-        )}
 
         <Button 
           onClick={() => onExplore(destination)}

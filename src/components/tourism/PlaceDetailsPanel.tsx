@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Star, MapPin, Navigation, 
-  Plus, Check, Info, CheckCircle2, XCircle,
+  Star, Clock, Wallet, Calendar, MapPin, Navigation, 
+  Plus, Check, Info, Trash2, CheckCircle2, XCircle,
   Users, CloudSun, Sparkles, ArrowRight
 } from 'lucide-react';
 import { TouristPlace, CATEGORY_COLORS } from '@/lib/tourism-data';
@@ -41,13 +41,12 @@ const PlaceDetailsPanel = ({
         </div>
         <div>
           <h3 className="text-lg font-black text-slate-900">Select a Destination</h3>
-          <p className="text-sm text-slate-500">Click on any marker on the map to view full details and plan your route.</p>
+          <p className="text-sm text-slate-500">Click on any marker on the map to view full details.</p>
         </div>
       </div>
     );
   }
 
-  // Mock distance calculation
   const mockDistance = (Math.random() * 15 + 2).toFixed(1);
 
   return (
@@ -56,32 +55,27 @@ const PlaceDetailsPanel = ({
       animate={{ opacity: 1, x: 0 }}
       className="h-full flex flex-col bg-white overflow-hidden"
     >
-      {/* Hero Image Section */}
-      <div className="h-64 relative shrink-0">
+      <div className="h-48 relative shrink-0">
         <img src={place.image} className="w-full h-full object-cover" alt={place.name} />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent" />
-        <div className="absolute bottom-6 left-8 right-8">
-          <Badge className={cn("mb-3 border-none text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg", CATEGORY_COLORS[place.category])}>
+        <div className="absolute bottom-4 left-6 right-6">
+          <Badge className={cn("mb-2 border-none text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg", CATEGORY_COLORS[place.category])}>
             {place.category}
           </Badge>
-          <h2 className="text-4xl font-black text-white tracking-tighter leading-none">{place.name}</h2>
-          <div className="flex items-center gap-2 mt-3 text-white/80">
-            <MapPin size={14} className="text-primary" />
-            <span className="text-xs font-bold">{mockDistance} km from your location</span>
-          </div>
+          <h2 className="text-3xl font-black text-white tracking-tighter leading-none">{place.name}</h2>
+          <p className="text-[10px] font-bold text-white/70 mt-1 flex items-center gap-1">
+            <MapPin size={10} /> {mockDistance} km from you
+          </p>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-        {/* Header Stats */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-amber-50 px-4 py-2 rounded-2xl border border-amber-100">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-100">
               <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-              <span className="text-lg font-black text-slate-900">{place.rating}</span>
+              <span className="text-base font-black text-slate-900">{place.rating}</span>
             </div>
-            <span className="text-xs text-slate-400 font-bold">({place.reviews.toLocaleString()} reviews)</span>
           </div>
           
           <div className="flex gap-2">
@@ -89,7 +83,7 @@ const PlaceDetailsPanel = ({
               size="sm" 
               variant={isVisited ? "default" : "outline"}
               onClick={() => onToggleVisited(place.id)}
-              className={cn("rounded-xl h-10 gap-2 text-[10px] font-black uppercase tracking-wider", isVisited && "bg-emerald-500 hover:bg-emerald-600 border-none shadow-lg shadow-emerald-100")}
+              className={cn("rounded-xl h-9 gap-2 text-[9px] font-black uppercase", isVisited && "bg-emerald-500 hover:bg-emerald-600 border-none")}
             >
               <CheckCircle2 size={14} /> {isVisited ? 'Visited' : 'Mark Visited'}
             </Button>
@@ -97,75 +91,57 @@ const PlaceDetailsPanel = ({
               size="sm" 
               variant={isSkipped ? "destructive" : "outline"}
               onClick={() => onToggleSkipped(place.id)}
-              className={cn("rounded-xl h-10 gap-2 text-[10px] font-black uppercase tracking-wider", isSkipped && "bg-red-500 hover:bg-red-600 border-none shadow-lg shadow-red-100")}
+              className={cn("rounded-xl h-9 gap-2 text-[9px] font-black uppercase", isSkipped && "bg-red-500 hover:bg-red-600 border-none")}
             >
               <XCircle size={14} /> {isSkipped ? 'Skipped' : 'Skip'}
             </Button>
           </div>
         </div>
 
-        {/* AI Insights Section (New Feature) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-50 p-5 rounded-[2rem] border border-slate-100 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                <Users size={14} className="text-primary" /> Live Crowd
-              </h4>
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[9px] font-black">LOW</Badge>
+        {/* Logistics Grid - 4 Small Grids */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { icon: Clock, label: 'Timings', value: place.timings },
+            { icon: Wallet, label: 'Entry Fee', value: place.entryFee },
+            { icon: Calendar, label: 'Best Time', value: place.bestTime },
+            { icon: MapPin, label: 'Duration', value: place.duration }
+          ].map((item, i) => (
+            <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-1">
+              <item.icon className="w-3 h-3 text-primary mb-1" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
+              <p className="text-[9px] font-bold text-slate-900 truncate">{item.value}</p>
             </div>
-            <p className="text-sm font-bold text-slate-700">Best time to visit is now. 15% less busy than usual.</p>
-          </div>
-
-          <div className="bg-slate-50 p-5 rounded-[2rem] border border-slate-100 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                <CloudSun size={14} className="text-amber-500" /> Weather
-              </h4>
-              <span className="text-xs font-black text-slate-900">24°C</span>
-            </div>
-            <p className="text-sm font-bold text-slate-700">Clear skies. Perfect for outdoor photography.</p>
-          </div>
+          ))}
         </div>
 
-        {/* Description */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-            <Info size={16} className="text-primary" /> About this place
-          </h3>
-          <p className="text-slate-500 text-sm leading-relaxed font-medium">
-            {place.description} This iconic landmark offers a unique blend of history and culture. Visitors typically spend around {place.duration} exploring the grounds.
+        <div className="bg-primary/5 p-5 rounded-[2rem] border border-primary/10 space-y-2">
+          <h4 className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+            <Sparkles size={14} /> AI Travel Tip
+          </h4>
+          <p className="text-xs text-slate-600 font-medium leading-relaxed">
+            {place.description.slice(0, 120)}...
           </p>
         </div>
 
-        {/* AI Tip */}
-        <div className="bg-primary/5 p-6 rounded-[2.5rem] border border-primary/10 relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 opacity-10">
-            <Sparkles size={80} className="text-primary" />
-          </div>
-          <div className="relative z-10 space-y-2">
-            <h4 className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
-              <Sparkles size={14} /> AI Travel Tip
-            </h4>
-            <p className="text-sm text-slate-600 font-medium leading-relaxed">
-              We recommend visiting during the "{place.bestTime}" for the most pleasant experience. Don't forget to check out the local food stalls nearby!
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-          <Button 
-            onClick={() => onToggleSelect(place.id)}
-            className={cn(
-              "h-14 rounded-2xl font-black gap-3 shadow-xl transition-all text-base",
-              isSelected ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-100" : "bg-primary hover:bg-primary/90 shadow-primary/20"
-            )}
-          >
-            {isSelected ? <Check size={20} /> : <Plus size={20} />}
-            {isSelected ? 'Added to Trip' : 'Add to Trip'}
-          </Button>
-          <Button variant="outline" className="h-14 rounded-2xl font-bold border-slate-200 gap-3 text-base hover:bg-slate-50">
-            <Navigation size={20} className="text-primary" /> Get Directions <ArrowRight size={16} className="ml-auto opacity-30" />
+        <div className="grid grid-cols-1 gap-3">
+          {isSelected ? (
+            <Button 
+              onClick={() => onToggleSelect(place.id)}
+              variant="destructive"
+              className="h-12 rounded-2xl font-black gap-2 shadow-lg shadow-red-100"
+            >
+              <Trash2 size={18} /> Remove from Trip
+            </Button>
+          ) : (
+            <Button 
+              onClick={() => onToggleSelect(place.id)}
+              className="h-12 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
+            >
+              <Plus size={18} /> Add to Trip
+            </Button>
+          )}
+          <Button variant="outline" className="h-12 rounded-2xl font-bold border-slate-200 gap-2">
+            <Navigation size={18} className="text-primary" /> Get Directions
           </Button>
         </div>
       </div>

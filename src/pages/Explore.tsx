@@ -14,6 +14,7 @@ import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, Map as MapIco
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import { 
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/select";
 
 const Explore = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = React.useState<'discovery' | 'split'>('discovery');
   const [activeDestination, setActiveDestination] = React.useState<Destination | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -78,6 +80,31 @@ const Explore = () => {
     setVisitedPlaceIds(prev => prev.filter(p => p !== id));
     setSkippedPlaceIds(prev => prev.filter(p => p !== id));
     showSuccess("Place removed from trip");
+  };
+
+  const handleCompleteTrip = () => {
+    const tripData = {
+      id: Date.now().toString(),
+      source: "Hyderabad",
+      destination: activeDestination?.name || "Destination",
+      date: new Date().toISOString().split('T')[0],
+      cost: "₹2,500",
+      fullRoute: {
+        segments: TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id)).map(p => ({
+          mode: 'cab',
+          from: p.name,
+          to: p.name,
+          cost: 500,
+          departureTime: '09:00',
+          arrivalTime: '10:00'
+        }))
+      }
+    };
+    
+    const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
+    localStorage.setItem('bookedTrips', JSON.stringify([tripData, ...existingTrips]));
+    showSuccess("Trip saved to My Trips!");
+    navigate('/trips');
   };
 
   const addedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
@@ -140,20 +167,6 @@ const Explore = () => {
                           </button>
                         ))}
                       </div>
-                      
-                      <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 bg-white font-bold text-xs">
-                          <div className="flex items-center gap-2">
-                            <SlidersHorizontal size={14} className="text-slate-400" />
-                            <SelectValue placeholder="Sort by" />
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="popularity">Popularity</SelectItem>
-                          <SelectItem value="rating">Top Rated</SelectItem>
-                          <SelectItem value="budget">Budget</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
 
@@ -205,6 +218,7 @@ const Explore = () => {
                     duration="8h 30m"
                     budget={2500}
                     aiScore={92}
+                    onComplete={handleCompleteTrip}
                   />
                 </div>
               </div>
@@ -263,26 +277,6 @@ const Explore = () => {
                                   className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                 >
                                   <Trash2 size={14} />
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-50">
-                                <button 
-                                  onClick={() => toggleVisited(place.id)}
-                                  className={cn(
-                                    "flex-1 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
-                                    visitedPlaceIds.includes(place.id) ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"
-                                  )}
-                                >
-                                  Visited
-                                </button>
-                                <button 
-                                  onClick={() => toggleSkipped(place.id)}
-                                  className={cn(
-                                    "flex-1 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all",
-                                    skippedPlaceIds.includes(place.id) ? "bg-red-500 text-white" : "bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                                  )}
-                                >
-                                  Skip
                                 </button>
                               </div>
                             </motion.div>
