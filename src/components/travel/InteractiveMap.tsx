@@ -1,18 +1,21 @@
 "use client";
 
 import React from 'react';
-import { MapPinOff } from 'lucide-react';
+import { MapPin, MapPinOff, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RouteSegment, TransportMode } from '@/lib/mock-data';
+import { cn } from '@/lib/utils';
 
 interface InteractiveMapProps {
   source?: string;
   destination?: string;
   segments?: RouteSegment[];
   isSatellite?: boolean;
+  onPlaceClick?: (place: any) => void;
+  selectedPlaceId?: string;
 }
 
-const InteractiveMap = ({ source, destination, segments, isSatellite }: InteractiveMapProps) => {
+const InteractiveMap = ({ source, destination, segments, isSatellite, onPlaceClick, selectedPlaceId }: InteractiveMapProps) => {
   if (!segments || segments.length === 0) {
     return (
       <div className="glass-card rounded-[2rem] overflow-hidden h-full relative flex flex-col items-center justify-center bg-slate-50 border-slate-200 text-slate-400">
@@ -60,23 +63,65 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }: Interact
             <path d="M0 100 Q 300 300 600 100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
           )}
 
-          {segments.map((seg, i) => (
-            <g key={i}>
-              <motion.path 
-                d={getSegmentPath(i, segments.length)} 
-                fill="none" 
-                stroke={getModeColor(seg.mode)} 
-                strokeWidth={isSatellite ? "3" : "4"}
-                strokeLinecap="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.5, delay: i * 0.5 }}
-              />
-              <circle cx={100 + (i * (600 / segments.length))} cy="200" r="4" fill="white" stroke={getModeColor(seg.mode)} strokeWidth="2" />
-            </g>
-          ))}
+          {segments.map((seg, i) => {
+            const xPos = 100 + (i * (600 / segments.length));
+            return (
+              <g key={i}>
+                <motion.path 
+                  d={getSegmentPath(i, segments.length)} 
+                  fill="none" 
+                  stroke={getModeColor(seg.mode)} 
+                  strokeWidth={isSatellite ? "3" : "4"}
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, delay: i * 0.5 }}
+                />
+                
+                {/* Segment Marker */}
+                <motion.g
+                  whileHover={{ scale: 1.2 }}
+                  className="cursor-pointer"
+                  onClick={() => onPlaceClick?.({ name: seg.from, type: 'stop', mode: seg.mode })}
+                >
+                  <circle 
+                    cx={xPos} 
+                    cy="200" 
+                    r="6" 
+                    fill="white" 
+                    stroke={getModeColor(seg.mode)} 
+                    strokeWidth="3" 
+                  />
+                </motion.g>
+
+                {/* Attraction Markers */}
+                {seg.attractions?.map((attr, attrIdx) => (
+                  <motion.g
+                    key={`${i}-${attrIdx}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 2 + (i * 0.5) }}
+                    className="cursor-pointer"
+                    onClick={() => onPlaceClick?.({ name: attr, type: 'attraction', description: `A popular spot near ${seg.to}.` })}
+                  >
+                    <circle 
+                      cx={xPos + 30 + (attrIdx * 20)} 
+                      cy={150 - (attrIdx * 20)} 
+                      r="4" 
+                      fill="#f59e0b" 
+                    />
+                    <line 
+                      x1={xPos} y1="200" 
+                      x2={xPos + 30 + (attrIdx * 20)} y2={150 - (attrIdx * 20)} 
+                      stroke="#f59e0b" strokeWidth="1" strokeDasharray="2,2" 
+                    />
+                  </motion.g>
+                ))}
+              </g>
+            );
+          })}
           
-          <circle cx="700" cy="200" r="6" fill="#10b981" stroke="white" strokeWidth="2" />
+          <circle cx="700" cy="200" r="8" fill="#10b981" stroke="white" strokeWidth="3" />
           
           {/* Live Pulse for Satellite Mode */}
           {isSatellite && (
@@ -110,13 +155,12 @@ const InteractiveMap = ({ source, destination, segments, isSatellite }: Interact
           </div>
         </div>
 
-        {isSatellite && (
-          <div className="flex justify-center">
-            <div className="bg-black/60 backdrop-blur-md px-6 py-2 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em]">
-              Live Satellite Tracking Active
-            </div>
+        <div className="flex justify-center">
+          <div className="bg-black/60 backdrop-blur-md px-6 py-2 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+            <Sparkles className="w-3 h-3 text-amber-400" />
+            Tap markers to explore places
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

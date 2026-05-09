@@ -10,12 +10,17 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { TravelRoute, TransportMode } from '@/lib/mock-data';
-import { Plane, Train, Bus, Car, MapPin, Clock, CheckCircle2, CreditCard, CalendarX, Sparkles, Loader2 } from 'lucide-react';
+import { 
+  Plane, Train, Bus, Car, MapPin, Clock, 
+  CheckCircle2, CreditCard, CalendarX, Sparkles, 
+  Loader2, ChevronLeft, Star, Info, ShieldCheck 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { showSuccess, showError } from '@/utils/toast';
+import { showSuccess } from '@/utils/toast';
 import InteractiveMap from './InteractiveMap';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface RouteDetailsProps {
   route: TravelRoute | null;
@@ -49,6 +54,8 @@ const RouteDetails = ({
   isSatellite = false
 }: RouteDetailsProps) => {
   const [isBooking, setIsBooking] = React.useState(false);
+  const [selectedPlace, setSelectedPlace] = React.useState<any | null>(null);
+
   if (!route) return null;
 
   const isPastDate = searchedDate ? new Date(searchedDate) < new Date(new Date().setHours(0,0,0,0)) : false;
@@ -66,20 +73,14 @@ const RouteDetails = ({
     };
 
     try {
-      const { error } = await supabase
-        .from('trips')
-        .insert([tripData]);
-
+      const { error } = await supabase.from('trips').insert([tripData]);
       if (error) throw error;
-      
-      showSuccess("Trip booked successfully in database!");
+      showSuccess("Trip booked successfully!");
       onClose();
     } catch (err: any) {
-      console.error("Supabase booking error:", err.message);
-      // Fallback to local storage
       const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
       localStorage.setItem('bookedTrips', JSON.stringify([{ ...tripData, id: Date.now().toString() }, ...existingTrips]));
-      showSuccess("Trip saved to local storage (Database not connected)");
+      showSuccess("Trip saved to local storage");
       onClose();
     } finally {
       setIsBooking(false);
@@ -88,88 +89,151 @@ const RouteDetails = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl bg-white border-slate-200 text-slate-900 rounded-[2.5rem] p-0 overflow-hidden flex flex-col lg:flex-row h-[85vh] lg:h-[600px]">
-        <div className="lg:w-1/2 h-[300px] lg:h-auto relative shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100">
+      <DialogContent className="max-w-[85vw] w-full h-[85vh] bg-white border-none rounded-[3rem] p-0 overflow-hidden flex flex-col lg:flex-row shadow-2xl">
+        {/* Left Side: Interactive Map (65% width) */}
+        <div className="lg:w-[65%] h-[40vh] lg:h-auto relative shrink-0 border-r border-slate-100">
           <InteractiveMap 
             source={searchedSource || route.segments[0].from} 
             destination={searchedDest || route.segments[route.segments.length - 1].to} 
             segments={route.segments}
             isSatellite={isSatellite}
+            onPlaceClick={setSelectedPlace}
+            selectedPlaceId={selectedPlace?.name}
           />
         </div>
 
-        <div className="lg:w-1/2 flex flex-col overflow-hidden bg-white">
-          <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
-            <DialogHeader>
-              <div className="flex items-center justify-between mb-2">
-                <DialogTitle className="text-3xl font-black tracking-tight text-slate-900">Journey Details</DialogTitle>
-                <span className="text-[10px] font-black bg-primary/10 text-primary px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
-                  {route.type}
-                </span>
-              </div>
-              <DialogDescription className="text-slate-500 text-base">
-                Itinerary from <span className="text-slate-900 font-bold">{searchedSource || route.segments[0].from}</span> to <span className="text-slate-900 font-bold">{searchedDest || route.segments[route.segments.length - 1].to}</span>.
-              </DialogDescription>
-            </DialogHeader>
+        {/* Right Side: Dynamic Info Panel (35% width) */}
+        <div className="lg:w-[35%] flex flex-col overflow-hidden bg-white">
+          <AnimatePresence mode="wait">
+            {selectedPlace ? (
+              /* Place Detail View */
+              <motion.div 
+                key="place-info"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="flex-1 flex flex-col overflow-hidden"
+              >
+                <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setSelectedPlace(null)}
+                    className="mb-4 -ml-2 text-slate-400 hover:text-primary font-bold gap-2"
+                  >
+                    <ChevronLeft size={18} /> Back to Itinerary
+                  </Button>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Time</p>
-                <p className="text-lg font-black text-slate-900">{Math.floor(route.totalDuration / 60)}h {Math.round(route.totalDuration % 60)}m</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cost</p>
-                <p className="text-lg font-black text-primary">₹{route.totalCost.toLocaleString()}</p>
-              </div>
-            </div>
-
-            <div className="relative space-y-4 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-              {route.segments.map((segment, idx) => (
-                <div key={idx} className="relative pl-14 group">
-                  <div className={cn(
-                    "absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 flex items-center justify-center z-10 transition-colors shadow-sm",
-                    segment.mode === 'flight' ? "border-blue-100" :
-                    segment.mode === 'train' ? "border-indigo-100" :
-                    segment.mode === 'cab' ? "border-emerald-100" :
-                    "border-slate-200"
-                  )}>
-                    <ModeIcon mode={segment.mode} />
-                  </div>
-                  
-                  <div className="bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-black text-base capitalize text-slate-900">{segment.mode}</h4>
-                        <p className="text-xs text-slate-500">{segment.from} → {segment.to}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-black text-lg text-primary">₹{segment.cost}</p>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-3xl font-black tracking-tight text-slate-900">{selectedPlace.name}</h3>
+                      <div className="bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-100 flex items-center gap-1">
+                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                        <span className="text-sm font-black">4.8</span>
                       </div>
                     </div>
                     
-                    {segment.attractions && segment.attractions.length > 0 && (
-                      <div className="mt-3 mb-3 flex flex-wrap gap-2">
-                        {segment.attractions.map((attr, i) => (
-                          <span key={i} className="flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-[9px] font-bold rounded-lg border border-amber-100">
-                            <Sparkles className="w-2.5 h-2.5" /> {attr}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100 w-fit">
+                      <ShieldCheck size={16} />
+                      <span className="text-[10px] font-black uppercase tracking-wider">Verified Spot</span>
+                    </div>
 
-                    <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-primary" /> {segment.departureTime} - {segment.arrivalTime}
+                    <p className="text-slate-500 text-lg leading-relaxed font-medium">
+                      {selectedPlace.description || "A key landmark along your journey. This location offers unique cultural experiences and scenic views perfect for a short break."}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-3 pt-4">
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Best Time</p>
+                        <p className="text-xs font-bold text-slate-900">Morning / Evening</p>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> On Time
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Entry Fee</p>
+                        <p className="text-xs font-bold text-slate-900">Free / Nominal</p>
                       </div>
+                    </div>
+
+                    <div className="bg-primary/5 p-6 rounded-[2rem] border border-primary/10 space-y-3">
+                      <h4 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <Sparkles size={14} /> AI Travel Tip
+                      </h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        Most travelers spend about 45 minutes here. If you're on the {selectedPlace.mode || 'train'}, look out the window 5 minutes before arrival for the best view.
+                      </p>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </motion.div>
+            ) : (
+              /* Itinerary View */
+              <motion.div 
+                key="itinerary"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex-1 flex flex-col overflow-hidden"
+              >
+                <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                  <DialogHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <DialogTitle className="text-3xl font-black tracking-tight text-slate-900">Journey Details</DialogTitle>
+                      <span className="text-[10px] font-black bg-primary/10 text-primary px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
+                        {route.type}
+                      </span>
+                    </div>
+                    <DialogDescription className="text-slate-500 text-base">
+                      Optimized route from <span className="text-slate-900 font-bold">{searchedSource || route.segments[0].from}</span>.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Time</p>
+                      <p className="text-lg font-black text-slate-900">{Math.floor(route.totalDuration / 60)}h {Math.round(route.totalDuration % 60)}m</p>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cost</p>
+                      <p className="text-lg font-black text-primary">₹{route.totalCost.toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  <div className="relative space-y-4 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                    {route.segments.map((segment, idx) => (
+                      <div key={idx} className="relative pl-14 group">
+                        <div className={cn(
+                          "absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 flex items-center justify-center z-10 transition-colors shadow-sm",
+                          segment.mode === 'flight' ? "border-blue-100" :
+                          segment.mode === 'train' ? "border-indigo-100" :
+                          segment.mode === 'cab' ? "border-emerald-100" :
+                          "border-slate-200"
+                        )}>
+                          <ModeIcon mode={segment.mode} />
+                        </div>
+                        
+                        <div className="bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100 hover:border-primary/30 transition-all cursor-pointer" onClick={() => setSelectedPlace({ name: segment.from, type: 'stop', mode: segment.mode })}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-black text-base capitalize text-slate-900">{segment.mode}</h4>
+                              <p className="text-xs text-slate-500">{segment.from} → {segment.to}</p>
+                            </div>
+                            <p className="font-black text-lg text-primary">₹{segment.cost}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-primary" /> {segment.departureTime}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> On Time
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <DialogFooter className="p-8 border-t border-slate-100 bg-white shrink-0">
             <Button variant="ghost" onClick={onClose} className="rounded-2xl text-slate-400 font-bold px-6">
