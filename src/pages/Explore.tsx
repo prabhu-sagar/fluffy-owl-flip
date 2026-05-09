@@ -10,7 +10,7 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass, Filter } from 'lucide-react';
+import { Search, ChevronLeft, Trash2, Map as MapIcon, Play, Sparkles, Compass } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -77,62 +77,49 @@ const Explore = () => {
           {viewMode === 'discovery' ? (
             <motion.div 
               key="discovery"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="h-full overflow-y-auto custom-scrollbar p-8 lg:p-16"
+              exit={{ opacity: 0, y: -10 }}
+              className="h-full overflow-y-auto custom-scrollbar p-8 lg:p-12"
             >
-              <div className="max-w-7xl mx-auto space-y-16">
-                {/* Attractive Hero Section */}
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
-                  <div className="space-y-6 max-w-2xl">
-                    <motion.div 
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-primary text-xs font-black uppercase tracking-[0.2em]"
-                    >
-                      <Sparkles size={14} className="animate-pulse" /> 
-                      Your Journey Starts Here
-                    </motion.div>
-                    <h1 className="text-6xl lg:text-8xl font-black tracking-tighter leading-[0.85] text-gradient">
-                      Explore <br />
-                      <span className="text-primary">Destinations.</span>
+              <div className="max-w-6xl mx-auto space-y-12">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                  <div className="space-y-4">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full text-primary text-[10px] font-black uppercase tracking-widest">
+                      <Sparkles size={12} /> Your Journey Starts Here
+                    </div>
+                    <h1 className="text-4xl lg:text-5xl font-black tracking-tighter leading-tight text-gradient">
+                      Explore <span className="text-primary">Destinations.</span>
                     </h1>
-                    <p className="text-slate-500 text-xl font-medium max-w-lg leading-relaxed">
+                    <p className="text-slate-500 text-base font-medium max-w-md">
                       Discover hidden gems and iconic landmarks curated by our neural travel engine.
                     </p>
                   </div>
 
-                  <div className="relative w-full lg:w-[450px] group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-400 rounded-[2rem] blur opacity-20 group-focus-within:opacity-40 transition duration-1000"></div>
-                    <div className="relative">
-                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={24} />
-                      <Input 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Where to next?"
-                        className="pl-16 h-20 rounded-[2rem] border-none bg-white shadow-2xl text-xl font-bold placeholder:text-slate-300 focus-visible:ring-primary/20"
-                      />
-                    </div>
+                  <div className="relative w-full lg:w-80 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Input 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Where to next?"
+                      className="pl-12 h-14 rounded-2xl border-slate-200 bg-white shadow-lg text-sm font-bold"
+                    />
                   </div>
                 </div>
 
-                {/* Categories & Grid */}
-                <div className="space-y-10">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-slate-900 p-2 rounded-xl">
-                        <Compass className="text-white w-5 h-5" />
-                      </div>
-                      <h2 className="text-3xl font-black tracking-tight">Popular Picks</h2>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div className="flex items-center gap-2">
+                      <Compass className="text-primary w-5 h-5" />
+                      <h2 className="text-xl font-black">Popular Picks</h2>
                     </div>
-                    <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                    <div className="flex gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
                       {['All', 'Beach', 'Hill Station', 'City'].map((cat) => (
                         <button
                           key={cat}
                           onClick={() => setSelectedCategory(cat as any)}
                           className={cn(
-                            "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                            "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
                             selectedCategory === cat ? "bg-white text-primary shadow-sm" : "text-slate-400 hover:text-slate-600"
                           )}
                         >
@@ -142,16 +129,9 @@ const Explore = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {filteredDestinations.map((dest, idx) => (
-                      <motion.div
-                        key={dest.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                      >
-                        <DestinationCard destination={dest} onExplore={handleExplore} />
-                      </motion.div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredDestinations.map((dest) => (
+                      <DestinationCard key={dest.id} destination={dest} onExplore={handleExplore} />
                     ))}
                   </div>
                 </div>
@@ -164,17 +144,16 @@ const Explore = () => {
               animate={{ opacity: 1 }}
               className="h-full w-full grid grid-cols-[35%_40%_25%] overflow-hidden"
             >
-              {/* COLUMN 1: 35% WIDTH */}
               <div className="grid grid-rows-[85%_15%] border-r border-slate-100 overflow-hidden bg-slate-50/30">
                 <div className="relative overflow-hidden border-b border-slate-100">
-                  <div className="absolute top-6 left-6 z-50">
+                  <div className="absolute top-4 left-4 z-50">
                     <Button 
                       onClick={() => setViewMode('discovery')}
                       variant="secondary" 
                       size="icon"
-                      className="rounded-2xl w-12 h-12 shadow-2xl bg-white/90 backdrop-blur-xl border-white/20 hover:bg-primary hover:text-white transition-all"
+                      className="rounded-xl w-10 h-10 shadow-xl bg-white/90 backdrop-blur-xl"
                     >
-                      <ChevronLeft size={24} />
+                      <ChevronLeft size={18} />
                     </Button>
                   </div>
                   <TourismMap 
@@ -197,7 +176,6 @@ const Explore = () => {
                 </div>
               </div>
 
-              {/* COLUMN 2: 40% WIDTH */}
               <div className="border-r border-slate-100 overflow-hidden bg-white">
                 <PlaceDetailsPanel 
                   place={selectedPlace}
@@ -211,52 +189,32 @@ const Explore = () => {
                 />
               </div>
 
-              {/* COLUMN 3: 25% WIDTH */}
               <div className="bg-slate-50/50 flex flex-col overflow-hidden">
-                <div className="p-8 border-b border-slate-100 bg-white shrink-0">
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 text-slate-400">
+                <div className="p-6 border-b border-slate-100 bg-white shrink-0">
+                  <h3 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-slate-400">
                     <MapIcon size={14} className="text-primary" /> Your Trip Plan
                   </h3>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                  <AnimatePresence mode="popLayout">
-                    {addedPlaces.length === 0 ? (
-                      <div className="text-center py-20 opacity-20">
-                        <MapIcon size={48} className="mx-auto mb-4" />
-                        <p className="text-xs font-black uppercase tracking-widest">Empty Itinerary</p>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                  {addedPlaces.map((place) => (
+                    <div key={place.id} className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                      <div>
+                        <p className="text-xs font-black text-slate-900">{place.name}</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
                       </div>
-                    ) : (
-                      addedPlaces.map((place) => (
-                        <motion.div 
-                          key={place.id}
-                          layout
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center group hover:border-primary/30 transition-all"
-                        >
-                          <div>
-                            <p className="text-sm font-black text-slate-900">{place.name}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{place.category}</p>
-                          </div>
-                          <button 
-                            onClick={() => removePlace(place.id)} 
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </motion.div>
-                      ))
-                    )}
-                  </AnimatePresence>
+                      <button onClick={() => removePlace(place.id)} className="text-slate-300 hover:text-red-500">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <div className="p-8 bg-white border-t border-slate-100 shrink-0">
+                <div className="p-6 bg-white border-t border-slate-100 shrink-0">
                   <Button 
                     disabled={addedPlaces.length === 0}
                     onClick={handleCompleteTrip}
-                    className="w-full h-16 rounded-[2rem] font-black text-base gap-3 shadow-2xl shadow-primary/20"
+                    className="w-full h-12 rounded-2xl font-black text-sm gap-2 shadow-xl shadow-primary/20"
                   >
-                    <Play size={20} fill="currentColor" /> Let's Start My Trip
+                    <Play size={16} fill="currentColor" /> Let's Start My Trip
                   </Button>
                 </div>
               </div>
