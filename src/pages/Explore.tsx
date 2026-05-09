@@ -76,14 +76,12 @@ const Explore = () => {
     const destination = activeDestination?.name || "Destination";
     const selectedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
     
-    // Build optimized segments
     const segments: RouteSegment[] = [];
     let currentPoint = source;
-    let currentTime = 9; // Start at 09:00 AM
+    let currentTime = 9;
 
-    // 1. Source to first spot
     if (selectedPlaces.length > 0) {
-      selectedPlaces.forEach((place, idx) => {
+      selectedPlaces.forEach((place) => {
         segments.push({
           mode: 'cab',
           from: currentPoint,
@@ -96,11 +94,10 @@ const Explore = () => {
           attractions: [place.name]
         });
         currentPoint = place.name;
-        currentTime += 2; // Assume 2 hours per spot including travel
+        currentTime += 2;
       });
     }
 
-    // 2. Last spot to final destination
     segments.push({
       mode: 'cab',
       from: currentPoint,
@@ -218,20 +215,19 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col lg:flex-row overflow-hidden"
             >
-              {/* Left Part: Map & Summary (35%) */}
-              <div className="flex-1 lg:w-[35%] relative flex flex-col border-r border-slate-200/50 bg-slate-50/30">
-                <div className="absolute top-6 left-6 z-40">
-                  <Button 
-                    onClick={() => setViewMode('discovery')}
-                    variant="secondary" 
-                    size="icon"
-                    className="rounded-full w-10 h-10 bg-white/90 backdrop-blur-xl shadow-xl border-white/20 hover:bg-primary hover:text-white transition-all"
-                  >
-                    <ChevronLeft size={20} />
-                  </Button>
-                </div>
-
-                <div className="flex-1 p-4 pt-20">
+              {/* Column 1: Map (85% height) & Summary (15% height) - 35% Width */}
+              <div className="lg:w-[35%] flex flex-col border-r border-slate-200/50 bg-slate-50/30 overflow-hidden">
+                <div className="h-[85%] relative p-4 pt-20">
+                  <div className="absolute top-6 left-6 z-40">
+                    <Button 
+                      onClick={() => setViewMode('discovery')}
+                      variant="secondary" 
+                      size="icon"
+                      className="rounded-full w-10 h-10 bg-white/90 backdrop-blur-xl shadow-xl border-white/20 hover:bg-primary hover:text-white transition-all"
+                    >
+                      <ChevronLeft size={20} />
+                    </Button>
+                  </div>
                   <TourismMap 
                     places={TOURIST_PLACES}
                     selectedPlaces={selectedPlaceIds}
@@ -243,7 +239,7 @@ const Explore = () => {
                   />
                 </div>
 
-                <div className="p-4">
+                <div className="h-[15%] border-t border-slate-200/50 bg-white/50">
                   <TripSummary 
                     selectedCount={selectedPlaceIds.length}
                     distance={620}
@@ -255,79 +251,73 @@ const Explore = () => {
                 </div>
               </div>
 
-              {/* Right Part: Info & Trip Plan (65%) */}
-              <div className="lg:w-[65%] flex flex-col bg-white overflow-hidden">
-                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                  {/* Place Details */}
-                  <div className="flex-1 border-r border-slate-100 overflow-hidden">
-                    <PlaceDetailsPanel 
-                      place={selectedPlace}
-                      isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
-                      isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
-                      isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
-                      onToggleSelect={togglePlaceSelection}
-                      onToggleVisited={toggleVisited}
-                      onToggleSkipped={toggleSkipped}
-                      onSaveTrip={() => showSuccess("Trip saved!")}
-                    />
-                  </div>
+              {/* Column 2: Place Details - 40% Width */}
+              <div className="lg:w-[40%] border-r border-slate-100 overflow-hidden bg-white">
+                <PlaceDetailsPanel 
+                  place={selectedPlace}
+                  isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
+                  isVisited={selectedPlace ? visitedPlaceIds.includes(selectedPlace.id) : false}
+                  isSkipped={selectedPlace ? skippedPlaceIds.includes(selectedPlace.id) : false}
+                  onToggleSelect={togglePlaceSelection}
+                  onToggleVisited={toggleVisited}
+                  onToggleSkipped={toggleSkipped}
+                  onSaveTrip={() => showSuccess("Trip saved!")}
+                />
+              </div>
 
-                  {/* Added Places List */}
-                  <div className="w-full lg:w-72 bg-slate-50/50 flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                        <MapIcon size={16} className="text-primary" /> Your Trip Plan
-                      </h3>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                      <AnimatePresence mode="popLayout">
-                        {addedPlaces.length === 0 ? (
-                          <div className="text-center py-12 px-4">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">No places added yet</p>
-                          </div>
-                        ) : (
-                          addedPlaces.map((place) => (
-                            <motion.div
-                              key={place.id}
-                              layout
-                              initial={{ opacity: 0, x: 20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, scale: 0.95 }}
-                              className={cn(
-                                "p-3 rounded-2xl border bg-white shadow-sm group transition-all",
-                                visitedPlaceIds.includes(place.id) ? "border-emerald-200 bg-emerald-50/30" : 
-                                skippedPlaceIds.includes(place.id) ? "border-red-200 bg-red-50/30" : "border-slate-100"
-                              )}
+              {/* Column 3: Your Trip Plan - 25% Width */}
+              <div className="lg:w-[25%] bg-slate-50/50 flex flex-col overflow-hidden">
+                <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                    <MapIcon size={16} className="text-primary" /> Your Trip Plan
+                  </h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                  <AnimatePresence mode="popLayout">
+                    {addedPlaces.length === 0 ? (
+                      <div className="text-center py-12 px-4">
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">No places added yet</p>
+                      </div>
+                    ) : (
+                      addedPlaces.map((place) => (
+                        <motion.div
+                          key={place.id}
+                          layout
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className={cn(
+                            "p-3 rounded-2xl border bg-white shadow-sm group transition-all",
+                            visitedPlaceIds.includes(place.id) ? "border-emerald-200 bg-emerald-50/30" : 
+                            skippedPlaceIds.includes(place.id) ? "border-red-200 bg-red-50/30" : "border-slate-100"
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-black text-slate-900 truncate">{place.name}</p>
+                              <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
+                            </div>
+                            <button 
+                              onClick={() => removePlace(place.id)}
+                              className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                             >
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-black text-slate-900 truncate">{place.name}</p>
-                                  <p className="text-[9px] text-slate-400 font-bold uppercase">{place.category}</p>
-                                </div>
-                                <button 
-                                  onClick={() => removePlace(place.id)}
-                                  className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
-                            </motion.div>
-                          ))
-                        )}
-                      </AnimatePresence>
-                    </div>
-                    
-                    {/* Let's Start My Trip Button - Anchored Footer */}
-                    <div className="p-4 bg-white border-t border-slate-100 shrink-0">
-                      <Button 
-                        disabled={addedPlaces.length === 0}
-                        onClick={handleCompleteTrip}
-                        className="w-full h-12 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
-                      >
-                        <Play size={16} fill="currentColor" /> Let's Start My Trip
-                      </Button>
-                    </div>
-                  </div>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </div>
+                
+                <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+                  <Button 
+                    disabled={addedPlaces.length === 0}
+                    onClick={handleCompleteTrip}
+                    className="w-full h-12 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
+                  >
+                    <Play size={16} fill="currentColor" /> Let's Start My Trip
+                  </Button>
                 </div>
               </div>
             </motion.div>
