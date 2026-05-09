@@ -34,8 +34,8 @@ export const processChatQuery = async (query: string): Promise<string> => {
   // Retrieve API Key from environment or local storage
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('VITE_GEMINI_API_KEY');
 
-  if (!apiKey || apiKey === 'placeholder-key') {
-    return "⚠️ **API Key Missing**: Please add your Gemini API Key in the **Profile** settings to enable live AI responses.";
+  if (!apiKey || apiKey === 'placeholder-key' || apiKey.trim() === '') {
+    return "⚠️ **API Key Missing**: Please add your Gemini API Key in the **Profile** settings to enable live AI responses.\n\n[Get a free key here](https://aistudio.google.com/app/apikey)";
   }
 
   try {
