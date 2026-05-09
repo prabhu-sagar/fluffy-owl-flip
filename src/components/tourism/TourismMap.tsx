@@ -5,7 +5,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TouristPlace, CATEGORY_COLORS } from '@/lib/tourism-data';
-import { MapPin } from 'lucide-react';
 import { renderToString } from 'react-dom/server';
 import { cn } from '@/lib/utils';
 
@@ -34,15 +33,16 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
   // Default center (between Hyderabad and Bangalore)
   const defaultCenter: [number, number] = [15.0, 78.0];
   
-  // Create custom icon for markers
+  // Create custom icon for markers with visible names
   const createCustomIcon = (place: TouristPlace) => {
     const isSelected = selectedPlaces.includes(place.id);
     const colorClass = CATEGORY_COLORS[place.category];
     
     const iconHtml = renderToString(
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center group">
+        {/* The Pin Icon */}
         <div className={cn(
-          "w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all border-2 border-white",
+          "w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all border-2 border-white relative z-20",
           colorClass,
           isSelected ? "ring-4 ring-primary/40 scale-110" : "hover:scale-110"
         )}>
@@ -50,8 +50,18 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
         </div>
+
+        {/* The Name Label */}
+        <div className={cn(
+          "mt-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border shadow-sm transition-all whitespace-nowrap z-10",
+          isSelected ? "border-primary text-primary font-black scale-105" : "border-slate-200 text-slate-700 font-bold text-[10px]"
+        )}>
+          {place.name}
+        </div>
+
+        {/* Selection Indicator Dot */}
         {isSelected && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white z-10" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white z-30 animate-pulse" />
         )}
       </div>
     );
@@ -59,8 +69,8 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
     return L.divIcon({
       html: iconHtml,
       className: 'custom-leaflet-icon',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
+      iconSize: [120, 80], // Increased size to accommodate label
+      iconAnchor: [60, 40], // Centered anchor
     });
   };
 
