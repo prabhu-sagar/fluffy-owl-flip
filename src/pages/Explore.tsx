@@ -2,168 +2,145 @@
 
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import TourismMap from '@/components/tourism/TourismMap';
+import RoutePlanner from '@/components/tourism/RoutePlanner';
+import SelectedPlacesSidebar from '@/components/tourism/SelectedPlacesSidebar';
+import PlaceDetailsModal from '@/components/tourism/PlaceDetailsModal';
+import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
+import { showSuccess, showError } from '@/utils/toast';
+import { processChatQuery } from '@/services/aiService';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, X, Filter, Map as MapIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { MapPin, Star, TrendingUp, Info, Calendar, CreditCard, Map as MapIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
-import { showSuccess } from '@/utils/toast';
 
 const Explore = () => {
-  const navigate = useNavigate();
-  const [selectedDest, setSelectedDest] = React.useState<any>(null);
+  const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>([]);
+  const [activePlace, setActivePlace] = React.useState<TouristPlace | null>(null);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [aiItinerary, setAiItinerary] = React.useState<string | null>(null);
+  const [searchParams, setSearchParams] = React.useState({ source: 'Hyderabad', dest: 'Bangalore' });
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const destinations = [
-    { 
-      name: 'Goa', 
-      type: 'Beach', 
-      rating: 4.8, 
-      price: '₹4,500', 
-      description: 'Famous for its beaches, ranging from popular stretches at Baga and Palolem to those in laid-back fishing villages such as Agonda.',
-      img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80' 
-    },
-    { 
-      name: 'Manali', 
-      type: 'Mountains', 
-      rating: 4.9, 
-      price: '₹3,200', 
-      description: 'A high-altitude Himalayan resort town in India’s northern Himachal Pradesh state. It has a reputation as a backpacking center and honeymoon destination.',
-      img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=400&q=80' 
-    },
-    { 
-      name: 'Jaipur', 
-      type: 'Heritage', 
-      rating: 4.7, 
-      price: '₹2,800', 
-      description: 'The capital of India’s Rajasthan state. It evokes the royal family that once ruled the region and that, in 1727, founded what is now called the Old City.',
-      img: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=400&q=80' 
-    },
-    { 
-      name: 'Kerala', 
-      type: 'Backwaters', 
-      rating: 4.9, 
-      price: '₹5,500', 
-      description: 'A state on India\'s tropical Malabar Coast, has nearly 600km of Arabian Sea shoreline. It\'s known for its palm-lined beaches and backwaters.',
-      img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=400&q=80' 
-    },
-  ];
+  const selectedPlaces = TOURIST_PLACES.filter(p => selectedPlaceIds.includes(p.id));
 
-  const handleOptimizeRoute = (destName: string) => {
-    showSuccess(`Optimizing route to ${destName}...`);
-    // Navigate to home with search parameters
-    navigate(`/?dest=${destName}&source=Hyderabad`);
+  const handleSearch = (source: string, dest: string) => {
+    setIsLoading(true);
+    setSearchParams({ source, dest });
+    setTimeout(() => {
+      setIsLoading(false);
+      showSuccess(`Found 6 attractions along the route to ${dest}`);
+    }, 1500);
+  };
+
+  const togglePlaceSelection = (id: string) => {
+    setSelectedPlaceIds(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+    const place = TOURIST_PLACES.find(p => p.id === id);
+    if (!selectedPlaceIds.includes(id)) {
+      showSuccess(`Added ${place?.name} to your trip`);
+    }
+  };
+
+  const generateItinerary = async () => {
+    if (selectedPlaces.length === 0) return;
+    setIsGenerating(true);
+    try {
+      const prompt = `Create a detailed day-wise travel itinerary for a trip from ${searchParams.source} to ${searchParams.dest} visiting these places: ${selectedPlaces.map(p => p.name).join(', ')}. Include travel times and budget tips.`;
+      const response = await processChatQuery(prompt);
+      setAiItinerary(response);
+    } catch (err) {
+      showError("Failed to generate AI itinerary");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+    <div className="h-screen bg-[#f8fafc] text-slate-900 flex flex-col overflow-hidden">
       <Navbar />
-      <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Explore Destinations</h1>
-          <p className="text-slate-500 text-sm">Discover trending places with AI-optimized travel routes.</p>
+      
+      <main className="flex-1 pt-16 flex relative overflow-hidden">
+        {/* Left Sidebar: Trip Summary */}
+        <div className="hidden lg:block w-80 shrink-0 h-full">
+          <SelectedPlacesSidebar 
+            selectedPlaces={selectedPlaces}
+            onRemove={togglePlaceSelection}
+            onGenerateItinerary={generateItinerary}
+            isGenerating={isGenerating}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {destinations.map((dest, idx) => (
-            <motion.div
-              key={dest.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+        {/* Center: Map & Search */}
+        <div className="flex-1 relative flex flex-col">
+          {/* Floating Search Bar */}
+          <div className="absolute top-6 left-6 right-6 z-40">
+            <RoutePlanner onSearch={handleSearch} isLoading={isLoading} />
+          </div>
+
+          {/* Map Container */}
+          <div className="flex-1 p-6 pt-24">
+            <TourismMap 
+              places={TOURIST_PLACES}
+              selectedPlaces={selectedPlaceIds}
+              onPlaceClick={setActivePlace}
+              source={searchParams.source}
+              destination={searchParams.dest}
+            />
+          </div>
+
+          {/* Smart Filters Overlay */}
+          <div className="absolute bottom-12 left-12 z-30 flex gap-2">
+            {['Historical', 'Nature', 'Food', 'Adventure'].map((cat) => (
+              <Button key={cat} variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg text-[10px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-white transition-all">
+                {cat}
+              </Button>
+            ))}
+            <Button variant="secondary" className="rounded-full bg-white/80 backdrop-blur-md border-white/20 shadow-lg h-10 w-10 p-0">
+              <Filter size={16} />
+            </Button>
+          </div>
+        </div>
+
+        {/* AI Itinerary Overlay */}
+        <AnimatePresence>
+          {aiItinerary && (
+            <motion.div 
+              initial={{ opacity: 0, x: 400 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 400 }}
+              className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-50 border-l border-slate-200 flex flex-col"
             >
-              <Card className="overflow-hidden rounded-3xl border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
-                  <img src={dest.img} alt={dest.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <Badge className="absolute top-4 right-4 bg-white/90 text-slate-900 backdrop-blur-md border-none">
-                    <Star className="w-3 h-3 text-amber-400 fill-amber-400 mr-1" /> {dest.rating}
-                  </Badge>
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-primary text-white">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={20} />
+                  <h3 className="font-black text-lg">AI Smart Itinerary</h3>
                 </div>
-                <div className="p-5 space-y-4 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-lg">{dest.name}</h3>
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {dest.type}
-                      </p>
-                    </div>
-                    <p className="font-bold text-primary">{dest.price}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-wider">
-                    <TrendingUp className="w-3 h-3" /> High Demand
-                  </div>
-
-                  <div className="pt-2 mt-auto flex flex-col gap-2">
-                    <Button 
-                      className="w-full rounded-xl text-xs font-bold h-10 shadow-lg shadow-primary/20 gap-2"
-                      onClick={() => handleOptimizeRoute(dest.name)}
-                    >
-                      <MapIcon className="w-3.5 h-3.5" /> Optimize Route
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full rounded-xl text-xs font-bold h-10 border-slate-200 hover:bg-slate-50"
-                      onClick={() => setSelectedDest(dest)}
-                    >
-                      <Info className="w-3.5 h-3.5 mr-1.5" /> View Details
-                    </Button>
-                  </div>
+                <button onClick={() => setAiItinerary(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-8 prose prose-slate prose-sm max-w-none custom-scrollbar">
+                <div className="whitespace-pre-wrap font-medium leading-relaxed">
+                  {aiItinerary}
                 </div>
-              </Card>
+              </div>
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex gap-3">
+                <Button className="flex-1 rounded-xl h-12 font-bold">Save to My Trips</Button>
+                <Button variant="outline" className="flex-1 rounded-xl h-12 font-bold border-slate-200">Export PDF</Button>
+              </div>
             </motion.div>
-          ))}
-        </div>
-
-        {/* Destination Details Dialog */}
-        <Dialog open={!!selectedDest} onOpenChange={() => setSelectedDest(null)}>
-          <DialogContent className="max-w-lg bg-white border-slate-200 rounded-[2rem]">
-            <DialogHeader>
-              <div className="h-48 w-full rounded-2xl overflow-hidden mb-4">
-                <img src={selectedDest?.img} className="w-full h-full object-cover" alt={selectedDest?.name} />
-              </div>
-              <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-                {selectedDest?.name}
-                <Badge variant="secondary" className="rounded-full">{selectedDest?.type}</Badge>
-              </DialogTitle>
-              <DialogDescription className="text-slate-500 pt-2 leading-relaxed">
-                {selectedDest?.description}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Starting From</p>
-                <p className="text-xl font-bold text-primary">{selectedDest?.price}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">User Rating</p>
-                <div className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <p className="text-xl font-bold">{selectedDest?.rating}</p>
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button variant="ghost" onClick={() => setSelectedDest(null)} className="rounded-xl">
-                Close
-              </Button>
-              <Button onClick={() => handleOptimizeRoute(selectedDest?.name)} className="rounded-xl px-8 gap-2 shadow-lg shadow-primary/20">
-                <MapIcon className="w-4 h-4" /> Plan Optimized Route
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          )}
+        </AnimatePresence>
       </main>
+
+      <PlaceDetailsModal 
+        place={activePlace}
+        isOpen={!!activePlace}
+        onClose={() => setActivePlace(null)}
+        onToggleSelect={togglePlaceSelection}
+        isSelected={activePlace ? selectedPlaceIds.includes(activePlace.id) : false}
+      />
     </div>
   );
 };
