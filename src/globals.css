@@ -32,7 +32,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
 
-    --radius: 0.75rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -42,28 +42,32 @@
   }
 
   body {
-    @apply bg-[#f8fafc] text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-[#fcfdfe] text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight text-[#0f172a];
+    @apply font-black tracking-tighter text-[#0f172a] leading-[0.95];
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white border border-slate-200 shadow-sm rounded-2xl;
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-slate-200/50 rounded-[2.5rem];
   }
   
-  .sidebar-item-active {
-    @apply bg-primary/10 text-primary border-r-4 border-primary;
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-800 to-primary;
+  }
+
+  .premium-shadow {
+    @apply shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)];
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -78,22 +82,10 @@
 
 /* Leaflet Customizations */
 .leaflet-container {
-  @apply z-0;
+  @apply z-0 grayscale-[0.2] contrast-[1.1];
 }
 
 .custom-leaflet-icon {
   background: transparent !important;
   border: none !important;
-}
-
-.leaflet-popup-content-wrapper {
-  @apply rounded-2xl border-none shadow-2xl p-0 overflow-hidden;
-}
-
-.leaflet-popup-tip {
-  @apply bg-white;
-}
-
-.leaflet-popup-content {
-  @apply m-0 p-3;
 }
