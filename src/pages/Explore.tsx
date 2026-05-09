@@ -5,7 +5,6 @@ import Navbar from '@/components/layout/Navbar';
 import TourismMap from '@/components/tourism/TourismMap';
 import PlaceDetailsPanel from '@/components/tourism/PlaceDetailsPanel';
 import TripSummary from '@/components/tourism/TripSummary';
-import HighlightSection from '@/components/explore/HighlightSection';
 import DestinationCard from '@/components/explore/DestinationCard';
 import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-data';
 import { TOURIST_PLACES } from '@/lib/tourism-data';
@@ -42,10 +41,6 @@ const Explore = () => {
     return 0;
   });
 
-  const topRated = [...DESTINATIONS].sort((a, b) => b.rating - a.rating).slice(0, 5);
-  const mostVisited = [...DESTINATIONS].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
-  const seasonalPicks = DESTINATIONS.filter(d => d.tag?.includes('Best in') || d.tag?.includes('Seasonal')).slice(0, 5);
-
   const handleExplore = (dest: Destination) => {
     setActiveDestination(dest);
     setViewMode('split');
@@ -72,53 +67,46 @@ const Explore = () => {
               exit={{ opacity: 0, y: -20 }}
               className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-12"
             >
-              <div className="max-w-7xl mx-auto space-y-16">
+              <div className="max-w-7xl mx-auto space-y-12">
                 {/* Header Section */}
-                <div className="space-y-8 text-center max-w-3xl mx-auto">
-                  <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-primary text-xs font-black uppercase tracking-widest">
-                    <Sparkles size={14} /> Discover Your Next Adventure
+                <div className="space-y-6 text-center max-w-2xl mx-auto">
+                  <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full text-primary text-[10px] font-black uppercase tracking-widest">
+                    <Sparkles size={12} /> Discover Your Next Adventure
                   </div>
-                  <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-slate-900 leading-none">
+                  <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-slate-900 leading-none">
                     Explore <span className="text-primary">Destinations</span>
                   </h1>
                   
-                  {/* Search Bar */}
-                  <div className="relative group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={24} />
+                  {/* Compact Search Bar */}
+                  <div className="relative group max-w-xl mx-auto">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                     <Input 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search destinations (e.g., Goa, Manali, Mysore)"
-                      className="h-20 pl-16 pr-8 rounded-[2.5rem] border-slate-200 bg-white shadow-2xl shadow-slate-200/50 text-xl font-bold focus:ring-primary/20 transition-all"
+                      placeholder="Search destinations..."
+                      className="h-14 pl-14 pr-6 rounded-2xl border-slate-200 bg-white shadow-xl shadow-slate-200/30 text-base font-bold focus:ring-primary/20 transition-all"
                     />
                   </div>
                 </div>
 
-                {/* Highlight Sections */}
-                <div className="space-y-12">
-                  <HighlightSection title="Top Rated Destinations" destinations={topRated} onExplore={handleExplore} />
-                  <HighlightSection title="Most Visited Destinations" destinations={mostVisited} onExplore={handleExplore} />
-                  <HighlightSection title="Seasonal Picks" destinations={seasonalPicks} onExplore={handleExplore} />
-                </div>
-
                 {/* Main Grid Section */}
-                <div className="space-y-8 pt-8 border-t border-slate-100">
+                <div className="space-y-8">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                      <h2 className="text-3xl font-black tracking-tight text-slate-900">All Destinations</h2>
-                      <p className="text-slate-500 font-medium">Browse our curated list of travel gems.</p>
+                      <h2 className="text-2xl font-black tracking-tight text-slate-900">All Destinations</h2>
+                      <p className="text-slate-500 text-sm font-medium">Browse our curated list of travel gems.</p>
                     </div>
 
                     {/* Filters & Sorting */}
                     <div className="flex flex-wrap items-center gap-3">
-                      <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                         {['All', 'Beach', 'Hill Station', 'City', 'Adventure'].map((cat) => (
                           <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat as any)}
                             className={cn(
-                              "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                              selectedCategory === cat ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-slate-50"
+                              "px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                              selectedCategory === cat ? "bg-primary text-white shadow-md shadow-primary/20" : "text-slate-400 hover:bg-slate-50"
                             )}
                           >
                             {cat}
@@ -127,13 +115,13 @@ const Explore = () => {
                       </div>
                       
                       <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger className="w-[160px] h-12 rounded-2xl border-slate-200 bg-white font-bold">
+                        <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 bg-white font-bold text-xs">
                           <div className="flex items-center gap-2">
-                            <SlidersHorizontal size={16} className="text-slate-400" />
+                            <SlidersHorizontal size={14} className="text-slate-400" />
                             <SelectValue placeholder="Sort by" />
                           </div>
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl">
+                        <SelectContent className="rounded-xl">
                           <SelectItem value="popularity">Popularity</SelectItem>
                           <SelectItem value="rating">Top Rated</SelectItem>
                           <SelectItem value="budget">Budget</SelectItem>
@@ -142,7 +130,7 @@ const Explore = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredDestinations.map((dest) => (
                       <DestinationCard key={dest.id} destination={dest} onExplore={handleExplore} />
                     ))}
