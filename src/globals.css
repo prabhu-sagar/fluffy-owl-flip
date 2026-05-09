@@ -75,3 +75,25 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
 }
+
+/* Leaflet Customizations */
+.leaflet-container {
+  @apply z-0;
+}
+
+.custom-leaflet-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply rounded-2xl border-none shadow-2xl p-0 overflow-hidden;
+}
+
+.leaflet-popup-tip {
+  @apply bg-white;
+}
+
+.leaflet-popup-content {
+  @apply m-0 p-3;
+}
