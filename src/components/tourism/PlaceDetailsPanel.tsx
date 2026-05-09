@@ -11,6 +11,7 @@ import { TouristPlace, CATEGORY_COLORS } from '@/lib/tourism-data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { showSuccess } from '@/utils/toast';
 
 interface PlaceDetailsPanelProps {
   place: TouristPlace | null;
@@ -48,6 +49,10 @@ const PlaceDetailsPanel = ({
   }
 
   const mockDistance = (Math.random() * 15 + 2).toFixed(1);
+
+  const handleNavigate = () => {
+    showSuccess(`Starting navigation to ${place.name}...`);
+  };
 
   return (
     <motion.div 
@@ -98,7 +103,7 @@ const PlaceDetailsPanel = ({
           </div>
         </div>
 
-        {/* Logistics Grid - 4 Small Grids */}
+        {/* Logistics Grid - 4 Small Grids Perfectly Aligned */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { icon: Clock, label: 'Timings', value: place.timings },
@@ -106,10 +111,10 @@ const PlaceDetailsPanel = ({
             { icon: Calendar, label: 'Best Time', value: place.bestTime },
             { icon: MapPin, label: 'Duration', value: place.duration }
           ].map((item, i) => (
-            <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-1">
-              <item.icon className="w-3 h-3 text-primary mb-1" />
+            <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex flex-col items-center text-center space-y-1">
+              <item.icon className="w-3.5 h-3.5 text-primary" />
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
-              <p className="text-[9px] font-bold text-slate-900 truncate">{item.value}</p>
+              <p className="text-[9px] font-bold text-slate-900 truncate w-full">{item.value}</p>
             </div>
           ))}
         </div>
@@ -140,7 +145,11 @@ const PlaceDetailsPanel = ({
               <Plus size={18} /> Add to Trip
             </Button>
           )}
-          <Button variant="outline" className="h-12 rounded-2xl font-bold border-slate-200 gap-2">
+          <Button 
+            onClick={handleNavigate}
+            variant="outline" 
+            className="h-12 rounded-2xl font-bold border-slate-200 gap-2"
+          >
             <Navigation size={18} className="text-primary" /> Get Directions
           </Button>
         </div>

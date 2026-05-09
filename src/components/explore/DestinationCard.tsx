@@ -22,8 +22,9 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
   return (
     <motion.div
       whileHover={{ y: -8 }}
+      onClick={() => onExplore(destination)}
       className={cn(
-        "group relative bg-white rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500",
+        "group relative bg-white rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer",
         variant === 'highlight' ? "w-[300px] shrink-0" : "w-full"
       )}
     >
@@ -52,7 +53,7 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
         <button 
           onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
           className={cn(
-            "absolute top-4 right-4 w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center transition-all border border-white/30",
+            "absolute top-4 right-4 w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center transition-all border border-white/30 z-10",
             isSaved ? "bg-primary text-white border-primary" : "bg-white/20 text-white hover:bg-white/40"
           )}
         >
@@ -62,22 +63,21 @@ const DestinationCard = ({ destination, onExplore, variant = 'grid' }: Destinati
 
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-xl font-black text-slate-900 tracking-tight">{destination.name}</h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl font-black text-slate-900 tracking-tight truncate">{destination.name}</h3>
             <div className="flex items-center gap-1 mt-1">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
               <span className="text-sm font-black text-slate-700">{destination.rating}</span>
               <span className="text-xs text-slate-400 font-bold ml-1">• {destination.category}</span>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</p>
             <p className="text-xs font-bold text-primary">{destination.budget}</p>
           </div>
         </div>
 
         <Button 
-          onClick={() => onExplore(destination)}
           className="w-full h-12 rounded-2xl bg-slate-50 hover:bg-primary hover:text-white text-slate-900 font-black text-sm gap-2 transition-all border-none shadow-none group-hover:shadow-lg group-hover:shadow-primary/20"
         >
           Explore <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />

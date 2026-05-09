@@ -10,18 +10,11 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, Map as MapIcon } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, Map as MapIcon, Play } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const Explore = () => {
   const navigate = useNavigate();
@@ -29,7 +22,6 @@ const Explore = () => {
   const [activeDestination, setActiveDestination] = React.useState<Destination | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<DestinationCategory | 'All'>('All');
-  const [sortBy, setSortBy] = React.useState('popularity');
   
   // Trip State
   const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>([]);
@@ -41,10 +33,6 @@ const Explore = () => {
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || dest.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  }).sort((a, b) => {
-    if (sortBy === 'rating') return b.rating - a.rating;
-    if (sortBy === 'popularity') return b.popularity - a.popularity;
-    return 0;
   });
 
   const handleExplore = (dest: Destination) => {
@@ -242,7 +230,7 @@ const Explore = () => {
 
                   {/* Added Places List */}
                   <div className="w-full lg:w-72 bg-slate-50/50 flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-white">
+                    <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between">
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                         <MapIcon size={16} className="text-primary" /> Your Trip Plan
                       </h3>
@@ -283,6 +271,17 @@ const Explore = () => {
                           ))
                         )}
                       </AnimatePresence>
+                    </div>
+                    
+                    {/* Let's Start My Trip Button */}
+                    <div className="p-4 bg-white border-t border-slate-100">
+                      <Button 
+                        disabled={addedPlaces.length === 0}
+                        onClick={handleCompleteTrip}
+                        className="w-full h-12 rounded-2xl font-black gap-2 shadow-xl shadow-primary/20"
+                      >
+                        <Play size={16} fill="currentColor" /> Let's Start My Trip
+                      </Button>
                     </div>
                   </div>
                 </div>
