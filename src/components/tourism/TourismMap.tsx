@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TouristPlace, CATEGORY_COLORS } from '@/lib/tourism-data';
@@ -33,7 +33,7 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
   // Default center (between Hyderabad and Bangalore)
   const defaultCenter: [number, number] = [15.0, 78.0];
   
-  // Create custom icon for markers with visible names
+  // Create custom icon for markers (Icon only, no labels)
   const createCustomIcon = (place: TouristPlace) => {
     const isSelected = selectedPlaces.includes(place.id);
     const colorClass = CATEGORY_COLORS[place.category];
@@ -51,14 +51,6 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
           </div>
         </div>
 
-        {/* The Name Label */}
-        <div className={cn(
-          "mt-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border shadow-sm transition-all whitespace-nowrap z-10",
-          isSelected ? "border-primary text-primary font-black scale-105" : "border-slate-200 text-slate-700 font-bold text-[10px]"
-        )}>
-          {place.name}
-        </div>
-
         {/* Selection Indicator Dot */}
         {isSelected && (
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-white z-30 animate-pulse" />
@@ -69,8 +61,8 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
     return L.divIcon({
       html: iconHtml,
       className: 'custom-leaflet-icon',
-      iconSize: [120, 80], // Increased size to accommodate label
-      iconAnchor: [60, 40], // Centered anchor
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
     });
   };
 
@@ -121,14 +113,7 @@ const TourismMap = ({ places, selectedPlaces, onPlaceClick, source, destination 
             eventHandlers={{
               click: () => onPlaceClick(place),
             }}
-          >
-            <Popup className="custom-popup">
-              <div className="p-1">
-                <p className="font-black text-slate-900 text-sm m-0">{place.name}</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase m-0">{place.category}</p>
-              </div>
-            </Popup>
-          </Marker>
+          />
         ))}
       </MapContainer>
 
