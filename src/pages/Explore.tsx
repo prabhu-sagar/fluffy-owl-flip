@@ -68,17 +68,18 @@ const Explore = () => {
               className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-12"
             >
               <div className="max-w-7xl mx-auto space-y-12">
-                {/* Header Section */}
-                <div className="space-y-6 text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full text-primary text-[10px] font-black uppercase tracking-widest">
-                    <Sparkles size={12} /> Discover Your Next Adventure
+                {/* Header Section: Left Title, Right Search */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                  <div className="space-y-3 text-left">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full text-primary text-[10px] font-black uppercase tracking-widest">
+                      <Sparkles size={12} /> Discover Your Next Adventure
+                    </div>
+                    <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-slate-900 leading-none">
+                      Explore <span className="text-primary">Destinations</span>
+                    </h1>
                   </div>
-                  <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-slate-900 leading-none">
-                    Explore <span className="text-primary">Destinations</span>
-                  </h1>
                   
-                  {/* Compact Search Bar */}
-                  <div className="relative group max-w-xl mx-auto">
+                  <div className="relative group w-full md:w-80 lg:w-96">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                     <Input 
                       value={searchQuery}
