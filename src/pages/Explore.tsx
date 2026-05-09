@@ -10,7 +10,7 @@ import { DESTINATIONS, Destination, DestinationCategory } from '@/lib/explore-da
 import { TOURIST_PLACES, TouristPlace } from '@/lib/tourism-data';
 import { showSuccess } from '@/utils/toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, CheckCircle2, XCircle, Map as MapIcon } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, Sparkles, Trash2, Map as MapIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -173,15 +173,16 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-col lg:flex-row overflow-hidden"
             >
-              {/* Left Part: Map (50%) */}
-              <div className="flex-1 lg:w-1/2 relative flex flex-col border-r border-slate-200/50">
+              {/* Left Part: Map & Summary (35%) */}
+              <div className="flex-1 lg:w-[35%] relative flex flex-col border-r border-slate-200/50 bg-slate-50/30">
                 <div className="absolute top-6 left-6 z-40">
                   <Button 
                     onClick={() => setViewMode('discovery')}
                     variant="secondary" 
-                    className="rounded-2xl h-12 px-6 bg-white/90 backdrop-blur-xl shadow-xl border-white/20 font-black gap-2 hover:bg-primary hover:text-white transition-all"
+                    size="icon"
+                    className="rounded-full w-10 h-10 bg-white/90 backdrop-blur-xl shadow-xl border-white/20 hover:bg-primary hover:text-white transition-all"
                   >
-                    <ChevronLeft size={20} /> Back to Discovery
+                    <ChevronLeft size={20} />
                   </Button>
                 </div>
 
@@ -196,12 +197,22 @@ const Explore = () => {
                     destination={activeDestination?.name}
                   />
                 </div>
+
+                <div className="p-4">
+                  <TripSummary 
+                    selectedCount={selectedPlaceIds.length}
+                    distance={620}
+                    duration="8h 30m"
+                    budget={2500}
+                    aiScore={92}
+                  />
+                </div>
               </div>
 
-              {/* Right Part: Info & Trip Plan (50%) */}
-              <div className="lg:w-1/2 flex flex-col bg-white overflow-hidden">
+              {/* Right Part: Info & Trip Plan (65%) */}
+              <div className="lg:w-[65%] flex flex-col bg-white overflow-hidden">
                 <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                  {/* Place Details (Left half of right panel) */}
+                  {/* Place Details */}
                   <div className="flex-1 border-r border-slate-100 overflow-hidden">
                     <PlaceDetailsPanel 
                       place={selectedPlace}
@@ -215,8 +226,8 @@ const Explore = () => {
                     />
                   </div>
 
-                  {/* Added Places List (Right half of right panel) */}
-                  <div className="w-full lg:w-64 bg-slate-50/50 flex flex-col overflow-hidden">
+                  {/* Added Places List */}
+                  <div className="w-full lg:w-72 bg-slate-50/50 flex flex-col overflow-hidden">
                     <div className="p-6 border-b border-slate-100 bg-white">
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                         <MapIcon size={16} className="text-primary" /> Your Trip Plan
@@ -281,13 +292,6 @@ const Explore = () => {
                     </div>
                   </div>
                 </div>
-                <TripSummary 
-                  selectedCount={selectedPlaceIds.length}
-                  distance={620}
-                  duration="8h 30m"
-                  budget={2500}
-                  aiScore={92}
-                />
               </div>
             </motion.div>
           )}
