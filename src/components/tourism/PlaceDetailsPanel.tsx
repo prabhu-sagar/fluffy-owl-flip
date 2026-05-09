@@ -103,18 +103,18 @@ const PlaceDetailsPanel = ({
           </div>
         </div>
 
-        {/* Logistics Grid - 4 Small Grids Perfectly Aligned */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* Logistics Grid - Fixed 4-column layout with equal sizes */}
+        <div className="grid grid-cols-4 gap-2">
           {[
             { icon: Clock, label: 'Timings', value: place.timings },
             { icon: Wallet, label: 'Entry Fee', value: place.entryFee },
             { icon: Calendar, label: 'Best Time', value: place.bestTime },
             { icon: MapPin, label: 'Duration', value: place.duration }
           ].map((item, i) => (
-            <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex flex-col items-center text-center space-y-1">
-              <item.icon className="w-3.5 h-3.5 text-primary" />
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
-              <p className="text-[9px] font-bold text-slate-900 truncate w-full">{item.value}</p>
+            <div key={i} className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center space-y-1 min-h-[80px]">
+              <item.icon className="w-3.5 h-3.5 text-primary shrink-0" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">{item.label}</p>
+              <p className="text-[9px] font-bold text-slate-900 leading-tight line-clamp-2 w-full">{item.value}</p>
             </div>
           ))}
         </div>

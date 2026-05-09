@@ -274,7 +274,7 @@ const Explore = () => {
 
                   {/* Added Places List */}
                   <div className="w-full lg:w-72 bg-slate-50/50 flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between">
+                    <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                         <MapIcon size={16} className="text-primary" /> Your Trip Plan
                       </h3>
@@ -317,8 +317,8 @@ const Explore = () => {
                       </AnimatePresence>
                     </div>
                     
-                    {/* Let's Start My Trip Button */}
-                    <div className="p-4 bg-white border-t border-slate-100">
+                    {/* Let's Start My Trip Button - Anchored Footer */}
+                    <div className="p-4 bg-white border-t border-slate-100 shrink-0">
                       <Button 
                         disabled={addedPlaces.length === 0}
                         onClick={handleCompleteTrip}
