@@ -66,8 +66,8 @@ const Explore = () => {
 
   const removePlace = (id: string) => {
     setSelectedPlaceIds(prev => prev.filter(p => p !== id));
-    setVisitedPlaceIds(prev => prev.filter(p => p !== id));
-    setSkippedPlaceIds(prev => prev.filter(p => p !== id));
+    setVisitedPlaceIds(prev => prev.filter(p => prev.includes(id) ? prev.filter(p => p !== id) : prev));
+    setSkippedPlaceIds(prev => prev.filter(p => prev.includes(id) ? prev.filter(p => p !== id) : prev));
     showSuccess("Place removed from trip");
   };
 
@@ -215,9 +215,10 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex-1 flex flex-row h-full overflow-hidden"
             >
-              {/* Column 1: Map (85%) & Summary (15%) - 35% Width */}
-              <div className="w-[35%] flex flex-col border-r border-slate-200/50 bg-slate-50/30 h-full overflow-hidden shrink-0">
-                <div className="flex-[8.5] relative p-4 pt-20 overflow-hidden">
+              {/* Column 1: 35% Width */}
+              <div className="w-[35%] flex flex-col h-full border-r border-slate-200/50 bg-slate-50/30 shrink-0 overflow-hidden">
+                {/* Map: 85% Height */}
+                <div className="h-[85%] relative p-4 pt-20 overflow-hidden">
                   <div className="absolute top-6 left-6 z-40">
                     <Button 
                       onClick={() => setViewMode('discovery')}
@@ -239,7 +240,8 @@ const Explore = () => {
                   />
                 </div>
 
-                <div className="flex-[1.5] border-t border-slate-200/50 bg-white/50 overflow-hidden">
+                {/* Trip Summary: 15% Height */}
+                <div className="h-[15%] border-t border-slate-200/50 bg-white/50 overflow-hidden">
                   <TripSummary 
                     selectedCount={selectedPlaceIds.length}
                     distance={620}
@@ -251,8 +253,8 @@ const Explore = () => {
                 </div>
               </div>
 
-              {/* Column 2: Place Details - 40% Width */}
-              <div className="w-[40%] border-r border-slate-100 h-full overflow-hidden bg-white shrink-0">
+              {/* Column 2: 40% Width (Place Details) */}
+              <div className="w-[40%] h-full border-r border-slate-100 overflow-hidden bg-white shrink-0">
                 <PlaceDetailsPanel 
                   place={selectedPlace}
                   isSelected={selectedPlace ? selectedPlaceIds.includes(selectedPlace.id) : false}
@@ -265,8 +267,8 @@ const Explore = () => {
                 />
               </div>
 
-              {/* Column 3: Your Trip Plan - 25% Width */}
-              <div className="w-[25%] bg-slate-50/50 flex flex-col h-full overflow-hidden shrink-0">
+              {/* Column 3: 25% Width (Your Trip Plan) */}
+              <div className="w-[25%] h-full bg-slate-50/50 flex flex-col overflow-hidden shrink-0">
                 <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                     <MapIcon size={16} className="text-primary" /> Your Trip Plan
