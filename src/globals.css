@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
-    --radius: 1.25rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -33,18 +33,18 @@
   }
 
   body {
-    @apply bg-[#fcfdfe] text-foreground antialiased text-[14px];
+    @apply bg-[#fcfdfe] text-foreground antialiased font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
   }
 
-  h1 { @apply text-3xl font-black tracking-tight text-[#0f172a] leading-tight; }
-  h2 { @apply text-xl font-black tracking-tight text-[#0f172a] leading-tight; }
+  h1 { @apply text-3xl font-extrabold tracking-tight text-[#0f172a] leading-tight; }
+  h2 { @apply text-xl font-extrabold tracking-tight text-[#0f172a] leading-tight; }
   h3 { @apply text-lg font-bold tracking-tight text-[#0f172a] leading-tight; }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-slate-200/50 rounded-[2rem];
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-slate-200/50 rounded-[2.5rem];
   }
   
   .text-gradient {
@@ -52,10 +52,10 @@
   }
 
   .premium-shadow {
-    @apply shadow-[0_15px_40px_rgba(8,_112,_184,_0.05)];
+    @apply shadow-[0_20px_50px_rgba(8,_112,_184,_0.08)];
   }
 }
 
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
