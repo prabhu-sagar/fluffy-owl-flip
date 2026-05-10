@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Navigation,
-  Home
+  Home,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -20,6 +21,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
   const menuItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -31,7 +33,11 @@ const Navbar = () => {
   ];
 
   const handleNavigation = (path: string) => {
-    navigate(path);
+    if (path !== '/' && !isLoggedIn) {
+      navigate('/login');
+    } else {
+      navigate(path);
+    }
     setIsMenuOpen(false);
   };
 
@@ -68,21 +74,32 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2">
+          {!isLoggedIn ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/login')}
+                className="font-bold text-slate-600 hover:text-primary rounded-xl px-6"
+              >
+                Login
+              </Button>
+              <Button 
+                onClick={() => navigate('/login')}
+                className="font-black bg-primary hover:bg-primary/90 text-white rounded-xl px-6 shadow-lg shadow-primary/20"
+              >
+                Sign Up
+              </Button>
+            </div>
+          ) : (
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/login')}
-              className="font-bold text-slate-600 hover:text-primary rounded-xl px-6"
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-2 font-bold text-slate-600 hover:text-primary rounded-xl px-4"
             >
-              Login
+              <User className="w-5 h-5" />
+              <span className="hidden sm:inline">Profile</span>
             </Button>
-            <Button 
-              onClick={() => navigate('/login')}
-              className="font-black bg-primary hover:bg-primary/90 text-white rounded-xl px-6 shadow-lg shadow-primary/20"
-            >
-              Sign Up
-            </Button>
-          </div>
+          )}
           
           <Button 
             variant="ghost" 
@@ -116,10 +133,12 @@ const Navbar = () => {
               );
             })}
           </div>
-          <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
-            <Button variant="outline" onClick={() => handleNavigation('/login')} className="rounded-xl font-bold h-12">Login</Button>
-            <Button onClick={() => handleNavigation('/login')} className="rounded-xl font-black h-12">Sign Up</Button>
-          </div>
+          {!isLoggedIn && (
+            <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
+              <Button variant="outline" onClick={() => handleNavigation('/login')} className="rounded-xl font-bold h-12">Login</Button>
+              <Button onClick={() => handleNavigation('/login')} className="rounded-xl font-black h-12">Sign Up</Button>
+            </div>
+          )}
         </div>
       )}
     </nav>

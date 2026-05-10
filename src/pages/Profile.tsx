@@ -13,10 +13,17 @@ import { cn } from '@/lib/utils';
 const Profile = () => {
   const navigate = useNavigate();
   const [apiKey, setApiKey] = React.useState(localStorage.getItem('VITE_GEMINI_API_KEY') || '');
+  
+  // Dynamic user data
+  const userName = localStorage.getItem('user_name') || 'Rohit Verma';
+  const userEmail = localStorage.getItem('user_email') || 'rohit.v@example.com';
 
   const handleSignOut = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_email');
     showSuccess("Signed out successfully");
-    navigate('/login');
+    navigate('/');
   };
 
   const saveApiKey = () => {
@@ -38,8 +45,10 @@ const Profile = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1 space-y-6">
               <Card className="p-6 bg-white border-slate-200 text-center shadow-sm rounded-3xl">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-blue-400 mx-auto mb-4 border-4 border-white shadow-xl" />
-                <h3 className="font-bold text-xl">Rohit Verma</h3>
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-blue-400 mx-auto mb-4 border-4 border-white shadow-xl flex items-center justify-center text-white text-3xl font-black">
+                  {userName.charAt(0)}
+                </div>
+                <h3 className="font-bold text-xl">{userName}</h3>
                 <p className="text-sm text-primary font-bold uppercase tracking-wider mb-6">Premium Member</p>
                 <Button variant="outline" className="w-full rounded-xl border-slate-200 hover:bg-slate-50">
                   Change Avatar
@@ -76,11 +85,11 @@ const Profile = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-400 uppercase">Full Name</label>
-                      <Input defaultValue="Rohit Verma" className="bg-slate-50 border-slate-200 rounded-xl" />
+                      <Input defaultValue={userName} className="bg-slate-50 border-slate-200 rounded-xl" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
-                      <Input defaultValue="rohit.v@example.com" className="bg-slate-50 border-slate-200 rounded-xl" />
+                      <Input defaultValue={userEmail} className="bg-slate-50 border-slate-200 rounded-xl" />
                     </div>
                   </div>
                 </div>

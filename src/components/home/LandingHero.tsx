@@ -20,6 +20,15 @@ import { cn } from '@/lib/utils';
 
 const LandingHero = () => {
   const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const handleNavigateClick = () => {
+    if (isLoggedIn) {
+      navigate('/navigate');
+    } else {
+      navigate('/login');
+    }
+  };
 
   const modules = [
     { 
@@ -95,7 +104,7 @@ const LandingHero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Button 
-              onClick={() => navigate('/login')}
+              onClick={handleNavigateClick}
               className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-lg gap-3 shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02]"
             >
               Start Navigating <ArrowRight className="w-5 h-5" />

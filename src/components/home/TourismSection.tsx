@@ -8,6 +8,15 @@ import { Button } from '@/components/ui/button';
 
 const TourismSection = () => {
   const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const handleExploreClick = () => {
+    if (isLoggedIn) {
+      navigate('/explore');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="py-24 bg-white overflow-hidden">
@@ -28,7 +37,7 @@ const TourismSection = () => {
 
             <div className="space-y-6">
               <h2 className="text-5xl font-black tracking-tighter text-slate-900 leading-tight">
-                Discover the <span className="text-emerald-500">Unseen</span> Along Your Path.
+                Tourism <span className="text-emerald-500">Exploration</span> Along Your Path.
               </h2>
               <p className="text-lg text-slate-500 font-medium leading-relaxed">
                 Our AI doesn't just find the fastest route; it finds the most beautiful one. Explore hidden waterfalls, ancient temples, and local culinary secrets that traditional maps miss.
@@ -55,7 +64,7 @@ const TourismSection = () => {
             </div>
 
             <Button 
-              onClick={() => navigate('/explore')}
+              onClick={handleExploreClick}
               className="h-14 px-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-lg gap-3 shadow-2xl shadow-emerald-200 transition-all hover:scale-[1.02]"
             >
               Start Exploring <ArrowRight className="w-5 h-5" />
