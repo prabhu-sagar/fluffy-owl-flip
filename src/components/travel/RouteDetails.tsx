@@ -21,6 +21,7 @@ import InteractiveMap from './InteractiveMap';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface RouteDetailsProps {
   route: TravelRoute | null;
@@ -53,6 +54,7 @@ const RouteDetails = ({
   showBooking = true,
   isSatellite = false
 }: RouteDetailsProps) => {
+  const navigate = useNavigate();
   const [isBooking, setIsBooking] = React.useState(false);
   const [selectedPlace, setSelectedPlace] = React.useState<any | null>(null);
 
@@ -77,11 +79,14 @@ const RouteDetails = ({
       if (error) throw error;
       showSuccess("Trip booked successfully!");
       onClose();
+      navigate('/trips');
     } catch (err: any) {
+      // Fallback for local storage if Supabase is not configured
       const existingTrips = JSON.parse(localStorage.getItem('bookedTrips') || '[]');
       localStorage.setItem('bookedTrips', JSON.stringify([{ ...tripData, id: Date.now().toString() }, ...existingTrips]));
-      showSuccess("Trip saved to local storage");
+      showSuccess("Trip saved to your journeys!");
       onClose();
+      navigate('/trips');
     } finally {
       setIsBooking(false);
     }
