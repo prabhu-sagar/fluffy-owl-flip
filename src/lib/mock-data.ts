@@ -24,6 +24,25 @@ export interface TravelRoute {
   score: number;
 }
 
+export const PRICE_TRENDS = [
+  { day: 'Mon', price: 2400 },
+  { day: 'Tue', price: 3200 },
+  { day: 'Wed', price: 2800 },
+  { day: 'Thu', price: 4500 },
+  { day: 'Fri', price: 3900 },
+  { day: 'Sat', price: 5200 },
+  { day: 'Sun', price: 4800 },
+];
+
+export const DELAY_DATA = [
+  { time: '08:00', delay: 5 },
+  { time: '10:00', delay: 12 },
+  { time: '12:00', delay: 8 },
+  { time: '14:00', delay: 25 },
+  { time: '16:00', delay: 40 },
+  { time: '18:00', delay: 15 },
+];
+
 const WEATHER_DELAY_MAP: Record<WeatherCondition, number> = {
   'Clear': 0,
   'Rain': 2,
@@ -57,7 +76,7 @@ export const generateRoutes = (
     ]
   });
 
-  // 2. Express Train + Metro (Recommended - Now includes Metro)
+  // 2. Express Train + Metro (Recommended)
   routes.push({
     id: 'r2',
     totalDuration: 380 + (citySeed % 100),
