@@ -15,8 +15,8 @@ interface SearchFormProps {
 }
 
 const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
-  const [source, setSource] = React.useState('');
-  const [dest, setDest] = React.useState('');
+  const [source, setSource] = React.useState('Hyderabad');
+  const [dest, setDest] = React.useState('Bangalore');
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
   const [isListening, setIsListening] = React.useState(false);
 
@@ -27,10 +27,6 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!source || !dest) {
-      showError("Please enter both source and destination");
-      return;
-    }
     onSearch(source, dest, date);
   };
 
@@ -48,6 +44,7 @@ const SearchForm = ({ onSearch, isLoading }: SearchFormProps) => {
     recognition.onend = () => setIsListening(false);
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript.toLowerCase();
+      // Simple parser: "from Hyderabad to Bangalore"
       if (transcript.includes('from') && transcript.includes('to')) {
         const parts = transcript.split('to');
         const fromPart = parts[0].replace('from', '').trim();

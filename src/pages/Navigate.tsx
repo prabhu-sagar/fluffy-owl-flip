@@ -20,13 +20,13 @@ const Navigate = () => {
   const [distance] = React.useState([600]);
   const [weather] = React.useState<WeatherCondition>('Clear');
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
   const [hasSearched, setHasSearched] = React.useState(false);
   
   const [searchParams, setSearchParams] = React.useState({ 
-    source: urlParams.get('source') || '', 
-    dest: urlParams.get('dest') || '',
+    source: urlParams.get('source') || 'Hyderabad', 
+    dest: urlParams.get('dest') || 'Bangalore',
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -38,8 +38,6 @@ const Navigate = () => {
   }, [navigate]);
 
   const loadRoutes = React.useCallback(async () => {
-    if (!searchParams.source || !searchParams.dest) return;
-    
     setIsLoading(true);
     try {
       const data = await fetchTravelPlan({
@@ -71,8 +69,10 @@ const Navigate = () => {
   };
 
   React.useEffect(() => {
-    if (hasSearched || (urlParams.get('source') && urlParams.get('dest'))) {
+    if (hasSearched || urlParams.get('dest')) {
       loadRoutes();
+    } else {
+      setIsLoading(false);
     }
   }, [searchParams, loadRoutes, hasSearched, urlParams]);
 
@@ -87,10 +87,11 @@ const Navigate = () => {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          {/* Left Column: Search and Routes */}
           <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            {hasSearched && (
+            {(hasSearched || urlParams.get('dest')) && (
               <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between px-2">
                   <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
@@ -106,7 +107,7 @@ const Navigate = () => {
                         <div key={i} className="h-48 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
                       ))}
                     </div>
-                  ) : routes.length > 0 ? (
+                  ) : (
                     routes.map((route, idx) => (
                       <RouteCard 
                         key={route.id} 
@@ -115,16 +116,13 @@ const Navigate = () => {
                         onViewDetails={(r) => setSelectedRoute(r)}
                       />
                     ))
-                  ) : (
-                    <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-200">
-                      <p className="text-slate-400 font-medium">No routes found for this search. Try different cities.</p>
-                    </div>
                   )}
                 </div>
               </div>
             )}
           </div>
 
+          {/* Right Column: AI Assistant and Widgets Grid */}
           <div className="xl:col-span-4 flex flex-col gap-8">
             <div className="sticky top-24 space-y-8">
               <AIAssistant weather={weather} distance={distance[0]} />
