@@ -90,8 +90,9 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    localStorage.setItem('isLoggedIn', 'true');
     showSuccess(isSignUp ? "Account created successfully!" : "Welcome back!");
-    navigate('/');
+    navigate('/navigate');
   };
 
   return (
@@ -125,7 +126,7 @@ const Login = () => {
 
       <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 overflow-y-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
               <Plane className="text-white w-5 h-5" />
             </div>

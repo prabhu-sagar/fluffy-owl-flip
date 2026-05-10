@@ -95,17 +95,17 @@ const LandingHero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Button 
-              onClick={() => navigate('/explore')}
+              onClick={() => navigate('/login')}
               className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-lg gap-3 shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02]"
             >
-              Start Exploring <ArrowRight className="w-5 h-5" />
+              Start Navigating <ArrowRight className="w-5 h-5" />
             </Button>
             <Button 
               variant="outline"
-              onClick={() => navigate('/assistant')}
+              onClick={() => navigate('/explore')}
               className="h-14 px-10 rounded-2xl border-slate-200 bg-white font-bold text-lg text-slate-600 hover:bg-slate-50 transition-all"
             >
-              Chat with AI
+              Explore Tourism
             </Button>
           </motion.div>
         </div>

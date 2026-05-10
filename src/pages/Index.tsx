@@ -3,17 +3,20 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import LandingHero from '@/components/home/LandingHero';
+import DemoRoutes from '@/components/home/DemoRoutes';
+import TourismSection from '@/components/home/TourismSection';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-[#fcfdfe] text-slate-900 flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-24">
         <LandingHero />
+        <DemoRoutes />
+        <TourismSection />
         
-        {/* Additional Landing Content could go here */}
-        <div className="container mx-auto px-4 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 py-24 border-t border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div className="space-y-6">
               <h2 className="text-4xl font-black tracking-tighter">Why choose AI Travel?</h2>
               <p className="text-lg text-slate-500 font-medium leading-relaxed">

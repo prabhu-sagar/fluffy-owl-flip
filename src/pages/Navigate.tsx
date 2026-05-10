@@ -11,9 +11,10 @@ import { WeatherWidget, PricePrediction } from '@/components/travel/TravelWidget
 import { WeatherCondition, TravelRoute } from '@/lib/mock-data';
 import { fetchTravelPlan } from '@/lib/api';
 import { showError, showSuccess } from '@/utils/toast';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const Navigate = () => {
+  const navigate = useNavigate();
   const [urlParams] = useSearchParams();
   const [travelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
   const [distance] = React.useState([600]);
@@ -28,6 +29,13 @@ const Navigate = () => {
     dest: urlParams.get('dest') || 'Bangalore',
     date: new Date().toISOString().split('T')[0]
   });
+
+  React.useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const loadRoutes = React.useCallback(async () => {
     setIsLoading(true);
