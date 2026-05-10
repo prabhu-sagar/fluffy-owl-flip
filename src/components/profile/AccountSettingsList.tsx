@@ -4,6 +4,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { User, Lock, Bell, Shield, Trash2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { showSuccess, showError } from '@/utils/toast';
 
 const AccountSettingsList = () => {
   const settings = [
@@ -14,6 +15,14 @@ const AccountSettingsList = () => {
     { icon: Trash2, label: 'Delete Account', color: 'text-red-500', isDanger: true },
   ];
 
+  const handleSettingClick = (label: string, isDanger?: boolean) => {
+    if (isDanger) {
+      showError(`Are you sure you want to ${label.toLowerCase()}? This action is permanent.`);
+    } else {
+      showSuccess(`Opening ${label.toLowerCase()}...`);
+    }
+  };
+
   return (
     <Card className="p-6 bg-white border-slate-100 rounded-[2rem] shadow-sm h-full">
       <h3 className="text-lg font-black text-slate-900 mb-6">Account Settings</h3>
@@ -21,6 +30,7 @@ const AccountSettingsList = () => {
         {settings.map((item, i) => (
           <button
             key={i}
+            onClick={() => handleSettingClick(item.label, item.isDanger)}
             className={cn(
               "w-full flex items-center justify-between p-3 rounded-xl transition-all hover:bg-slate-50 group",
               item.isDanger && "hover:bg-red-50"

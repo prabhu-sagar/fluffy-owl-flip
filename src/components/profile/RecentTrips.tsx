@@ -4,8 +4,10 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plane, Train, Bus, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const RecentTrips = () => {
+  const navigate = useNavigate();
   const trips = [
     {
       id: 1,
@@ -46,12 +48,21 @@ const RecentTrips = () => {
     <Card className="p-8 bg-white border-slate-100 rounded-[2.5rem] shadow-sm">
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-xl font-black text-slate-900">Recent Trips</h3>
-        <button className="text-sm font-bold text-primary hover:underline">View All</button>
+        <button 
+          onClick={() => navigate('/trips')}
+          className="text-sm font-bold text-primary hover:underline"
+        >
+          View All
+        </button>
       </div>
 
       <div className="space-y-4">
         {trips.map((trip) => (
-          <div key={trip.id} className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-3xl border border-slate-50 hover:border-primary/20 transition-all group cursor-pointer">
+          <div 
+            key={trip.id} 
+            onClick={() => navigate('/trips')}
+            className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-3xl border border-slate-50 hover:border-primary/20 transition-all group cursor-pointer"
+          >
             <div className="w-full sm:w-24 h-24 rounded-2xl overflow-hidden shrink-0">
               <img src={trip.image} alt={trip.to} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
             </div>

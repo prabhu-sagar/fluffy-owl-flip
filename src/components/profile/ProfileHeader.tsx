@@ -4,6 +4,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera } from 'lucide-react';
+import { showSuccess } from '@/utils/toast';
 
 interface ProfileHeaderProps {
   name: string;
@@ -22,7 +23,10 @@ const ProfileHeader = ({ name, email }: ProfileHeaderProps) => {
               className="w-full h-full object-cover"
             />
           </div>
-          <button className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-primary transition-colors">
+          <button 
+            onClick={() => showSuccess("Opening camera to update profile picture...")}
+            className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-primary transition-colors"
+          >
             <Camera size={16} />
           </button>
         </div>
@@ -39,7 +43,11 @@ const ProfileHeader = ({ name, email }: ProfileHeaderProps) => {
               <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" /> Mumbai, Maharashtra, India</span>
             </div>
           </div>
-          <Button variant="outline" className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6">
+          <Button 
+            variant="outline" 
+            onClick={() => showSuccess("Opening profile editor...")}
+            className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6"
+          >
             <Edit3 size={16} /> Edit Profile
           </Button>
         </div>
