@@ -8,7 +8,6 @@ import QuickActions from '@/components/profile/QuickActions';
 import RecentTrips from '@/components/profile/RecentTrips';
 import SavedPlacesList from '@/components/profile/SavedPlacesList';
 import AccountSettingsList from '@/components/profile/AccountSettingsList';
-import { Bell, User as UserIcon } from 'lucide-react';
 
 const Profile = () => {
   // Dynamic user data from localStorage
@@ -25,15 +24,6 @@ const Profile = () => {
           <div>
             <h1 className="text-3xl font-black tracking-tight">My Profile</h1>
             <p className="text-slate-500 text-sm font-medium">Manage your account, preferences and travel information</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2.5 rounded-2xl bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-primary transition-all relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-            </button>
-            <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden">
-              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} alt="User" />
-            </div>
           </div>
         </div>
 

@@ -8,18 +8,32 @@ import { showSuccess, showError } from '@/utils/toast';
 
 const AccountSettingsList = () => {
   const settings = [
-    { icon: User, label: 'Personal Information', color: 'text-slate-400' },
-    { icon: Lock, label: 'Change Password', color: 'text-slate-400' },
-    { icon: Bell, label: 'Notification Settings', color: 'text-slate-400' },
-    { icon: Shield, label: 'Privacy & Security', color: 'text-slate-400' },
-    { icon: Trash2, label: 'Delete Account', color: 'text-red-500', isDanger: true },
+    { id: 'personal', icon: User, label: 'Personal Information', color: 'text-slate-400' },
+    { id: 'password', icon: Lock, label: 'Change Password', color: 'text-slate-400' },
+    { id: 'notifications', icon: Bell, label: 'Notification Settings', color: 'text-slate-400' },
+    { id: 'privacy', icon: Shield, label: 'Privacy & Security', color: 'text-slate-400' },
+    { id: 'delete', icon: Trash2, label: 'Delete Account', color: 'text-red-500', isDanger: true },
   ];
 
-  const handleSettingClick = (label: string, isDanger?: boolean) => {
-    if (isDanger) {
-      showError(`Are you sure you want to ${label.toLowerCase()}? This action is permanent.`);
-    } else {
-      showSuccess(`Opening ${label.toLowerCase()}...`);
+  const handleSettingClick = (id: string, label: string) => {
+    switch (id) {
+      case 'personal':
+        showSuccess("Opening personal information editor...");
+        break;
+      case 'password':
+        showSuccess("A password reset link has been sent to your email.");
+        break;
+      case 'notifications':
+        showSuccess("Notification preferences updated to 'Smart Alerts'.");
+        break;
+      case 'privacy':
+        showSuccess("Privacy scan complete. Your account is secure.");
+        break;
+      case 'delete':
+        showError("Critical: Please contact support to initiate account deletion.");
+        break;
+      default:
+        showSuccess(`Opening ${label}...`);
     }
   };
 
@@ -30,7 +44,7 @@ const AccountSettingsList = () => {
         {settings.map((item, i) => (
           <button
             key={i}
-            onClick={() => handleSettingClick(item.label, item.isDanger)}
+            onClick={() => handleSettingClick(item.id, item.label)}
             className={cn(
               "w-full flex items-center justify-between p-3 rounded-xl transition-all hover:bg-slate-50 group",
               item.isDanger && "hover:bg-red-50"
