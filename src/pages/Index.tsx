@@ -3,6 +3,7 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import LandingHero from '@/components/home/LandingHero';
 import RouteCard from '@/components/travel/RouteCard';
 import AIAssistant from '@/components/travel/AIAssistant';
 import SearchForm from '@/components/travel/SearchForm';
@@ -22,6 +23,7 @@ const Index = () => {
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
+  const [hasSearched, setHasSearched] = React.useState(false);
   
   const [searchParams, setSearchParams] = React.useState({ 
     source: urlParams.get('source') || 'Hyderabad', 
@@ -40,7 +42,6 @@ const Index = () => {
         weather: weather
       });
       
-      // Sort routes: Recommended (Best Choice) first
       const sortedData = [...data].sort((a, b) => {
         if (a.type === 'recommended') return -1;
         if (b.type === 'recommended') return 1;
@@ -57,65 +58,59 @@ const Index = () => {
 
   const handleSearch = (source: string, dest: string, date: string = searchParams.date) => {
     setSearchParams(prev => ({ ...prev, source, dest, date }));
+    setHasSearched(true);
     showSuccess(`Searching routes from ${source} to ${dest}`);
   };
 
   React.useEffect(() => {
-    loadRoutes();
-  }, [searchParams, loadRoutes]);
-
-  // Update search params if URL changes
-  React.useEffect(() => {
-    const dest = urlParams.get('dest');
-    const source = urlParams.get('source');
-    if (dest || source) {
-      setSearchParams(prev => ({
-        ...prev,
-        dest: dest || prev.dest,
-        source: source || prev.source
-      }));
+    if (hasSearched || urlParams.get('dest')) {
+      loadRoutes();
+    } else {
+      setIsLoading(false);
     }
-  }, [urlParams]);
+  }, [searchParams, loadRoutes, hasSearched, urlParams]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-[#fcfdfe] text-slate-900 flex flex-col">
       <Navbar />
       
       <main className="flex-1 pt-24 pb-12 px-4 lg:px-8 container mx-auto max-w-7xl">
-        <DashboardHeader />
+        {!hasSearched && !urlParams.get('dest') && <LandingHero />}
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 mt-8">
           {/* Left Column: Search and Routes */}
           <div className="xl:col-span-8 flex flex-col gap-8">
             <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-            <div className="flex flex-col gap-6">
-              <div className="flex items-center justify-between px-2">
-                <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
-                <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                  {searchParams.source} to {searchParams.dest}
-                </span>
-              </div>
+            {(hasSearched || urlParams.get('dest')) && (
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-2xl font-black tracking-tight">Recommended Routes</h2>
+                  <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                    {searchParams.source} to {searchParams.dest}
+                  </span>
+                </div>
 
-              <div className="grid grid-cols-1 gap-6">
-                {isLoading ? (
-                  <div className="grid grid-cols-1 gap-6">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-48 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
-                    ))}
-                  </div>
-                ) : (
-                  routes.map((route, idx) => (
-                    <RouteCard 
-                      key={route.id} 
-                      route={route} 
-                      index={idx} 
-                      onViewDetails={(r) => setSelectedRoute(r)}
-                    />
-                  ))
-                )}
+                <div className="grid grid-cols-1 gap-6">
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 gap-6">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="h-48 bg-white border border-slate-100 rounded-[2rem] animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (
+                    routes.map((route, idx) => (
+                      <RouteCard 
+                        key={route.id} 
+                        route={route} 
+                        index={idx} 
+                        onViewDetails={(r) => setSelectedRoute(r)}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column: AI Assistant and Widgets Grid */}

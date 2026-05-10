@@ -8,7 +8,6 @@ import {
   MessageSquare, 
   Bell, 
   User, 
-  Settings,
   Plane,
   Menu,
   X
@@ -31,38 +30,34 @@ const Navbar = () => {
     { icon: Bell, label: 'Alerts', path: '/alerts' },
   ];
 
-  const handleNavigation = (path: string, label: string) => {
-    if (path === '/settings') {
-      showSuccess("Settings feature coming soon!");
-      return;
-    }
+  const handleNavigation = (path: string) => {
     navigate(path);
     setIsMenuOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
+          <div className="bg-primary p-2.5 rounded-2xl shadow-lg shadow-primary/20">
             <Plane className="text-white w-5 h-5" />
           </div>
-          <span className="font-bold text-xl tracking-tight text-slate-900">
+          <span className="font-black text-2xl tracking-tighter text-slate-900">
             AI <span className="text-primary">Travel</span>
           </span>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
           {menuItems.map((item, idx) => {
             const isActive = location.pathname === item.path;
             return (
               <button
                 key={idx}
-                onClick={() => handleNavigation(item.path, item.label)}
+                onClick={() => handleNavigation(item.path)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm",
-                  isActive ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  "flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all font-bold text-sm",
+                  isActive ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-900"
                 )}
               >
                 <item.icon className="w-4 h-4" />
@@ -72,15 +67,23 @@ const Navbar = () => {
           })}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/profile')}
-            className="rounded-full text-slate-500"
-          >
-            <User className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/login')}
+              className="font-bold text-slate-600 hover:text-primary rounded-xl px-6"
+            >
+              Login
+            </Button>
+            <Button 
+              onClick={() => navigate('/login')}
+              className="font-black bg-primary hover:bg-primary/90 text-white rounded-xl px-6 shadow-lg shadow-primary/20"
+            >
+              Sign Up
+            </Button>
+          </div>
+          
           <Button 
             variant="ghost" 
             size="icon" 
@@ -94,23 +97,29 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-slate-100 p-4 space-y-2 animate-in slide-in-from-top duration-200">
-          {menuItems.map((item, idx) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <button
-                key={idx}
-                onClick={() => handleNavigation(item.path, item.label)}
-                className={cn(
-                  "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-bold",
-                  isActive ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-50"
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-              </button>
-            );
-          })}
+        <div className="lg:hidden bg-white border-t border-slate-100 p-6 space-y-4 animate-in slide-in-from-top duration-200">
+          <div className="grid grid-cols-1 gap-2">
+            {menuItems.map((item, idx) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleNavigation(item.path)}
+                  className={cn(
+                    "w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all font-bold",
+                    isActive ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-50"
+                  )}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
+            <Button variant="outline" onClick={() => handleNavigation('/login')} className="rounded-xl font-bold h-12">Login</Button>
+            <Button onClick={() => handleNavigation('/login')} className="rounded-xl font-black h-12">Sign Up</Button>
+          </div>
         </div>
       )}
     </nav>
