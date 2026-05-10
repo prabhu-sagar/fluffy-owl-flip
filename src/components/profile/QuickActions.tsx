@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Navigation, Bookmark, CreditCard, Heart } from 'lucide-react';
+import { Navigation, Bookmark, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const QuickActions = () => {
@@ -11,14 +11,13 @@ const QuickActions = () => {
   const actions = [
     { icon: Navigation, label: 'Plan New Trip', color: 'text-blue-500', bg: 'bg-blue-50', path: '/navigate' },
     { icon: Bookmark, label: 'View Bookings', color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/trips' },
-    { icon: CreditCard, label: 'Payment Methods', color: 'text-purple-500', bg: 'bg-purple-50', path: '#' },
     { icon: Heart, label: 'Saved Places', color: 'text-rose-500', bg: 'bg-rose-50', path: '/explore' },
   ];
 
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-black text-slate-900">Quick Actions</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {actions.map((action, i) => (
           <button
             key={i}

@@ -4,8 +4,9 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera, Save, X } from 'lucide-react';
+import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera, Save, X, LogOut } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileHeaderProps {
   name: string;
@@ -13,10 +14,10 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeaderProps) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
-  // Load initial avatar from localStorage or use default seed
   const [avatarUrl, setAvatarUrl] = React.useState(
     localStorage.getItem('user_avatar_data') || 
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('user_avatar_seed') || initialName}`
@@ -48,6 +49,15 @@ const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeader
       location: localStorage.getItem('user_location') || 'Mumbai, Maharashtra, India'
     });
     setIsEditing(false);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_email');
+    showSuccess("Signed out successfully");
+    navigate('/login');
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,13 +162,22 @@ const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeader
                   <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" /> {formData.location}</span>
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditing(true)}
-                className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6"
-              >
-                <Edit3 size={16} /> Edit Profile
-              </Button>
+              <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6"
+                >
+                  <Edit3 size={16} /> Edit Profile
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleSignOut}
+                  className="rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 font-bold gap-2 h-10 px-6"
+                >
+                  <LogOut size={16} /> Sign Out
+                </Button>
+              </div>
             </div>
           )}
         </div>
