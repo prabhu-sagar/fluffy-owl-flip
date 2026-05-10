@@ -101,7 +101,7 @@ const Login = () => {
     localStorage.setItem('user_email', formData.email || `${formData.username}@example.com`);
     
     showSuccess(isSignUp ? "Account created successfully!" : "Welcome back!");
-    navigate('/navigate');
+    navigate('/'); // Redirect to Home page after login
   };
 
   return (

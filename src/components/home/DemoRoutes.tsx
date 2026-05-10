@@ -7,6 +7,15 @@ import { useNavigate } from 'react-router-dom';
 
 const DemoRoutes = () => {
   const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const handleRouteClick = () => {
+    if (isLoggedIn) {
+      navigate('/navigate');
+    } else {
+      navigate('/login');
+    }
+  };
 
   const demoRoutes = [
     {
@@ -55,7 +64,7 @@ const DemoRoutes = () => {
               transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
               className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group cursor-pointer"
-              onClick={() => navigate('/login')}
+              onClick={handleRouteClick}
             >
               <div className="flex justify-between items-start mb-6">
                 <div className={`p-3 rounded-2xl bg-${route.color}-50`}>
