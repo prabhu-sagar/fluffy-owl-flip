@@ -19,7 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "sans-serif"],
+        sans: ["'Merriweather'", "serif"],
+        serif: ["'Merriweather'", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
