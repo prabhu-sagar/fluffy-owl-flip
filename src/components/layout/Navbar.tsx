@@ -2,16 +2,15 @@
 
 import React from 'react';
 import { 
-  LayoutDashboard, 
   Compass, 
   Bookmark, 
   MessageSquare, 
   Bell, 
-  User, 
   Plane,
   Menu,
   X,
-  Navigation
+  Navigation,
+  Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -23,7 +22,8 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const menuItems = [
-    { icon: Navigation, label: 'Navigate', path: '/' },
+    { icon: Home, label: 'Home', path: '/' },
+    { icon: Navigation, label: 'Navigate', path: '/navigate' },
     { icon: Bookmark, label: 'My Trips', path: '/trips' },
     { icon: Compass, label: 'Explore', path: '/explore' },
     { icon: MessageSquare, label: 'AI Assistant', path: '/assistant' },
