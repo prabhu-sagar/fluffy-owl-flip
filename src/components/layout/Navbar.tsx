@@ -23,25 +23,34 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState(localStorage.getItem('isLoggedIn') === 'true');
   const [userName, setUserName] = React.useState(localStorage.getItem('user_name') || 'Traveler');
-  const [avatarSeed, setAvatarSeed] = React.useState(localStorage.getItem('user_avatar_seed') || userName);
+  
+  const [avatarUrl, setAvatarUrl] = React.useState(
+    localStorage.getItem('user_avatar_data') || 
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('user_avatar_seed') || userName}`
+  );
 
   React.useEffect(() => {
     const handleStorageChange = () => {
       setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
       const name = localStorage.getItem('user_name') || 'Traveler';
       setUserName(name);
-      setAvatarSeed(localStorage.getItem('user_avatar_seed') || name);
+      
+      const customAvatar = localStorage.getItem('user_avatar_data');
+      if (customAvatar) {
+        setAvatarUrl(customAvatar);
+      } else {
+        setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('user_avatar_seed') || name}`);
+      }
     };
 
     window.addEventListener('storage', handleStorageChange);
-    // Also listen for local changes in the same tab
     window.addEventListener('storage-local', handleStorageChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('storage-local', handleStorageChange);
     };
-  }, []);
+  }, [userName]);
 
   const menuItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -117,7 +126,7 @@ const Navbar = () => {
               className="flex items-center gap-2 font-bold text-slate-600 hover:text-primary rounded-xl px-4"
             >
               <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} alt="User" />
+                <img src={avatarUrl} alt="User" className="w-full h-full object-cover" />
               </div>
               <span className="hidden sm:inline">{userName}</span>
             </Button>

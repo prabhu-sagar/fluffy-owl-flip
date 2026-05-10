@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera, Save, X } from 'lucide-react';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 
 interface ProfileHeaderProps {
   name: string;
@@ -14,12 +14,17 @@ interface ProfileHeaderProps {
 
 const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeaderProps) => {
   const [isEditing, setIsEditing] = React.useState(false);
-  const [avatarSeed, setAvatarSeed] = React.useState(initialName);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   
-  // Form State
+  // Load initial avatar from localStorage or use default seed
+  const [avatarUrl, setAvatarUrl] = React.useState(
+    localStorage.getItem('user_avatar_data') || 
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('user_avatar_seed') || initialName}`
+  );
+  
   const [formData, setFormData] = React.useState({
-    name: initialName,
-    email: initialEmail,
+    name: localStorage.getItem('user_name') || initialName,
+    email: localStorage.getItem('user_email') || initialEmail,
     phone: localStorage.getItem('user_phone') || '+91 98765 43210',
     location: localStorage.getItem('user_location') || 'Mumbai, Maharashtra, India'
   });
@@ -31,7 +36,7 @@ const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeader
     localStorage.setItem('user_location', formData.location);
     
     setIsEditing(false);
-    showSuccess("Profile updated successfully!");// Trigger a storage event to update other components like Navbar
+    showSuccess("Profile updated successfully!");
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -45,29 +50,51 @@ const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeader
     setIsEditing(false);
   };
 
-  const changeAvatar = () => {
-    const newSeed = Math.random().toString(36).substring(7);
-    setAvatarSeed(newSeed);
-    if (!isEditing) {
-      localStorage.setItem('user_avatar_seed', newSeed);
-      showSuccess("Avatar updated!");
-      window.dispatchEvent(new Event('storage'));
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showError("File is too large. Please select an image under 2MB.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setAvatarUrl(base64String);
+        localStorage.setItem('user_avatar_data', base64String);
+        showSuccess("Profile picture updated!");
+        window.dispatchEvent(new Event('storage'));
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
     <Card className="p-8 bg-white border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden relative">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept="image/*" 
+        className="hidden" 
+      />
+      
       <div className="flex flex-col md:flex-row items-center gap-8">
         <div className="relative group">
           <div className="w-32 h-32 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden">
             <img 
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} 
+              src={avatarUrl} 
               alt="Avatar" 
               className="w-full h-full object-cover"
             />
           </div>
           <button 
-            onClick={changeAvatar}
+            onClick={triggerFileInput}
             className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-primary transition-colors"
           >
             <Camera size={16} />
