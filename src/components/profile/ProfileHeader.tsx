@@ -3,7 +3,8 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Mail, Phone, MapPin, Edit3, CheckCircle2, Camera, Save, X } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 
 interface ProfileHeaderProps {
@@ -11,20 +12,62 @@ interface ProfileHeaderProps {
   email: string;
 }
 
-const ProfileHeader = ({ name, email }: ProfileHeaderProps) => {
+const ProfileHeader = ({ name: initialName, email: initialEmail }: ProfileHeaderProps) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [avatarSeed, setAvatarSeed] = React.useState(initialName);
+  
+  // Form State
+  const [formData, setFormData] = React.useState({
+    name: initialName,
+    email: initialEmail,
+    phone: localStorage.getItem('user_phone') || '+91 98765 43210',
+    location: localStorage.getItem('user_location') || 'Mumbai, Maharashtra, India'
+  });
+
+  const handleSave = () => {
+    localStorage.setItem('user_name', formData.name);
+    localStorage.setItem('user_email', formData.email);
+    localStorage.setItem('user_phone', formData.phone);
+    localStorage.setItem('user_location', formData.location);
+    
+    setIsEditing(false);
+    showSuccess("Profile updated successfully!");// Trigger a storage event to update other components like Navbar
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      name: localStorage.getItem('user_name') || initialName,
+      email: localStorage.getItem('user_email') || initialEmail,
+      phone: localStorage.getItem('user_phone') || '+91 98765 43210',
+      location: localStorage.getItem('user_location') || 'Mumbai, Maharashtra, India'
+    });
+    setIsEditing(false);
+  };
+
+  const changeAvatar = () => {
+    const newSeed = Math.random().toString(36).substring(7);
+    setAvatarSeed(newSeed);
+    if (!isEditing) {
+      localStorage.setItem('user_avatar_seed', newSeed);
+      showSuccess("Avatar updated!");
+      window.dispatchEvent(new Event('storage'));
+    }
+  };
+
   return (
     <Card className="p-8 bg-white border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden relative">
       <div className="flex flex-col md:flex-row items-center gap-8">
         <div className="relative group">
           <div className="w-32 h-32 rounded-full bg-slate-100 border-4 border-white shadow-xl overflow-hidden">
             <img 
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`} 
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} 
               alt="Avatar" 
               className="w-full h-full object-cover"
             />
           </div>
           <button 
-            onClick={() => showSuccess("Opening camera to update profile picture...")}
+            onClick={changeAvatar}
             className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-primary transition-colors"
           >
             <Camera size={16} />
@@ -32,24 +75,65 @@ const ProfileHeader = ({ name, email }: ProfileHeaderProps) => {
         </div>
 
         <div className="flex-1 text-center md:text-left space-y-4">
-          <div className="space-y-1">
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <h2 className="text-3xl font-black text-slate-900">{name}</h2>
-              <CheckCircle2 className="text-primary w-6 h-6 fill-primary/10" />
+          {isEditing ? (
+            <div className="space-y-3 max-w-md">
+              <Input 
+                value={formData.name} 
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                placeholder="Full Name"
+                className="h-10 rounded-xl"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <Input 
+                  value={formData.email} 
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="Email"
+                  className="h-10 rounded-xl"
+                />
+                <Input 
+                  value={formData.phone} 
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  placeholder="Phone"
+                  className="h-10 rounded-xl"
+                />
+              </div>
+              <Input 
+                value={formData.location} 
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                placeholder="Location"
+                className="h-10 rounded-xl"
+              />
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleSave} className="rounded-xl h-10 px-6 gap-2">
+                  <Save size={16} /> Save Changes
+                </Button>
+                <Button variant="ghost" onClick={handleCancel} className="rounded-xl h-10 px-6 gap-2">
+                  <X size={16} /> Cancel
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-500 font-medium">
-              <span className="flex items-center gap-1.5"><Mail size={14} className="text-slate-400" /> {email}</span>
-              <span className="flex items-center gap-1.5"><Phone size={14} className="text-slate-400" /> +91 98765 43210</span>
-              <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" /> Mumbai, Maharashtra, India</span>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-center justify-center md:justify-start gap-2">
+                  <h2 className="text-3xl font-black text-slate-900">{formData.name}</h2>
+                  <CheckCircle2 className="text-primary w-6 h-6 fill-primary/10" />
+                </div>
+                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-500 font-medium">
+                  <span className="flex items-center gap-1.5"><Mail size={14} className="text-slate-400" /> {formData.email}</span>
+                  <span className="flex items-center gap-1.5"><Phone size={14} className="text-slate-400" /> {formData.phone}</span>
+                  <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" /> {formData.location}</span>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditing(true)}
+                className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6"
+              >
+                <Edit3 size={16} /> Edit Profile
+              </Button>
             </div>
-          </div>
-          <Button 
-            variant="outline" 
-            onClick={() => showSuccess("Opening profile editor...")}
-            className="rounded-xl border-slate-200 font-bold gap-2 h-10 px-6"
-          >
-            <Edit3 size={16} /> Edit Profile
-          </Button>
+          )}
         </div>
 
         <div className="flex gap-4 lg:gap-8 border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8 w-full md:w-auto justify-center">

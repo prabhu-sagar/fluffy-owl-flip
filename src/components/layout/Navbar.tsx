@@ -21,7 +21,27 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const [isLoggedIn, setIsLoggedIn] = React.useState(localStorage.getItem('isLoggedIn') === 'true');
+  const [userName, setUserName] = React.useState(localStorage.getItem('user_name') || 'Traveler');
+  const [avatarSeed, setAvatarSeed] = React.useState(localStorage.getItem('user_avatar_seed') || userName);
+
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+      const name = localStorage.getItem('user_name') || 'Traveler';
+      setUserName(name);
+      setAvatarSeed(localStorage.getItem('user_avatar_seed') || name);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for local changes in the same tab
+    window.addEventListener('storage-local', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage-local', handleStorageChange);
+    };
+  }, []);
 
   const menuItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -96,8 +116,10 @@ const Navbar = () => {
               onClick={() => navigate('/profile')}
               className="flex items-center gap-2 font-bold text-slate-600 hover:text-primary rounded-xl px-4"
             >
-              <User className="w-5 h-5" />
-              <span className="hidden sm:inline">Profile</span>
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} alt="User" />
+              </div>
+              <span className="hidden sm:inline">{userName}</span>
             </Button>
           )}
           
