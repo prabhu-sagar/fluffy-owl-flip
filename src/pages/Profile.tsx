@@ -30,23 +30,21 @@ const Profile = () => {
         {/* Main Profile Card */}
         <ProfileHeader name={userName} email={userEmail} />
 
-        {/* Preferences and Actions Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7">
-            <TravelPreferences />
-          </div>
-          <div className="lg:col-span-5">
-            <QuickActions />
-          </div>
+        {/* Preferences and Settings Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <TravelPreferences />
+          <AccountSettingsList />
         </div>
+
+        {/* Quick Actions Section */}
+        <QuickActions />
 
         {/* Recent Trips Section */}
         <RecentTrips />
 
-        {/* Bottom Grid: Saved Places and Settings */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Bottom Grid: Saved Places */}
+        <div className="grid grid-cols-1 gap-8">
           <SavedPlacesList />
-          <AccountSettingsList />
         </div>
 
         {/* Footer Copyright */}

@@ -18,14 +18,7 @@ INSTRUCTIONS:
 - If the user gives a source and destination, suggest interesting places and stops along that specific route.
 - Recommend top attractions, hidden gems, and local food spots.
 - Keep your answers short, clear, and helpful.
-- Always ask follow-up questions to better understand the user's needs (e.g., budget, interests).
-
-EXAMPLE STYLE:
-User: I am traveling from Hyderabad to Goa
-Assistant:
-- Suggest stops like Hampi (historical ruins) or Gokarna (serene beaches).
-- Provide short punchy descriptions for each.
-- Ask: "Do you want a budget-friendly plan or a luxury experience?"
+- Always ask follow-up questions to better understand the user's needs.
 
 Always use Markdown for clear formatting.
 `;
@@ -38,7 +31,6 @@ export const processChatQuery = async (query: string): Promise<string> => {
   }
 
   try {
-    // Using v1beta as it has better support for the 1.5 models in REST calls
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
