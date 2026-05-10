@@ -10,12 +10,12 @@ import {
   User, 
   Plane,
   Menu,
-  X
+  X,
+  Navigation
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { showSuccess } from '@/utils/toast';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: Navigation, label: 'Navigate', path: '/' },
     { icon: Bookmark, label: 'My Trips', path: '/trips' },
     { icon: Compass, label: 'Explore', path: '/explore' },
     { icon: MessageSquare, label: 'AI Assistant', path: '/assistant' },
