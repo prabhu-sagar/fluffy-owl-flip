@@ -1,12 +1,9 @@
 "use client";
 
 import { WeatherCondition } from '@/lib/mock-data';
+import axios from 'axios';
 
-/**
- * Weather Service
- * Fetches real-time weather data. 
- * Requires VITE_OPENWEATHER_API_KEY in environment variables.
- */
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const fetchWeather = async (city: string): Promise<{
   temp: number;
@@ -14,43 +11,29 @@ export const fetchWeather = async (city: string): Promise<{
   humidity: number;
   windSpeed: number;
 }> => {
-  const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
-  
-  if (!apiKey || apiKey === 'placeholder-key') {
-    console.warn("Weather API Key missing. Using simulated data.");
-    // Fallback simulation
-    await new Promise(resolve => setTimeout(resolve, 600));
-    const conditions: WeatherCondition[] = ['Clear', 'Rain', 'Storm'];
-    return {
-      temp: Math.floor(Math.random() * 15) + 15,
-      condition: conditions[Math.floor(Math.random() * conditions.length)],
-      humidity: 65 + Math.floor(Math.random() * 20),
-      windSpeed: 10 + Math.floor(Math.random() * 15)
-    };
-  }
-
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-    );
+    const response = await axios.get(`${API_BASE_URL}/weather/${city}`);
+    const data = response.data.data;
     
-    if (!response.ok) throw new Error("Weather data unavailable");
-    
-    const data = await response.json();
-    const mainCondition = data.weather[0].main;
-    
+    // Map OpenWeatherMap conditions to our internal types
+    const mainCondition = data.weather?.[0]?.main || 'Clear';
     let condition: WeatherCondition = 'Clear';
-    if (mainCondition === 'Rain' || mainCondition === 'Drizzle') condition = 'Rain';
+    if (['Rain', 'Drizzle'].includes(mainCondition)) condition = 'Rain';
     if (mainCondition === 'Thunderstorm') condition = 'Storm';
 
     return {
-      temp: Math.round(data.main.temp),
+      temp: Math.round(data.main?.temp || 25),
       condition,
-      humidity: data.main.humidity,
-      windSpeed: Math.round(data.wind.speed * 3.6) // Convert m/s to km/h
+      humidity: data.main?.humidity || 60,
+      windSpeed: Math.round((data.wind?.speed || 0) * 3.6) // m/s to km/h
     };
   } catch (error) {
-    console.error("Weather API Error:", error);
-    throw error;
+    console.error("Weather API Error, using fallback:", error);
+    return {
+      temp: 24,
+      condition: 'Clear',
+      humidity: 55,
+      windSpeed: 12
+    };
   }
 };
