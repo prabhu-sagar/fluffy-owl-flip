@@ -78,7 +78,7 @@ const Navbar = () => {
             <Plane className="text-white w-5 h-5" />
           </div>
           <span className="font-black text-2xl tracking-tighter text-slate-900">
-            AI <span className="text-primary">Travel</span>
+            Des<span className="text-primary">tina</span>
           </span>
         </div>
 

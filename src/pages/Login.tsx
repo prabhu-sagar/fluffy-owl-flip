@@ -16,12 +16,14 @@ import {
   User,
   Zap,
   AtSign,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
+import { supabase } from '@/lib/supabase';
 
 const NeuralHub = () => {
   return (
@@ -65,21 +67,6 @@ const NeuralHub = () => {
           </motion.div>
         ))}
       </motion.div>
-
-      <svg className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
-        <motion.circle 
-          cx="50%" cy="50%" r="140" 
-          fill="none" stroke="url(#lineGrad)" strokeWidth="1" strokeDasharray="10 10"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        />
-        <defs>
-          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#3b82f6" />
-          </linearGradient>
-        </defs>
-      </svg>
     </div>
   );
 };
@@ -87,21 +74,53 @@ const NeuralHub = () => {
 const Login = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
     fullName: '',
-    username: '',
     email: '',
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('user_name', formData.fullName || formData.username || 'Traveler');
-    localStorage.setItem('user_email', formData.email || `${formData.username}@example.com`);
-    
-    showSuccess(isSignUp ? "Account created successfully!" : "Welcome back!");
-    navigate('/'); // Redirect to Home page after login
+    setIsLoading(true);
+
+    try {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              full_name: formData.fullName,
+            }
+          }
+        });
+
+        if (error) throw error;
+        showSuccess("Account created! Please check your email for verification.");
+        setIsSignUp(false);
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) throw error;
+
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('user_name', data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'Traveler');
+        localStorage.setItem('user_email', data.user?.email || '');
+        
+        showSuccess("Welcome back to Destina!");
+        navigate('/');
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch (err: any) {
+      showError(err.message || "Authentication failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -113,22 +132,11 @@ const Login = () => {
         <div className="w-full max-w-md text-center space-y-6 pb-12">
           <div className="space-y-2">
             <h2 className="text-4xl font-black tracking-tighter text-slate-900 leading-tight">
-              "The future of travel is <span className="text-primary">intelligent</span>."
+              "Destina: Where every journey becomes a <span className="text-primary">story</span>."
             </h2>
             <p className="text-slate-500 text-lg font-medium leading-relaxed">
-              Optimize every mile with our multi-modal AI engine.
+              Join thousands of travelers who trust our AI to find the perfect path.
             </p>
-          </div>
-          <div className="flex items-center justify-center gap-8 pt-4">
-            <div className="text-center">
-              <p className="text-2xl font-black text-primary">99.9%</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Accuracy</p>
-            </div>
-            <div className="w-px h-8 bg-slate-200" />
-            <div className="text-center">
-              <p className="text-2xl font-black text-primary">50k+</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Routes</p>
-            </div>
           </div>
         </div>
       </div>
@@ -139,7 +147,7 @@ const Login = () => {
             <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
               <Plane className="text-white w-5 h-5" />
             </div>
-            <span className="font-black text-xl tracking-tighter uppercase">AI <span className="text-primary">Travel</span></span>
+            <span className="font-black text-xl tracking-tighter uppercase">Des<span className="text-primary">tina</span></span>
           </div>
           <button 
             onClick={() => setIsSignUp(!isSignUp)}
@@ -158,10 +166,10 @@ const Login = () => {
           >
             <div className="space-y-2">
               <h1 className="text-4xl font-black tracking-tighter text-slate-900">
-                {isSignUp ? 'Create Account' : 'Welcome Back'}
+                {isSignUp ? 'Start Your Journey' : 'Welcome Back'}
               </h1>
               <p className="text-slate-500 font-medium">
-                {isSignUp ? 'Join the world\'s most advanced travel network.' : 'Sign in to manage your optimized journeys.'}
+                {isSignUp ? 'Create an account to unlock personalized travel routes.' : 'Sign in to access your saved trips and preferences.'}
               </p>
             </div>
 
@@ -183,6 +191,7 @@ const Login = () => {
                           value={formData.fullName}
                           onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                           className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
+                          required
                         />
                       </div>
                     </div>
@@ -191,33 +200,19 @@ const Login = () => {
               </AnimatePresence>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative">
-                  <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input 
-                    placeholder="johndoe_travels" 
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    type="email" 
+                    placeholder="name@example.com" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
                     className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
+                    required
                   />
                 </div>
               </div>
-
-              {isSignUp && (
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center px-1">
@@ -229,43 +224,23 @@ const Login = () => {
                   <Input 
                     type="password" 
                     placeholder="••••••••" 
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
                     className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
+                    required
                   />
                 </div>
               </div>
 
-              <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-base gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] mt-2">
-                {isSignUp ? 'Create Account' : 'Sign In'} <ArrowRight className="w-5 h-5" />
+              <Button 
+                disabled={isLoading}
+                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-base gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] mt-2"
+              >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isSignUp ? 'Create Account' : 'Sign In')} 
+                {!isLoading && <ArrowRight className="w-5 h-5" />}
               </Button>
             </form>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-100"></div>
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em]">
-                <span className="bg-white px-4 text-slate-400 font-bold">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 font-bold gap-2">
-                <Chrome className="w-5 h-5" /> Google
-              </Button>
-              <Button variant="outline" className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 font-bold gap-2">
-                <Facebook className="w-5 h-5" /> Facebook
-              </Button>
-            </div>
           </motion.div>
-        </div>
-
-        <div className="mt-auto pt-8 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          <div className="flex items-center gap-2">
-            <Globe className="w-3.5 h-3.5" /> Global Network Active
-          </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5" /> AI Engine v2.4.0
-          </div>
         </div>
       </div>
     </div>

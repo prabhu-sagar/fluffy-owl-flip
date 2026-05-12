@@ -18,7 +18,7 @@ const Navigate = () => {
   const [urlParams] = useSearchParams();
   const [travelStyle] = React.useState<'balanced' | 'fastest' | 'cheapest'>('balanced');
   const [distance] = React.useState([600]);
-  const [weather] = React.useState<WeatherCondition>('Clear');
+  const [weather, setWeather] = React.useState<WeatherCondition>('Clear');
   const [routes, setRoutes] = React.useState<TravelRoute[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedRoute, setSelectedRoute] = React.useState<TravelRoute | null>(null);
@@ -55,6 +55,23 @@ const Navigate = () => {
       });
       
       setRoutes(sortedData);
+
+      // Trigger weather alert if conditions are bad
+      if (weather === 'Rain' || weather === 'Storm') {
+        const weatherAlert = {
+          id: Date.now(),
+          type: 'warning',
+          title: `Weather Alert: ${searchParams.dest}`,
+          desc: `${weather} conditions detected. Expect potential delays on your route to ${searchParams.dest}.`,
+          time: 'Just now',
+          icon: 'AlertTriangle',
+          color: 'text-amber-500',
+          bg: 'bg-amber-50'
+        };
+        const existingAlerts = JSON.parse(localStorage.getItem('weather_alerts') || '[]');
+        localStorage.setItem('weather_alerts', JSON.stringify([weatherAlert, ...existingAlerts]));
+      }
+
     } catch (err) {
       showError("Failed to fetch travel plans");
     } finally {
@@ -130,7 +147,7 @@ const Navigate = () => {
               <div className="grid grid-cols-1 gap-6">
                 <AIInsights />
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-6">
-                  <WeatherWidget />
+                  <WeatherWidget city={searchParams.dest} />
                   <PricePrediction />
                 </div>
               </div>

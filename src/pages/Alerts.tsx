@@ -11,19 +11,34 @@ import { useNavigate } from 'react-router-dom';
 
 const Alerts = () => {
   const navigate = useNavigate();
-  const [alerts, setAlerts] = React.useState([
-    { id: 1, type: 'warning', title: 'Weather Alert: Bangalore', desc: 'Heavy rain expected tomorrow. Expect 15-20 min delays on rail routes.', time: '2h ago', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { id: 2, type: 'info', title: 'Price Drop: Mumbai Flight', desc: 'Prices for your tracked route have dropped by 12%. Book now to save ₹800.', time: '5h ago', icon: Info, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { id: 3, type: 'success', title: 'Booking Confirmed', desc: 'Your trip to Hyderabad has been successfully confirmed. Tickets sent to email.', time: '1d ago', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-  ]);
+  const [alerts, setAlerts] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const staticAlerts = [
+      { id: 1, type: 'warning', title: 'Weather Alert: Bangalore', desc: 'Heavy rain expected tomorrow. Expect 15-20 min delays on rail routes.', time: '2h ago', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
+      { id: 2, type: 'info', title: 'Price Drop: Mumbai Flight', desc: 'Prices for your tracked route have dropped by 12%. Book now to save ₹800.', time: '5h ago', icon: Info, color: 'text-blue-500', bg: 'bg-blue-50' },
+      { id: 3, type: 'success', title: 'Booking Confirmed', desc: 'Your trip to Hyderabad has been successfully confirmed. Tickets sent to email.', time: '1d ago', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    ];
+
+    const dynamicAlerts = JSON.parse(localStorage.getItem('weather_alerts') || '[]');
+    const mappedDynamic = dynamicAlerts.map((a: any) => ({
+      ...a,
+      icon: AlertTriangle // Map string icon name to component
+    }));
+
+    setAlerts([...mappedDynamic, ...staticAlerts]);
+  }, []);
 
   const clearAll = () => {
     setAlerts([]);
+    localStorage.removeItem('weather_alerts');
     showSuccess("All alerts cleared");
   };
 
   const removeAlert = (id: number) => {
     setAlerts(prev => prev.filter(a => a.id !== id));
+    const dynamicAlerts = JSON.parse(localStorage.getItem('weather_alerts') || '[]');
+    localStorage.setItem('weather_alerts', JSON.stringify(dynamicAlerts.filter((a: any) => a.id !== id)));
   };
 
   return (
@@ -93,35 +108,6 @@ const Alerts = () => {
               ))
             )}
           </AnimatePresence>
-
-          {alerts.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="pt-8"
-            >
-              <Card className="p-8 bg-primary/5 border-primary/10 rounded-[2.5rem] relative overflow-hidden">
-                <div className="absolute -right-8 -top-8 opacity-10">
-                  <Sparkles size={120} className="text-primary" />
-                </div>
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-                  <div className="bg-white p-4 rounded-3xl shadow-xl shadow-primary/10">
-                    <MessageSquare className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="flex-1 text-center md:text-left space-y-1">
-                    <h3 className="text-xl font-black text-slate-900">Need help with these alerts?</h3>
-                    <p className="text-slate-500 text-sm font-medium">Our AI Assistant can help you find alternative routes or resolve travel issues.</p>
-                  </div>
-                  <Button 
-                    onClick={() => navigate('/assistant')}
-                    className="rounded-2xl h-12 px-8 font-black gap-2 shadow-lg shadow-primary/20"
-                  >
-                    Chat with AI <Sparkles size={16} />
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
-          )}
         </div>
       </main>
     </div>

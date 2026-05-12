@@ -79,7 +79,7 @@ const LandingHero = () => {
           >
             <Sparkles className="text-primary w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-              Next-Gen Travel Intelligence
+              Your Ultimate AI Travel Companion
             </span>
           </motion.div>
 
@@ -90,7 +90,7 @@ const LandingHero = () => {
             className="max-w-4xl mx-auto space-y-6"
           >
             <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] text-slate-900">
-              Your Journey, <span className="text-primary">Optimized</span> by Neural Networks.
+              Travel Smarter, <span className="text-primary">Explore Further</span> with Destina.
             </h1>
             <p className="text-lg lg:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
               Experience the future of travel planning. Our AI engine analyzes thousands of routes to find your perfect path in seconds.
@@ -138,28 +138,6 @@ const LandingHero = () => {
                 <h3 className="text-lg font-black text-slate-900">{module.title}</h3>
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">{module.desc}</p>
               </div>
-            </div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto border-t border-slate-100"
-        >
-          {[
-            { icon: Globe, label: "Global Coverage", value: "50k+ Routes" },
-            { icon: Zap, label: "Instant Planning", value: "< 2 Seconds" },
-            { icon: ShieldCheck, label: "Reliability Score", value: "99.9% Accurate" },
-            { icon: Sparkles, label: "AI Insights", value: "Smart Tips" }
-          ].map((stat, i) => (
-            <div key={i} className="space-y-2">
-              <div className="flex justify-center">
-                <stat.icon className="w-6 h-6 text-primary/40" />
-              </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-              <p className="text-lg font-black text-slate-900">{stat.value}</p>
             </div>
           ))}
         </motion.div>
