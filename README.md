@@ -1,5 +1,8 @@
 Welcome to your AI-Smart-travel-Assistant app
+
+
 📖 Description
+
 AI Smart Travel Assistant is an intelligent travel planning system that helps users find the most efficient travel routes by integrating multiple transportation modes such as bus, train, and flight.
 
 It uses Machine Learning and AI techniques to:
