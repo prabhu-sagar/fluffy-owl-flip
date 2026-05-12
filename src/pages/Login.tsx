@@ -4,20 +4,14 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plane, 
-  Train, 
-  Bus, 
   Mail, 
   Lock, 
-  Chrome, 
-  Facebook, 
   ArrowRight,
-  Sparkles,
-  Globe,
   User,
   Zap,
-  AtSign,
   ShieldCheck,
-  Loader2
+  Loader2,
+  KeyRound
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,32 +34,6 @@ const NeuralHub = () => {
         <div className="w-40 h-40 rounded-full border border-primary/10 flex items-center justify-center bg-white shadow-[0_0_50px_rgba(99,102,241,0.1)]">
           <Zap className="w-14 h-14 text-primary animate-pulse" />
         </div>
-
-        {[
-          { Icon: Plane, color: 'text-blue-500', label: 'Air' },
-          { Icon: Train, color: 'text-indigo-500', label: 'Rail' },
-          { Icon: Bus, color: 'text-emerald-500', label: 'Road' }
-        ].map((item, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{ 
-              rotate: i * 120,
-              transformOrigin: 'center center',
-              width: '100%',
-              height: '100%'
-            }}
-          >
-            <motion.div 
-              animate={{ rotate: -i * 120 - 360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-2xl border border-slate-100 shadow-xl flex flex-col items-center gap-1 group hover:border-primary/50 transition-colors"
-            >
-              <item.Icon className={`w-6 h-6 ${item.color}`} />
-              <span className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400">{item.label}</span>
-            </motion.div>
-          </motion.div>
-        ))}
       </motion.div>
     </div>
   );
@@ -78,29 +46,39 @@ const Login = () => {
   const [formData, setFormData] = React.useState({
     fullName: '',
     email: '',
-    password: ''
+    password: '',
+    pin: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.pin.length !== 4) {
+      showError("PIN must be exactly 4 digits");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       if (isSignUp) {
+        // Sign Up: Create user and store PIN in metadata
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
             data: {
               full_name: formData.fullName,
+              security_pin: formData.pin
             }
           }
         });
 
         if (error) throw error;
-        showSuccess("Account created! Please check your email for verification.");
+        showSuccess("Account created! You can now log in with your credentials.");
         setIsSignUp(false);
       } else {
+        // Login: Verify password first
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -108,11 +86,18 @@ const Login = () => {
 
         if (error) throw error;
 
+        // Verify PIN from metadata
+        const userPin = data.user?.user_metadata?.security_pin;
+        if (userPin !== formData.pin) {
+          await supabase.auth.signOut();
+          throw new Error("Invalid Security PIN");
+        }
+
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user_name', data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'Traveler');
         localStorage.setItem('user_email', data.user?.email || '');
         
-        showSuccess("Welcome back to Destina!");
+        showSuccess("Access granted. Welcome to Destina!");
         navigate('/');
         window.dispatchEvent(new Event('storage'));
       }
@@ -132,10 +117,10 @@ const Login = () => {
         <div className="w-full max-w-md text-center space-y-6 pb-12">
           <div className="space-y-2">
             <h2 className="text-4xl font-black tracking-tighter text-slate-900 leading-tight">
-              "Destina: Where every journey becomes a <span className="text-primary">story</span>."
+              "The world is a book, and those who do not travel read only a <span className="text-primary">page</span>."
             </h2>
             <p className="text-slate-500 text-lg font-medium leading-relaxed">
-              Join thousands of travelers who trust our AI to find the perfect path.
+              Secure your journeys with Destina's multi-factor neural protection.
             </p>
           </div>
         </div>
@@ -143,7 +128,7 @@ const Login = () => {
 
       <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 overflow-y-auto">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2.5" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
             <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
               <Plane className="text-white w-5 h-5" />
             </div>
@@ -153,7 +138,7 @@ const Login = () => {
             onClick={() => setIsSignUp(!isSignUp)}
             className="text-sm font-bold text-slate-500 hover:text-primary transition-colors"
           >
-            {isSignUp ? 'Log in' : 'Sign up'}
+            {isSignUp ? 'Already have an account? Log in' : 'New to Destina? Sign up'}
           </button>
         </div>
 
@@ -166,10 +151,10 @@ const Login = () => {
           >
             <div className="space-y-2">
               <h1 className="text-4xl font-black tracking-tighter text-slate-900">
-                {isSignUp ? 'Start Your Journey' : 'Welcome Back'}
+                {isSignUp ? 'Join the Journey' : 'Secure Login'}
               </h1>
               <p className="text-slate-500 font-medium">
-                {isSignUp ? 'Create an account to unlock personalized travel routes.' : 'Sign in to access your saved trips and preferences.'}
+                {isSignUp ? 'Create your Destina account to start exploring.' : 'Enter your credentials and 4-digit PIN to continue.'}
               </p>
             </div>
 
@@ -191,7 +176,7 @@ const Login = () => {
                           value={formData.fullName}
                           onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                           className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
-                          required
+                          required={isSignUp}
                         />
                       </div>
                     </div>
@@ -215,10 +200,7 @@ const Login = () => {
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
-                  {!isSignUp && <button type="button" className="text-[10px] font-bold text-primary hover:underline">Forgot?</button>}
-                </div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input 
@@ -232,6 +214,22 @@ const Login = () => {
                 </div>
               </div>
 
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">4-Digit Security PIN</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input 
+                    type="password" 
+                    maxLength={4}
+                    placeholder="0000" 
+                    value={formData.pin}
+                    onChange={(e) => setFormData({...formData, pin: e.target.value.replace(/\D/g, '')})}
+                    className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all tracking-[0.5em]"
+                    required
+                  />
+                </div>
+              </div>
+
               <Button 
                 disabled={isLoading}
                 className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-base gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] mt-2"
@@ -240,6 +238,11 @@ const Login = () => {
                 {!isLoading && <ArrowRight className="w-5 h-5" />}
               </Button>
             </form>
+
+            <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-3 rounded-2xl border border-emerald-100">
+              <ShieldCheck size={18} />
+              <span className="text-[10px] font-black uppercase tracking-widest">End-to-End Encrypted Authentication</span>
+            </div>
           </motion.div>
         </div>
       </div>
