@@ -11,7 +11,7 @@ import {
   Zap,
   ShieldCheck,
   Loader2,
-  KeyRound
+  AtSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,16 +45,17 @@ const Login = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
     fullName: '',
+    username: '',
     email: '',
     password: '',
-    pin: ''
+    confirmPassword: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.pin.length !== 4) {
-      showError("PIN must be exactly 4 digits");
+    if (isSignUp && formData.password !== formData.confirmPassword) {
+      showError("Passwords do not match");
       return;
     }
 
@@ -62,23 +63,23 @@ const Login = () => {
 
     try {
       if (isSignUp) {
-        // Sign Up: Create user and store PIN in metadata
+        // Sign Up: Create user and store Name/Username in metadata
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
             data: {
               full_name: formData.fullName,
-              security_pin: formData.pin
+              username: formData.username
             }
           }
         });
 
         if (error) throw error;
-        showSuccess("Account created! You can now log in with your credentials.");
+        showSuccess("Account created! You can now log in.");
         setIsSignUp(false);
       } else {
-        // Login: Verify password first
+        // Login: Verify credentials
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -86,18 +87,11 @@ const Login = () => {
 
         if (error) throw error;
 
-        // Verify PIN from metadata
-        const userPin = data.user?.user_metadata?.security_pin;
-        if (userPin !== formData.pin) {
-          await supabase.auth.signOut();
-          throw new Error("Invalid Security PIN");
-        }
-
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user_name', data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'Traveler');
         localStorage.setItem('user_email', data.user?.email || '');
         
-        showSuccess("Access granted. Welcome to Destina!");
+        showSuccess("Welcome back to Destina!");
         navigate('/');
         window.dispatchEvent(new Event('storage'));
       }
@@ -120,7 +114,7 @@ const Login = () => {
               "The world is a book, and those who do not travel read only a <span className="text-primary">page</span>."
             </h2>
             <p className="text-slate-500 text-lg font-medium leading-relaxed">
-              Secure your journeys with Destina's multi-factor neural protection.
+              Your journey begins with a single step. Secure your path with Destina.
             </p>
           </div>
         </div>
@@ -151,10 +145,10 @@ const Login = () => {
           >
             <div className="space-y-2">
               <h1 className="text-4xl font-black tracking-tighter text-slate-900">
-                {isSignUp ? 'Join the Journey' : 'Secure Login'}
+                {isSignUp ? 'Join Destina' : 'Welcome Back'}
               </h1>
               <p className="text-slate-500 font-medium">
-                {isSignUp ? 'Create your Destina account to start exploring.' : 'Enter your credentials and 4-digit PIN to continue.'}
+                {isSignUp ? 'Create your account to start your next adventure.' : 'Enter your credentials to access your travel dashboard.'}
               </p>
             </div>
 
@@ -175,6 +169,19 @@ const Login = () => {
                           placeholder="John Doe" 
                           value={formData.fullName}
                           onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                          className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
+                          required={isSignUp}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                      <div className="relative">
+                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input 
+                          placeholder="johndoe123" 
+                          value={formData.username}
+                          onChange={(e) => setFormData({...formData, username: e.target.value})}
                           className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
                           required={isSignUp}
                         />
@@ -214,21 +221,29 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">4-Digit Security PIN</label>
-                <div className="relative">
-                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input 
-                    type="password" 
-                    maxLength={4}
-                    placeholder="0000" 
-                    value={formData.pin}
-                    onChange={(e) => setFormData({...formData, pin: e.target.value.replace(/\D/g, '')})}
-                    className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all tracking-[0.5em]"
-                    required
-                  />
-                </div>
-              </div>
+              <AnimatePresence mode="wait">
+                {isSignUp && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-1.5 overflow-hidden"
+                  >
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                        className="h-12 pl-11 rounded-xl border-slate-200 focus:ring-primary/20 focus:border-primary transition-all"
+                        required={isSignUp}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <Button 
                 disabled={isLoading}
@@ -241,7 +256,7 @@ const Login = () => {
 
             <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-3 rounded-2xl border border-emerald-100">
               <ShieldCheck size={18} />
-              <span className="text-[10px] font-black uppercase tracking-widest">End-to-End Encrypted Authentication</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">Secure Database Authentication</span>
             </div>
           </motion.div>
         </div>
