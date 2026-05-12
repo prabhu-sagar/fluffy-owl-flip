@@ -63,7 +63,6 @@ const Login = () => {
 
     try {
       if (isSignUp) {
-        // Sign Up: Create user and store Name/Username in metadata
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -76,10 +75,14 @@ const Login = () => {
         });
 
         if (error) throw error;
-        showSuccess("Account created! You can now log in.");
+
+        if (data.user && data.session === null) {
+          showSuccess("Account created! Please check your email to confirm your registration.");
+        } else {
+          showSuccess("Account created successfully!");
+        }
         setIsSignUp(false);
       } else {
-        // Login: Verify credentials
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -96,7 +99,8 @@ const Login = () => {
         window.dispatchEvent(new Event('storage'));
       }
     } catch (err: any) {
-      showError(err.message || "Authentication failed");
+      console.error("Auth Error:", err);
+      showError(err.message || "Authentication failed. Please check your database connection.");
     } finally {
       setIsLoading(false);
     }
